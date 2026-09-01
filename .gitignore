@@ -1,0 +1,54 @@
+# Maven
+target
+
+#IntelliJ IDEA
+*.iml
+.idea
+
+# BlueJ files
+*.ctxt
+
+# VM Crash Files
+hs_err_pid*
+
+# Log file
+*.log
+/.settings
+/.project
+/.classpath
+
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Java / Maven (common in Java projects)
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
