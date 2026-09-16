@@ -39,7 +39,7 @@ Desktop.ini
 $RECYCLE.BIN/
 *.lnk
 
-# Java / Maven (common in Java projects)
+# Java / Maven
 target/
 *.class
 *.jar
