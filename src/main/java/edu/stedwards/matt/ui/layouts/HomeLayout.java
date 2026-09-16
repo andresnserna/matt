@@ -1,4 +1,4 @@
-package edu.stedwards.matt.ui.screens;
+package edu.stedwards.matt.ui.layouts;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
