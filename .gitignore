@@ -52,3 +52,6 @@ target/
 # Temporary files
 *.tmp
 *.temp
+
+#environment
+.env
