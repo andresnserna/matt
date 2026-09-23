@@ -6,6 +6,10 @@ package edu.stedwards.matt.services;
  * or validated before they are saved through the DAO layer.
  * It is not responsible for direct database SQL or creating JavaFX layouts.
  */
-public class SettingsService {
-   
+import edu.stedwards.matt.models.entity.JobPosting;
+
+public interface JobIngestService {
+    JobPosting ingestJobFromUrl(String url);
+    JobPosting ingestJobFromText(String rawText);
+    boolean saveJobPosting(JobPosting jobPosting);
 }
