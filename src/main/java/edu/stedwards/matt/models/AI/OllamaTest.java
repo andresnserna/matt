@@ -16,7 +16,7 @@ public class OllamaTest {
                 + "}";
 
         try {
-                    HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+                    HttpURLConnection connection = (HttpURLConnection) java.net.URI.create(url).toURL().openConnection();
                     connection.setRequestMethod("POST");
                     connection.setRequestProperty("Content-Type", "application/json");
                     connection.setDoOutput(true);
