@@ -7,7 +7,7 @@ package edu.stedwards.matt.services;
  * It is not responsible for raw SQL statements or JavaFX layout construction.
  */
 
-import edu.stedwards.matt.models.User;
+import edu.stedwards.matt.models.entity.User;
 
 public interface ProfileService {
     User getUserProfile(int userId);
