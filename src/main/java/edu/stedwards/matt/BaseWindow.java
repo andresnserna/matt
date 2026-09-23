@@ -1,3 +1,7 @@
+/**
+ * Architecture layer: view
+ * JavaFX window shell used to display a scene inside a Stage.
+ */
 package edu.stedwards.matt;
 
 import javafx.scene.Parent;

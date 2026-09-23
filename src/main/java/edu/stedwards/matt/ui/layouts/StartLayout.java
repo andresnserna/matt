@@ -1,3 +1,7 @@
+/**
+ * Architecture layer: view
+ * JavaFX layout for the start/landing screen.
+ */
 package edu.stedwards.matt.ui.layouts;
 
 import javafx.geometry.Pos;

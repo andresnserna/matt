@@ -1,3 +1,7 @@
+/**
+ * Architecture layer: view
+ * Applies shared styling resources to JavaFX scenes.
+ */
 package edu.stedwards.matt;
 
 import java.net.URL;

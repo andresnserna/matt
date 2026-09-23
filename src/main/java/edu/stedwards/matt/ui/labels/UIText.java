@@ -1,3 +1,7 @@
+/**
+ * Architecture layer: view
+ * Centralized text resources used by the JavaFX screens.
+ */
 package edu.stedwards.matt.ui.labels;
 
 public final class UIText {

@@ -1,3 +1,7 @@
+/**
+ * Architecture layer: model
+ * Data-access component that persists and retrieves User records.
+ */
 package edu.stedwards.matt.dao;
 
 /**

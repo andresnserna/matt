@@ -1,3 +1,7 @@
+/**
+ * Architecture layer: controller
+ * Bootstrap class that starts the JavaFX application and coordinates the app flow.
+ */
 package edu.stedwards.matt;
 
 import javafx.application.Application;

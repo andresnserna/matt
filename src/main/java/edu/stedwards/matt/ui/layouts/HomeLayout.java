@@ -1,3 +1,7 @@
+/**
+ * Architecture layer: view
+ * JavaFX layout for the home/dashboard screen.
+ */
 package edu.stedwards.matt.ui.layouts;
 
 import javafx.geometry.Pos;
