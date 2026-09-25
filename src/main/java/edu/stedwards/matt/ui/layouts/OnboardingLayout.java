@@ -16,17 +16,14 @@ import edu.stedwards.matt.ui.labels.UIText;
  * setup, and the resulting node is attached to a BaseWindow for display.
  * It is not responsible for database writes, application state management, or stage construction.
  */
+
 public class OnboardingLayout extends VBox {
-    public OnboardingLayout() {
-        setSpacing(12);
-        setAlignment(Pos.CENTER);
+    private Node currentStep;
 
-        Label title = new Label(UIText.ONBOARDING_TITLE);
-        title.getStyleClass().add("title-label");
-
-        Button continueButton = new Button(UIText.CONTINUE_BUTTON);
-        continueButton.getStyleClass().add("primary-button");
-
-        getChildren().addAll(title, continueButton);
+    public void showStep(Node step) {
+        getChildren().clear();
+        currentStep = step;
+        getChildren().add(currentStep);
     }
+
 }
