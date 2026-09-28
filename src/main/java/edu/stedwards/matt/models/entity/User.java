@@ -9,7 +9,7 @@ public class User {
     private String summary;
 
     // getters
-    public int getuserID(){
+    public int getUserID(){
         return userId;
     }
 
