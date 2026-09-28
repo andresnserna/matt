@@ -1,6 +1,7 @@
 -- User and Profile Core
 CREATE TABLE user_profile (
     user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    password_
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
     email TEXT,

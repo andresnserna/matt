@@ -61,21 +61,19 @@ public class UserDAO {
         return user;
     }
 
-    // 2. Secure login authentication check
     public boolean authenticate(String email, String passwordHash) {
         String sql = "SELECT * FROM user_profile WHERE email = ? AND password_hash = ?";
-
         try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
             pstmt.setString(1, email);
             pstmt.setString(2, passwordHash);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                return rs.next(); // Returns true if User is Found
-            }
+            ResultSet rs = pstmt.executeQuery();
+            
+            return rs.next(); // Returns true if a match is found
+            
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
             return false;
         }
     }
@@ -138,4 +136,8 @@ public class UserDAO {
             return false;
         }
     }
+
+
+
+    
 }

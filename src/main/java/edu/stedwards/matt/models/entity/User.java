@@ -7,10 +7,15 @@ public class User {
     private String email;
     private String phoneNumber;
     private String summary;
+    private String passwordHash;
 
     // getters
     public int getUserID(){
         return userId;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
     }
 
     public String getFirstName(){
@@ -37,6 +42,10 @@ public class User {
 
     public void setUserID(int userId){
         this.userId = userId;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 
     public void setFirstName(String firstName){

@@ -10,7 +10,9 @@ public class OllamaTest {
         String url = "http://localhost:11434/api/generate";
         
         String jsonPayload = "{"
-                + "\"model\": \"llama3.2:3b\","
+
+                // local model: llama3.2:3b
+                + "\"model\": \"gemma4:31b-cloud\","
                 + "\"prompt\": \"In one sentence, why is local data privacy important for job seekers?\","
                 + "\"stream\": false"
                 + "}";
