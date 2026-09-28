@@ -8,7 +8,8 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-import edu.stedwards.matt.ui.labels.UIText;
+import edu.stedwards.matt.ui.labels.StartScreenText;
+import javafx.scene.Node;
 
 /**
  * Builds the onboarding layout for first-time or introductory user flow.
