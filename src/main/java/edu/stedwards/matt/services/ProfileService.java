@@ -1,3 +1,7 @@
+/**
+ * Architecture layer: service
+ * Business logic for user-related operations such as validation and workflows.
+ */
 package edu.stedwards.matt.services;
 
 /**
