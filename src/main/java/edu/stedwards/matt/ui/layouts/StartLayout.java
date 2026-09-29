@@ -26,7 +26,7 @@ import javafx.scene.text.Text;
 public class StartLayout extends HBox {
     private ImageView startScreenMattLogo() {
         Image image = new Image(
-                getClass().getResource("/assets/images/matt-logo-color.png").toExternalForm());
+                getClass().getResource("src/main/resources/images/matt-logo-1.svg").toExternalForm());
 
         ImageView logo = new ImageView(image);
         logo.getStyleClass().add("start-screen-logo");
@@ -60,6 +60,12 @@ public class StartLayout extends HBox {
         return row;
     }
 
+    private HBox buildLoadingBar() { //TODO: what object does an animated icon take in?
+        HBox row = new HBox();
+
+        return row;
+    }
+
     private Label createdBy() {
         Label label = new Label(StartScreenText.CREATED_BY);
         label.getStyleClass().add("instruction-text");
@@ -68,10 +74,12 @@ public class StartLayout extends HBox {
     
     public StartLayout(String loadingItem) {
         getChildren().addAll(
-            // logo
+            // matt logo
             buildLogoRow(),
-            // loading text
+            // loading text + loading item
             buildLoadingText("ITEM_TO_LOAD"),
+            // loading bar (animated)
+            buildLoadingBar(),
             // created by
             createdBy()
         );

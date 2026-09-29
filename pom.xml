@@ -9,6 +9,27 @@
         <maven.compiler.release>21</maven.compiler.release>
     </properties>
     <dependencies>
+
+        <dependency>
+            <groupId>com.github.weisj</groupId>
+            <artifactId>jsvg</artifactId>
+            <version>2.2.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.weisj</groupId>
+            <artifactId>jsvg-javafx</artifactId>
+            <version>2.2.0</version>
+        </dependency>
+
+        <!-- 
+        ^^ checked Maven’s resolved dependency tree build succeeds, and it selects JavaFX 23 for 
+        controls, fxml, and graphics. It still includes javafx-swing:17.0.15 transitively 
+        through JSVG. Keeping JavaFX modules on the same version is preferable, 
+        so you could explicitly align javafx-swing to 23 too. Otherwise, treat the warnings 
+        as a version-mismatch notice and watch for runtime issues.
+         -->
+
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>

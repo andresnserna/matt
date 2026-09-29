@@ -3,10 +3,12 @@
  * Applies shared styling resources to JavaFX scenes.
  */
 package edu.stedwards.matt;
-
 import java.net.URL;
-
 import javafx.scene.Scene;
+
+/**
+ * TODO: (LONG description of this class)
+ */
 
 public final class AppStyles {
     public static final String APP_CSS = "/styles/app.css";
