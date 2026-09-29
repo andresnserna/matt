@@ -4,15 +4,12 @@
  */
 package edu.stedwards.matt.ui.labels;
 
+/**
+ * TODO: (LONG description of this class)
+ */
+
 public final class StartScreenText {
-    // Naming convention: Tier of Label, text clue
-    // public static final String HEADER_SALUTATION_MORNING = "Good Morning, "
-    // public static final String HEADER_SALUTATION_AFTERNOON = "Good Morning, "
-    // public static final String HEADER_SALUTATION_EVENING = "Good Morning, " - screen, tier, clue
-    // public static final String USER_FIRST_NAME = "Andres" - scope, text clue
-    // now build an example
-    // HOME_HEADER_SALUTATION_MORNING + USERNAME + "."
-    //                                                  Good Morning, Andres.
+
     public static final String APP_TITLE = "Matt";
     public static final String SUBTITLE_LOADING = "Loading ";
     // public static final String SUBTITLE_LOADING_ITEM_1 = "Resources";

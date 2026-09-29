@@ -1,8 +1,17 @@
+/**
+ * Architecture layer: view
+ * TODO: (SHORT description of class here)
+ */
+
 package edu.stedwards.matt.ui.labels;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+
+/**
+ * TODO: (LONG description of class here)
+ */
 
 public class TextStyles {
    private TextStyles() {

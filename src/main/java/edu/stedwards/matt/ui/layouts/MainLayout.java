@@ -4,10 +4,9 @@
  */
 package edu.stedwards.matt.ui.layouts;
 
-import javafx.geometry.Pos;
-import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-import edu.stedwards.matt.ui.labels.StartScreenText;
+import javafx.scene.Node;
+
 
 /**
  * Builds the main home layout after a user has entered the app.
@@ -15,14 +14,13 @@ import edu.stedwards.matt.ui.labels.StartScreenText;
  * reaches the home/dashboard view, and it is attached to a BaseWindow for display.
  * It is not responsible for fetching data directly from the database or handling window creation.
  */
+
 public class MainLayout extends VBox {
-    public MainLayout() {
-        setSpacing(12);
-        setAlignment(Pos.CENTER);
+    private Node currentStep;
 
-        Label title = new Label(StartScreenText.HOME_TITLE);
-        title.getStyleClass().add("title-label");
-
-        getChildren().add(title);
+    public void showStep(Node step) {
+        getChildren().clear();
+        currentStep = step;
+        getChildren().add(currentStep);
     }
 }

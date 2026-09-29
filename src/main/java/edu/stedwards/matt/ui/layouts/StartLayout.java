@@ -1,6 +1,6 @@
 /**
  * Architecture layer: view
- * JavaFX layout for the start/landing screen.
+ * JavaFX layout for the Start screen.
  */
 package edu.stedwards.matt.ui.layouts;
 
@@ -16,8 +16,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 
 /**
- * Builds the initial landing layout for the app.
- * This layout is created by the application bootstrap code or a navigation controller,
+ * Builds the initial start layout for the app upon launch
+ * This layout is created by the application bootstrap code or a navigation
+ * controller,
  * then passed into a BaseWindow as the root content for the starting view.
  * It is not responsible for database access or window lifecycle management.
  */
