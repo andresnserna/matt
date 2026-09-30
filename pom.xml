@@ -10,6 +10,15 @@
     </properties>
     <dependencies>
 
+        <!-- Source: https://mvnrepository.com/artifact/org.commonmark/commonmark -->
+        <!-- Core of commonmark-java (a library for parsing Markdown to an AST, modifying the AST and rendering it to HTML or Markdown) -->
+        <dependency>
+            <groupId>org.commonmark</groupId>
+            <artifactId>commonmark</artifactId>
+            <version>0.30.0</version>
+            <scope>compile</scope>
+        </dependency>
+
         <dependency>
             <groupId>com.github.weisj</groupId>
             <artifactId>jsvg</artifactId>
@@ -78,7 +87,7 @@
                         <!-- Usage: mvn clean javafx:run -->
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>edu.stedwards.matt.App</mainClass>
+                            <mainClass>edu.stedwards.matt.Matt</mainClass>
                         </configuration>
                     </execution>
                 </executions>

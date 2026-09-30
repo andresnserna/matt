@@ -6,6 +6,7 @@ package edu.stedwards.matt.ui.layouts;
 
 import javafx.scene.layout.VBox;
 import javafx.scene.Node;
+import javafx.scene.layout.Priority;
 
 /**
  * Builds the onboarding layout for first-time or introductory user flow.
@@ -20,6 +21,7 @@ public class OnboardingLayout extends VBox {
     public void showStep(Node step) {
         getChildren().clear();
         currentStep = step;
+        VBox.setVgrow(currentStep, Priority.ALWAYS);
         getChildren().add(currentStep);
     }
 

@@ -1,6 +1,47 @@
 .root {
-    -fx-font-family: "Segoe UI", sans-serif;
-    -fx-background-color: linear-gradient(to bottom, #0f172a, #111827);
+    -fx-font-family: "Calibri";
+    -fx-background-color: white;
+}
+
+.app-font-sf-pro {
+    -fx-font-family: "SF Pro";
+}
+
+.app-font-sf-pro-text {
+    -fx-font-family: "SF Pro Text";
+}
+
+.app-font-sf-pro-display {
+    -fx-font-family: "SF Pro Display";
+}
+
+.start-screen {
+    -fx-padding: 24px;
+    -fx-background-color: white;
+}
+
+.start-screen-logo {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.start-screen-loading-prefix,
+.start-screen-loading-item {
+    -fx-font-size: 16px;
+}
+
+.start-screen-loading-prefix {
+    -fx-text-fill: #6b7280;
+}
+
+.start-screen-loading-item {
+    -fx-text-fill: #006D77;
+    -fx-font-weight: bold;
+}
+
+.start-screen-created-by {
+    -fx-font-size: 11px;
+    -fx-text-fill: #6b7280;
 }
 
 .app-root {
@@ -8,6 +49,60 @@
     -fx-alignment: center;
     -fx-spacing: 16px;
     -fx-background-color: transparent;
+}
+
+.app-onboarding {
+    -fx-background-color: linear-gradient(to bottom, white, white, white, #EDF6F9, #EDF6F9, #83C5BE, #006D77);
+}
+
+.welcome-screen {
+    -fx-padding: 38px 50px 36px;
+}
+
+.welcome-title {
+    -fx-font-size: 64px;
+    -fx-font-style: italic;
+}
+
+.welcome-title-prefix {
+    -fx-fill: #668A8C;
+}
+
+.welcome-title-brand {
+    -fx-fill: #006D77;
+    -fx-font-weight: bold;
+}
+
+.welcome-copy {
+    -fx-font-size: 34px;
+    -fx-text-fill: #006D77;
+}
+
+.welcome-list-item {
+    -fx-font-size: 30px;
+    -fx-fill: #006D77;
+    -fx-text-fill: #006D77;
+}
+
+.welcome-help-link {
+    -fx-fill: #E29578;
+    -fx-underline: true;
+}
+
+.onboarding-next-button {
+    -fx-background-color: #006D77;
+    -fx-background-radius: 10px;
+    -fx-text-fill: white;
+    -fx-font-style: italic;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-padding: 9px 20px;
+    -fx-min-width: 118px;
+    -fx-min-height: 40px;
+}
+
+.onboarding-next-button:hover {
+    -fx-background-color: #005B63;
 }
 
 .title-label {
@@ -33,58 +128,79 @@
     -fx-background-color: #2563eb;
 }
 
-.window-heading-1 {
-    /* reserved for window heading 1 styling */
+.text-h1 {
+    -fx-font-size: 90px;
 }
 
-.window-heading-2 {
-    /* reserved for window heading 2 styling */
+.text-h2 {
+    -fx-font-size: 56px;
 }
 
-.instruction-text {
-    /* reserved for instruction text styling */
+.text-h3 {
+    -fx-font-size: 48px;
 }
 
-.instruction-subtext {
-    /* reserved for instruction subtext styling */
+.text-sh1 {
+    -fx-font-size: 24px;
 }
 
-.form-container {
-    /* reserved for shared form container styling */
+.text-sh2 {
+    -fx-font-size: 20px;
+}
+
+.text-label {
+    -fx-font-size: 18px;
+}
+
+.text-placeholder {
+    -fx-font-size: 14px;
 }
 
 .form-container-heading {
-    /* reserved for form container heading styling */
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
 }
 
-.form-container-primary-text {
-    /* reserved for primary text styling inside form content */
+.text-primary-teal {
+    -fx-text-fill: #006D77;
 }
 
-.form-container-description-text {
-    /* reserved for form description styling */
+.text-secondary-teal {
+    -fx-text-fill: #83C5BE;
 }
 
-.form-container-input-label {
-    /* reserved for input label styling */
+.text-tertiary-blue {
+    -fx-text-fill: #EDF6F9;
 }
 
-.form-container-input-placeholder {
-    /* reserved for input placeholder styling */
+.text-secondary-orange {
+    -fx-text-fill: #FFDDD2;
 }
 
-.form-container-icon {
-    /* reserved for form icon sizing and styling */
+.text-primary-orange {
+    -fx-text-fill: #E29578;
 }
 
-.input-field {
-    /* reserved for input field styling */
+.text-primary-grey {
+    -fx-text-fill: #9A9A9A;
 }
 
-.input-container {
-    /* reserved for input container styling */
+.text-secondary-grey {
+    -fx-text-fill: #BBBBBB;
 }
 
-.input-container-header {
-    /* reserved for input container header styling */
+.text-tertiary-grey {
+    -fx-text-fill: #EFEFEF;
+}
+
+.start-screen-progress .track {
+    -fx-background-color: #374151;
+}
+
+.start-screen-progress .bar {
+    -fx-background-color: #34d399;
+}
+
+.start-screen-loading-percentage {
+    -fx-text-fill: #e5e7eb;
 }

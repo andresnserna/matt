@@ -1,101 +1,80 @@
 /**
  * Architecture layer: view
- * JavaFX layout for the Start screen.
+ * JavaFX layout for the onboarding welcome screen.
  */
-
 package edu.stedwards.matt.ui.layouts.onboarding;
-import javafx.event.ActionEvent;
-import javafx.geometry.Pos;
-import javafx.scene.layout.HBox;
+
 import edu.stedwards.matt.ui.interaction.Buttons;
+import edu.stedwards.matt.ui.labels.OnboardingScreenText;
+import javafx.geometry.Pos;
+import javafx.scene.Cursor;
+import javafx.scene.control.Button;
+import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
+import javafx.scene.text.TextFlow;
 
-/**
- * TODO: (LONG description of this class)
- */
+public class WelcomeStep extends BorderPane {
+   private TextFlow buildScreenTitle() {
+      Text welcome = new Text(OnboardingScreenText.WELCOME_SCREEN_MESSAGE);
+      welcome.getStyleClass().add("welcome-title-prefix");
 
-public class WelcomeStep extends HBox {
+      Text brand = new Text("Matt");
+      brand.getStyleClass().add("welcome-title-brand");
 
-   private HBox buildScreenTitle() {
-      HBox row = new HBox();
-      // row.setAlignment(Pos.CENTER);
-
-      // row.getChildren().add(logo);
-
-      return row;
+      TextFlow title = new TextFlow(welcome, brand);
+      title.getStyleClass().add("welcome-title");
+      title.setTextAlignment(TextAlignment.CENTER);
+      return title;
    }
 
-   private HBox buildInstructionText1() {
-      HBox row = new HBox();
-      // row.setAlignment(Pos.CENTER);
+   private VBox buildWelcomeMessage() {
+      Label introduction = new Label(OnboardingScreenText.WELCOME_MESSAGE_SUBTITLE);
+      introduction.getStyleClass().add("welcome-copy");
+      introduction.setWrapText(true);
+      introduction.setMaxWidth(Double.MAX_VALUE);
 
-      // row.getChildren().add(logo);
+      Label resume = new Label(OnboardingScreenText.WELCOME_MESSAGE_SUBTITLE_ITEM1);
+      resume.getStyleClass().add("welcome-list-item");
 
-      return row;
-   }
+      Text prefix = new Text(OnboardingScreenText.WELCOME_MESSAGE_SUBTITLE_ITEM2_PREFIX);
+      prefix.getStyleClass().add("welcome-list-item");
 
-   /**
-    * this might be a more universal layout method, since i'll be building the horizontal button group at least twice more in the job upload and template upload
-    */
-   private HBox buildUploadButtonGroupH() {
-      HBox row = new HBox();
-      // row.setAlignment(Pos.CENTER);
+      Text link = new Text(OnboardingScreenText.WELCOME_MESSAGE_SUBTITLE_ITEM2_LINK);
+      link.getStyleClass().add("welcome-help-link");
+      link.setCursor(Cursor.HAND);
 
-      // row.getChildren().add(logo);
+      Text suffix = new Text(OnboardingScreenText.WELCOME_MESSAGE_SUBTITLE_ITEM2_SUFFIX);
+      suffix.getStyleClass().add("welcome-list-item");
 
-      return row;
-   }
-   
-   private HBox buildInstructionText2() {
-      HBox row = new HBox();
-      // row.setAlignment(Pos.CENTER);
+      TextFlow ollamaKey = new TextFlow(prefix, link, suffix);
+      ollamaKey.getStyleClass().add("welcome-list-item");
 
-      // row.getChildren().add(logo);
-
-      return row;
-   }
-
-   /**
-    * this might be a more universal layout method, since i'll be building input fields alot
-    */
-   private HBox buildInputField() {
-
-      HBox row = new HBox();
-      // row.setAlignment(Pos.CENTER);
-
-      // row.getChildren().add(logo);
-
-      return row;
+      VBox message = new VBox(8, introduction, resume, ollamaKey);
+      message.setMaxWidth(Double.MAX_VALUE);
+      return message;
    }
 
    private HBox buildNextButton() {
-      HBox row = new HBox();
-      // row.setAlignment(Pos.CENTER);
+      Button next = Buttons.button(OnboardingScreenText.BUTTON_NEXT, null, "onboarding-next-button");
+      next.setGraphic(new Label("›"));
+      next.setContentDisplay(ContentDisplay.RIGHT);
+      next.setGraphicTextGap(8);
 
-      // String text = "";
-      // EventHandler<ActionEvent> onAction = null;
-      // String styleClasses = "";
-      // Button nextButton = new Button(text, onAction, styleClasses)
-
-      // row.getChildren().add(nextButton);
-
-      return row;
+      HBox footer = new HBox(next);
+      footer.setAlignment(Pos.CENTER_RIGHT);
+      return footer;
    }
 
    public WelcomeStep() {
-        getChildren().addAll(
-            // h1 “Upload Your Resume“ screen title
-            buildScreenTitle(),
-            // h2 instruction text
-            buildInstructionText1(),
-            // upload button group - horizontal
-            buildUploadButtonGroupH(),
-            // h2 instruction text
-            buildInstructionText2(),
-            // input field (design has height 40.. see how that translates to window)
-            buildInputField(),
-            // input field (design has height 40.. see how that translates to window)
-            buildNextButton()
-        );
-    }
-
+      getStyleClass().addAll("app-onboarding", "welcome-screen");
+      setTop(buildScreenTitle());
+      setCenter(buildWelcomeMessage());
+      setBottom(buildNextButton());
+      BorderPane.setAlignment(getCenter(), Pos.CENTER_LEFT);
+   }
 }
