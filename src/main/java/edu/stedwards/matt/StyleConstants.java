@@ -3,6 +3,11 @@ package edu.stedwards.matt;
 public final class StyleConstants {
     private StyleConstants() {
     }
+    // WINDOW SETTINGS
+    public static final double WINDOW_WIDTH = 1024;
+    public static final double WINDOW_HEIGHT = 768;
+    public static final double START_WINDOW_WIDTH = 450;
+    public static final double START_WINDOW_HEIGHT = 250;
 
     // COLORS
     public static final String COLOR_PRIMARY_TEAL = "#006D77";

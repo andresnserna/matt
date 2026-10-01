@@ -21,7 +21,7 @@ public class Matt extends Application {
                 () -> stage.getScene().setRoot(onboardingLayout));
 
         stage.setTitle("Matt");
-        stage.setScene(new Scene(startLayout, 640, 480));
+        stage.setScene(new Scene(startLayout, StyleConstants.WINDOW_WIDTH, StyleConstants.WINDOW_HEIGHT));
         AppStyles.apply(stage.getScene());
 
         stage.show();

@@ -20,7 +20,7 @@ import javafx.scene.text.TextFlow;
 
 public class WelcomeStep extends BorderPane {
    private TextFlow buildScreenTitle() {
-      Text welcome = new Text(OnboardingScreenText.WELCOME_SCREEN_MESSAGE);
+      Text welcome = new Text(OnboardingScreenText.WELC_TITLE);
       welcome.getStyleClass().add("welcome-title-prefix");
 
       Text brand = new Text("Matt");
@@ -33,22 +33,22 @@ public class WelcomeStep extends BorderPane {
    }
 
    private VBox buildWelcomeMessage() {
-      Label introduction = new Label(OnboardingScreenText.WELCOME_MESSAGE_SUBTITLE);
+      Label introduction = new Label(OnboardingScreenText.WELC_MESSAGE);
       introduction.getStyleClass().add("welcome-copy");
       introduction.setWrapText(true);
       introduction.setMaxWidth(Double.MAX_VALUE);
 
-      Label resume = new Label(OnboardingScreenText.WELCOME_MESSAGE_SUBTITLE_ITEM1);
+      Label resume = new Label(OnboardingScreenText.WELC_MESSAGE_ITEM1);
       resume.getStyleClass().add("welcome-list-item");
 
-      Text prefix = new Text(OnboardingScreenText.WELCOME_MESSAGE_SUBTITLE_ITEM2_PREFIX);
+      Text prefix = new Text(OnboardingScreenText.WELC_MESSAGE_ITEM2_PREFIX);
       prefix.getStyleClass().add("welcome-list-item");
 
-      Text link = new Text(OnboardingScreenText.WELCOME_MESSAGE_SUBTITLE_ITEM2_LINK);
+      Text link = new Text(OnboardingScreenText.WELC_MESSAGE_ITEM2_LINK);
       link.getStyleClass().add("welcome-help-link");
       link.setCursor(Cursor.HAND);
 
-      Text suffix = new Text(OnboardingScreenText.WELCOME_MESSAGE_SUBTITLE_ITEM2_SUFFIX);
+      Text suffix = new Text(OnboardingScreenText.WELC_MESSAGE_ITEM2_SUFFIX);
       suffix.getStyleClass().add("welcome-list-item");
 
       TextFlow ollamaKey = new TextFlow(prefix, link, suffix);
