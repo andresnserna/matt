@@ -5,6 +5,7 @@
 package edu.stedwards.matt.ui.layouts.onboarding;
 
 import edu.stedwards.matt.ui.interaction.Buttons;
+import edu.stedwards.matt.ui.interaction.VisualElements;
 import edu.stedwards.matt.ui.labels.OnboardingScreenText;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
@@ -59,22 +60,11 @@ public class WelcomeStep extends BorderPane {
       return message;
    }
 
-   private HBox buildNextButton() {
-      Button next = Buttons.button(OnboardingScreenText.BUTTON_NEXT, null, "onboarding-next-button");
-      next.setGraphic(new Label("›"));
-      next.setContentDisplay(ContentDisplay.RIGHT);
-      next.setGraphicTextGap(8);
-
-      HBox footer = new HBox(next);
-      footer.setAlignment(Pos.CENTER_RIGHT);
-      return footer;
-   }
-
    public WelcomeStep() {
       getStyleClass().addAll("app-onboarding", "welcome-screen");
       setTop(buildScreenTitle());
       setCenter(buildWelcomeMessage());
-      setBottom(buildNextButton());
+      setBottom(new Buttons().buildNextButton());
       BorderPane.setAlignment(getCenter(), Pos.CENTER_LEFT);
    }
 }

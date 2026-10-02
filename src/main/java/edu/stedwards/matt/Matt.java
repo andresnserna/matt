@@ -7,6 +7,7 @@ package edu.stedwards.matt;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+// import fr.brouillard.oss.cssfx.CSSFX;
 import edu.stedwards.matt.ui.layouts.OnboardingLayout;
 import edu.stedwards.matt.ui.layouts.StartLayout;
 import edu.stedwards.matt.ui.layouts.onboarding.WelcomeStep;
@@ -25,6 +26,7 @@ public class Matt extends Application {
         AppStyles.apply(stage.getScene());
 
         stage.show();
+        // CSSFX.start();
     }
 
     public static void main(String[] args) {

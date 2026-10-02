@@ -49,13 +49,13 @@ public final class StyleConstants {
     public static final double INPUT_CONTAINER_HEADER_BACKDROP_BOTTOM_RIGHT = 0;
 
     // TEXT STYLES
-    public static final String FONT_WINDOW_HEADING_1 = "";
-    public static final String FONT_WINDOW_HEADING_2 = "";
-    public static final String FONT_INSTRUCTION_TEXT = "";
-    public static final String FONT_INSTRUCTION_SUBTEXT = "";
-    public static final String FONT_FORM_CONTAINER_HEADING = "";
-    public static final String FONT_FORM_CONTAINER_PRIMARY_TEXT = "";
-    public static final String FONT_FORM_CONTAINER_DESCRIPTION = "";
-    public static final String FONT_FORM_CONTAINER_INPUT_LABEL = "";
-    public static final String FONT_FORM_CONTAINER_INPUT_PLACEHOLDER = "";
+    // public static final String FONT_WINDOW_HEADING_1 = "";
+    // public static final String FONT_WINDOW_HEADING_2 = "";
+    // public static final String FONT_INSTRUCTION_TEXT = "";
+    // public static final String FONT_INSTRUCTION_SUBTEXT = "";
+    // public static final String FONT_FORM_CONTAINER_HEADING = "";
+    // public static final String FONT_FORM_CONTAINER_PRIMARY_TEXT = "";
+    // public static final String FONT_FORM_CONTAINER_DESCRIPTION = "";
+    // public static final String FONT_FORM_CONTAINER_INPUT_LABEL = "";
+    // public static final String FONT_FORM_CONTAINER_INPUT_PLACEHOLDER = "";
 }

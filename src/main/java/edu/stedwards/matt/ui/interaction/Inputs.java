@@ -6,17 +6,13 @@ public final class Inputs {
 	private Inputs() {
 	}
 
-	public static TextField textField(String promptText, String... styleClasses) {
+	public static TextField textField(String promptText, double width, String... styleClasses) {
 		TextField textField = new TextField();
-		textField.setPromptText(promptText);
 
-		if (styleClasses != null) {
-			for (String styleClass : styleClasses) {
-				if (styleClass != null && !styleClass.isBlank()) {
-					textField.getStyleClass().add(styleClass);
-				}
-			}
-		}
+		textField.setPromptText(promptText);
+		textField.setPrefWidth(width);
+		textField.setMaxWidth(Double.MAX_VALUE);
+		textField.getStyleClass().addAll(styleClasses);
       
 		return textField;
 	}

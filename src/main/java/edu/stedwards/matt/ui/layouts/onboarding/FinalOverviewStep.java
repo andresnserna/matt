@@ -1,18 +1,18 @@
 package edu.stedwards.matt.ui.layouts.onboarding;
 
+import edu.stedwards.matt.ui.interaction.VisualElements;
+import edu.stedwards.matt.ui.interaction.Buttons;
 import javafx.geometry.Pos;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextFlow;
 
-public class FinalOverviewStep {
-
-   private TextFlow buildScreenTitle() {
-
-   }
+public class FinalOverviewStep extends BorderPane{
 
    private VBox buildOverviewMessage() {
-
+      VBox message = new VBox();
+      // add content
+      return message;
    }
 
    private VBox buildAllInfoContainers() {
@@ -23,11 +23,11 @@ public class FinalOverviewStep {
       // section having a transparency blur just before getting to the height of the next button
    }
 
-   public ResumeUploadStep() {
+   public FinalOverviewStep() {
       getStyleClass().addAll("app-onboarding", "welcome-screen");
-      setTop(buildScreenTitle());
-      setCenter(buildUploadMessage());
-      setBottom(buildNextButton());
+      setTop(new VisualElements().buildWizardScreenTitle());
+      setCenter(buildOverviewMessage());
+      setBottom(new Buttons().buildNextButton());
       BorderPane.setAlignment(getCenter(), Pos.CENTER_LEFT);
    }
 

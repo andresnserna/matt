@@ -7,7 +7,7 @@ public class OnboardingScreenText {
    // Button Labels
    public static final String BUTTON_NEXT = "Next";
    public static final String BUTTON_BACK = "Back ";
-   public static final String UPLOAD_BUTTON_SUBTITLE = "Supported Formats: .docx .pdf .txt .rtf";
+   public static final String UPLOAD_BUTTON_SUBTITLE = "Supported Format: .docx .pdf .txt .rtf";
 
    // onboarding - welcome
    public static final String WELC_TITLE = "Welcome to ";
