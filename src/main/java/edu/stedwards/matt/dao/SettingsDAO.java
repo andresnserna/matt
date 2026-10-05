@@ -1,3 +1,7 @@
+/**
+ * Architecture layer: model
+ * Data-access component that persists and retrieves app settings.
+ */
 package edu.stedwards.matt.dao;
 
 /**

@@ -1,9 +1,12 @@
+/**
+ * Architecture layer: view
+ * JavaFX layout for the home/dashboard screen.
+ */
 package edu.stedwards.matt.ui.layouts;
 
-import javafx.geometry.Pos;
-import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-import edu.stedwards.matt.ui.labels.UIText;
+import javafx.scene.Node;
+
 
 /**
  * Builds the main home layout after a user has entered the app.
@@ -11,14 +14,13 @@ import edu.stedwards.matt.ui.labels.UIText;
  * reaches the home/dashboard view, and it is attached to a BaseWindow for display.
  * It is not responsible for fetching data directly from the database or handling window creation.
  */
-public class HomeLayout extends VBox {
-    public HomeLayout() {
-        setSpacing(12);
-        setAlignment(Pos.CENTER);
 
-        Label title = new Label(UIText.HOME_TITLE);
-        title.getStyleClass().add("title-label");
+public class MainLayout extends VBox {
+    private Node currentStep;
 
-        getChildren().add(title);
+    public void showStep(Node step) {
+        getChildren().clear();
+        currentStep = step;
+        getChildren().add(currentStep);
     }
 }

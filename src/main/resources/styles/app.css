@@ -32,3 +32,59 @@
 .primary-button:hover {
     -fx-background-color: #2563eb;
 }
+
+.window-heading-1 {
+    /* reserved for window heading 1 styling */
+}
+
+.window-heading-2 {
+    /* reserved for window heading 2 styling */
+}
+
+.instruction-text {
+    /* reserved for instruction text styling */
+}
+
+.instruction-subtext {
+    /* reserved for instruction subtext styling */
+}
+
+.form-container {
+    /* reserved for shared form container styling */
+}
+
+.form-container-heading {
+    /* reserved for form container heading styling */
+}
+
+.form-container-primary-text {
+    /* reserved for primary text styling inside form content */
+}
+
+.form-container-description-text {
+    /* reserved for form description styling */
+}
+
+.form-container-input-label {
+    /* reserved for input label styling */
+}
+
+.form-container-input-placeholder {
+    /* reserved for input placeholder styling */
+}
+
+.form-container-icon {
+    /* reserved for form icon sizing and styling */
+}
+
+.input-field {
+    /* reserved for input field styling */
+}
+
+.input-container {
+    /* reserved for input container styling */
+}
+
+.input-container-header {
+    /* reserved for input container header styling */
+}
