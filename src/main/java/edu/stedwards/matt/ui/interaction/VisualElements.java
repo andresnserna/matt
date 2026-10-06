@@ -7,6 +7,8 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
+import javafx.scene.text.TextFlow;
 
 public class VisualElements {
 
@@ -38,9 +40,16 @@ public class VisualElements {
       return drawer;
    }
    
-   public Text buildWizardScreenTitle(String title, String styleClass) {
-      Text screenTitle = new Text(title);
-      screenTitle.getStyleClass().add(styleClass);
-      return screenTitle;
+   public TextFlow buildWizardScreenTitle(String title, String styleClass) {
+      Text titleText = new Text(title);
+      titleText.getStyleClass().add(styleClass);
+      return buildWizardScreenTitle(titleText);
+   }
+
+   public TextFlow buildWizardScreenTitle(Text... titleParts) {
+      TextFlow title = new TextFlow(titleParts);
+      title.getStyleClass().add("welcome-title");
+      title.setTextAlignment(TextAlignment.CENTER);
+      return title;
    }
 }

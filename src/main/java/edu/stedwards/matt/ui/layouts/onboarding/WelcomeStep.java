@@ -9,14 +9,10 @@ import edu.stedwards.matt.ui.interaction.VisualElements;
 import edu.stedwards.matt.ui.labels.OnboardingScreenText;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
-import javafx.scene.control.Button;
-import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 
 public class WelcomeStep extends BorderPane {
@@ -27,10 +23,7 @@ public class WelcomeStep extends BorderPane {
       Text brand = new Text("Matt");
       brand.getStyleClass().add("welcome-title-brand");
 
-      TextFlow title = new TextFlow(welcome, brand);
-      title.getStyleClass().add("welcome-title");
-      title.setTextAlignment(TextAlignment.CENTER);
-      return title;
+      return new VisualElements().buildWizardScreenTitle(welcome, brand);
    }
 
    private VBox buildWelcomeMessage() {
