@@ -21,6 +21,9 @@ public class FinalOverviewStep extends BorderPane{
       // confirms during the end of this step) so just loops through all the info and creates a container for each section 
       // of info, then adds them to a VBox and returns it. also this is a scrollable area up and down, with the bottom 
       // section having a transparency blur just before getting to the height of the next button
+      VBox allInfoContainers = new VBox();
+      // populate allInfoContainers with the info sections
+      return allInfoContainers;
    }
 
    public FinalOverviewStep() {
