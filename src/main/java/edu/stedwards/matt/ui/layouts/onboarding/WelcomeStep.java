@@ -1,5 +1,63 @@
+/**
+ * Architecture layer: view
+ * JavaFX layout for the onboarding welcome screen.
+ */
 package edu.stedwards.matt.ui.layouts.onboarding;
 
-public class WelcomeStep {
+import edu.stedwards.matt.ui.interaction.Buttons;
+import edu.stedwards.matt.ui.interaction.VisualElements;
+import edu.stedwards.matt.ui.labels.OnboardingScreenText;
+import javafx.geometry.Pos;
+import javafx.scene.Cursor;
+import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 
+public class WelcomeStep extends BorderPane {
+   private TextFlow buildScreenTitle() {
+      Text welcome = new Text(OnboardingScreenText.WELC_TITLE);
+      welcome.getStyleClass().add("welcome-title-prefix");
+
+      Text brand = new Text("Matt");
+      brand.getStyleClass().add("welcome-title-brand");
+
+      return new VisualElements().buildWizardScreenTitle(welcome, brand);
+   }
+
+   private VBox buildWelcomeMessage() {
+      Label introduction = new Label(OnboardingScreenText.WELC_MESSAGE);
+      introduction.getStyleClass().add("welcome-copy");
+      introduction.setWrapText(true);
+      introduction.setMaxWidth(Double.MAX_VALUE);
+
+      Label resume = new Label(OnboardingScreenText.WELC_MESSAGE_ITEM1);
+      resume.getStyleClass().add("welcome-list-item");
+
+      Text prefix = new Text(OnboardingScreenText.WELC_MESSAGE_ITEM2_PREFIX);
+      prefix.getStyleClass().add("welcome-list-item");
+
+      Text link = new Text(OnboardingScreenText.WELC_MESSAGE_ITEM2_LINK);
+      link.getStyleClass().add("welcome-help-link");
+      link.setCursor(Cursor.HAND);
+
+      Text suffix = new Text(OnboardingScreenText.WELC_MESSAGE_ITEM2_SUFFIX);
+      suffix.getStyleClass().add("welcome-list-item");
+
+      TextFlow ollamaKey = new TextFlow(prefix, link, suffix);
+      ollamaKey.getStyleClass().add("welcome-list-item");
+
+      VBox message = new VBox(8, introduction, resume, ollamaKey);
+      message.setMaxWidth(Double.MAX_VALUE);
+      return message;
+   }
+
+   public WelcomeStep() {
+      getStyleClass().addAll("app-onboarding", "welcome-screen");
+      setTop(buildScreenTitle());
+      setCenter(buildWelcomeMessage());
+      setBottom(new Buttons().buildNextButton());
+      BorderPane.setAlignment(getCenter(), Pos.CENTER_LEFT);
+   }
 }

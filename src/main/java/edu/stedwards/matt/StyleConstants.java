@@ -3,6 +3,11 @@ package edu.stedwards.matt;
 public final class StyleConstants {
     private StyleConstants() {
     }
+    // WINDOW SETTINGS
+    public static final double WINDOW_WIDTH = 1024;
+    public static final double WINDOW_HEIGHT = 768;
+    public static final double START_WINDOW_WIDTH = 450;
+    public static final double START_WINDOW_HEIGHT = 250;
 
     // COLORS
     public static final String COLOR_PRIMARY_TEAL = "#006D77";
@@ -44,13 +49,13 @@ public final class StyleConstants {
     public static final double INPUT_CONTAINER_HEADER_BACKDROP_BOTTOM_RIGHT = 0;
 
     // TEXT STYLES
-    public static final String FONT_WINDOW_HEADING_1 = "";
-    public static final String FONT_WINDOW_HEADING_2 = "";
-    public static final String FONT_INSTRUCTION_TEXT = "";
-    public static final String FONT_INSTRUCTION_SUBTEXT = "";
-    public static final String FONT_FORM_CONTAINER_HEADING = "";
-    public static final String FONT_FORM_CONTAINER_PRIMARY_TEXT = "";
-    public static final String FONT_FORM_CONTAINER_DESCRIPTION = "";
-    public static final String FONT_FORM_CONTAINER_INPUT_LABEL = "";
-    public static final String FONT_FORM_CONTAINER_INPUT_PLACEHOLDER = "";
+    // public static final String FONT_WINDOW_HEADING_1 = "";
+    // public static final String FONT_WINDOW_HEADING_2 = "";
+    // public static final String FONT_INSTRUCTION_TEXT = "";
+    // public static final String FONT_INSTRUCTION_SUBTEXT = "";
+    // public static final String FONT_FORM_CONTAINER_HEADING = "";
+    // public static final String FONT_FORM_CONTAINER_PRIMARY_TEXT = "";
+    // public static final String FONT_FORM_CONTAINER_DESCRIPTION = "";
+    // public static final String FONT_FORM_CONTAINER_INPUT_LABEL = "";
+    // public static final String FONT_FORM_CONTAINER_INPUT_PLACEHOLDER = "";
 }
