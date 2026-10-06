@@ -79,12 +79,16 @@ CREATE TABLE job_posting (
     jobpost_id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
     company_id INTEGER NOT NULL,
+    company_name TEXT,
     job_title TEXT NOT NULL,
+    location TEXT,
     job_url TEXT,
     job_description TEXT,
+    raw_text TEXT,
+    normalized_text TEXT,
     match_score REAL,
     spam_score REAL,
-    status TEXT DEFAULT 'Saved', -- e.g., Saved, Applied, Interviewing, Rejected
+    status TEXT DEFAULT 'Saved', 
     date_added TEXT DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES user_profile(user_id) ON DELETE CASCADE,
     FOREIGN KEY (company_id) REFERENCES company(company_id)

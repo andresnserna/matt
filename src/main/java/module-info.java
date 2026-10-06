@@ -10,5 +10,7 @@ module edu.stedwards.matt {
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.ikonli.fontawesome5;
     requires java.sql;
+    requires java.net.http;
     exports edu.stedwards.matt;
+
 }
