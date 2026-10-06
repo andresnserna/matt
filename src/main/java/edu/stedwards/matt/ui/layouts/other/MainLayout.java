@@ -2,9 +2,9 @@
  * Architecture layer: view
  * JavaFX layout for the home/dashboard screen.
  */
-package edu.stedwards.matt.ui.layouts;
+package edu.stedwards.matt.ui.layouts.other;
 
-import javafx.scene.layout.VBox;
+// import javafx.scene.layout.VBox;
 import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 import edu.stedwards.matt.ui.interaction.VisualElements;
@@ -38,6 +38,6 @@ public class MainLayout extends BorderPane {
     public MainLayout(){
         getStyleClass().add("");
         setLeft(new VisualElements().mainSideBar());
-        setCenter(new VisualElements().collapsableDrawer("Title", null));
+        // setCenter(new VisualElements().collapsableDrawer("Title", null));
     }
 }

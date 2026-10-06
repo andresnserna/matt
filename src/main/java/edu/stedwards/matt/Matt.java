@@ -7,10 +7,9 @@ package edu.stedwards.matt;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-// import fr.brouillard.oss.cssfx.CSSFX;
-import edu.stedwards.matt.ui.layouts.OnboardingLayout;
-import edu.stedwards.matt.ui.layouts.StartLayout;
+import edu.stedwards.matt.ui.layouts.onboarding.OnboardingLayout;
 import edu.stedwards.matt.ui.layouts.onboarding.WelcomeStep;
+import edu.stedwards.matt.ui.layouts.other.StartLayout;
 
 public class Matt extends Application {
 

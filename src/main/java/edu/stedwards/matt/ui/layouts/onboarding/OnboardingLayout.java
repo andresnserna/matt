@@ -2,7 +2,7 @@
  * Architecture layer: view
  * JavaFX layout for the onboarding screen.
  */
-package edu.stedwards.matt.ui.layouts;
+package edu.stedwards.matt.ui.layouts.onboarding;
 
 import javafx.scene.layout.VBox;
 import javafx.scene.Node;

@@ -2,7 +2,7 @@
  * Architecture layer: view
  * JavaFX layout for the login screen.
  */
-package edu.stedwards.matt.ui.layouts;
+package edu.stedwards.matt.ui.layouts.other;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;

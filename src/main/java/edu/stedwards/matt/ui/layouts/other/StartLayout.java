@@ -2,7 +2,7 @@
  * Architecture layer: view
  * JavaFX layout for the Start screen.
  */
-package edu.stedwards.matt.ui.layouts;
+package edu.stedwards.matt.ui.layouts.other;
 
 import com.github.weisj.jsvg.parser.SVGLoader;
 import com.github.weisj.jsvg.SVGDocument;
