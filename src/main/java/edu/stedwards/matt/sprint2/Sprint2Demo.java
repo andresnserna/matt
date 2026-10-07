@@ -100,7 +100,7 @@ public class Sprint2Demo {
 
         System.out.println("Parsing resume...");
         profileFields.clear();
-        profileFields.putAll(backend.parseResume(resume));
+        profileFields.putAll(backend.parse(DemoBackend.ParseJob.RESUME, null, resume));
         screen = Screen.PROFILE_FOUND;
     }
 
@@ -206,7 +206,7 @@ public class Sprint2Demo {
 
         System.out.println("Parsing job posting...");
         jobFields.clear();
-        jobFields.putAll(backend.parseJobPosting(source, data));
+        jobFields.putAll(backend.parse(DemoBackend.ParseJob.JOB_POSTING, source, data));
         screen = Screen.JOB_FOUND;
     }
 
