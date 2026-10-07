@@ -5,27 +5,32 @@ import java.util.Map;
 
 final class DemoBackend {
 
+    enum ParseJob {
+        RESUME,
+        JOB_POSTING
+    }
+
     boolean logIn(String username) {
         // TODO: Authenticate through the account service.
         return true;
     }
 
-    Map<String, String> parseResume(String resumeData) {
-        // TODO: Send resume data to the resume parser and map its response.
+    Map<String, String> parse(ParseJob parseJob, String source, String data) {
+        // TODO: Send the input to the appropriate parser and map its response.
         Map<String, String> fields = new LinkedHashMap<>();
-        fields.put("Full name", "Jamie Example");
-        fields.put("Email", "jamie@example.com");
-        fields.put("Phone", "(555) 010-1234");
-        fields.put("Address line 1", "");
-        return fields;
-    }
-
-    Map<String, String> parseJobPosting(String source, String postingData) {
-        // TODO: Load the posting from its source and map the parser response.
-        Map<String, String> fields = new LinkedHashMap<>();
-        fields.put("Job title", "Software Engineer");
-        fields.put("Location", "Austin, TX");
-        fields.put("Company name", "");
+        switch (parseJob) {
+            case RESUME -> {
+                fields.put("Full name", "Jamie Example");
+                fields.put("Email", "jamie@example.com");
+                fields.put("Phone", "(555) 010-1234");
+                fields.put("Address line 1", "");
+            }
+            case JOB_POSTING -> {
+                fields.put("Job title", "Software Engineer");
+                fields.put("Location", "Austin, TX");
+                fields.put("Company name", "");
+            }
+        }
         return fields;
     }
 
