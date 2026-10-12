@@ -6,6 +6,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import edu.stedwards.matt.controllers.JobUploadController;
+import edu.stedwards.matt.dao.JobDAO;
+import edu.stedwards.matt.dao.UserDAO;
+import edu.stedwards.matt.models.entity.JobPosting;
+import edu.stedwards.matt.models.entity.User;
+import edu.stedwards.matt.services.ParserService;
+
 public class Sprint2Demo {
 
     private enum Screen {
@@ -92,7 +99,9 @@ public class Sprint2Demo {
 
     private void uploadResume() {
         printHeading("Start onboarding - upload your resume");
-        String resume = readInput("Paste a resume excerpt or enter a file path: ");
+        // Changed to readMultilineInput to capture the entire pasted block
+        String resume = readMultilineInput("Paste a resume excerpt. Enter END on its own line when finished:\n");
+        
         if (resume == null) {
             screen = Screen.LOGIN;
             return;
@@ -401,4 +410,80 @@ public class Sprint2Demo {
         System.out.println();
         System.out.println("=== " + heading + " ===");
     }
+    public class DemoBackend {
+
+        public enum ParseJob {
+            RESUME,
+            JOB_POSTING
+        }
+
+        public boolean logIn(String username) {
+            System.out.println("Backend: Authenticating " + username + "...");
+            return true; 
+        }
+
+        public Map<String, String> parse(ParseJob jobType, String source, String rawText) {
+            Map<String, String> mappedFields = new LinkedHashMap<>();
+
+            if (jobType == ParseJob.JOB_POSTING) {
+                JobUploadController controller = new JobUploadController();
+                JobPosting parsedJob;
+
+                if ("URL".equals(source)) {
+                    System.out.println("Backend: Routing URL to ScraperService...");
+                    parsedJob = controller.uploadJobFromUrl(1, rawText);
+                } else {
+                    parsedJob = controller.uploadJobFromText(1, rawText); 
+                }
+
+                if (parsedJob != null) {
+                    mappedFields.put("Job Title", parsedJob.getJobTitle() != null ? parsedJob.getJobTitle() : "");
+                    mappedFields.put("Company Name", parsedJob.getCompanyName() != null ? parsedJob.getCompanyName() : "");
+                    mappedFields.put("Location", parsedJob.getLocation() != null ? parsedJob.getLocation() : "");
+                    mappedFields.put("Raw Text", parsedJob.getRawText()); 
+                }
+            } else if (jobType == ParseJob.RESUME) {
+                ParserService parser = new ParserService();
+                Map<String, String> parsedResume = parser.parseResume(rawText);
+                
+                mappedFields.put("Full Name", parsedResume.getOrDefault("Full Name", ""));
+                mappedFields.put("Email", parsedResume.getOrDefault("Email", ""));
+                mappedFields.put("Skills", parsedResume.getOrDefault("Skills", ""));
+                mappedFields.put("Raw Text", rawText);
+            }
+
+            return mappedFields;
+        }
+
+        public boolean saveProfile(Map<String, String> profileFields) {
+            UserDAO userDAO = new UserDAO();
+            User user = new User();
+            
+            String fullName = profileFields.getOrDefault("Full Name", "Unknown");
+            String[] nameParts = fullName.split(" ", 2);
+            user.setFirstName(nameParts[0]);
+            user.setLastName(nameParts.length > 1 ? nameParts[1] : "");
+            user.setEmail(profileFields.getOrDefault("Email", "Unknown"));
+            
+            return true;
+        }
+
+        public boolean saveApplication(Map<String, String> jobFields) {
+            JobDAO jobDAO = new JobDAO();
+            JobPosting job = new JobPosting();
+            
+            job.setJobTitle(jobFields.get("Job Title"));
+            job.setCompanyName(jobFields.get("Company Name"));
+            job.setLocation(jobFields.get("Location"));
+            job.setRawText(jobFields.get("Raw Text"));
+            job.setUserID(1); 
+            
+            return jobDAO.insertJob(job);
+        }
+
+        public void generateMaterials(String templateType, Map<String, String> jobFields) {
+            System.out.println("Backend: Sending data to AI to generate " + templateType + " for " + jobFields.get("Job Title") + "...");
+        }
+    }
+
 }

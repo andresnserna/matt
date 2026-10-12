@@ -103,6 +103,34 @@ public class UserDAO {
         }
     }
 
+    public int saveAndGetId(User user) {
+        // MATCHES EXACT SCHEMA: 'phone' and 'password_hash' included
+        String sql = "INSERT INTO user_profile (first_name, last_name, email, phone, summary, password_hash) VALUES (?, ?, ?, ?, ?, ?)";
+        
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+            
+            pstmt.setString(1, user.getFirstName());
+            pstmt.setString(2, user.getLastName());
+            pstmt.setString(3, user.getEmail());
+            pstmt.setString(4, user.getPhoneNumber()); 
+            pstmt.setString(5, user.getSummary());
+            pstmt.setString(6, ""); // Empty string satisfies NOT NULL
+
+            pstmt.executeUpdate();
+            
+            try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    return generatedKeys.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("SQL ERROR IN saveAndGetId: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return -1; 
+    }
+
     // Update an existing user 
     public boolean update(User user) {
         String sql = "UPDATE user_profile SET first_name = ?, last_name = ?, email = ?, phone_number = ?, summary = ? WHERE user_id = ?";

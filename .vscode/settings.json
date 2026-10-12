@@ -1,5 +1,14 @@
 {
    "java.configuration.updateBuildConfiguration": "automatic",
    "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx16G -Xms100m -Xlog:disable",
-   "maven.view": "hierarchical"
+   "maven.view": "hierarchical",
+   "sqltools.useNodeRuntime": true,
+   "sqltools.connections": [
+      {
+         "previewLimit": 50,
+         "driver": "SQLite",
+         "name": "Matt DB",
+         "database": "./matt.db"
+      }
+   ]
 }

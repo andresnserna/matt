@@ -3,6 +3,7 @@ package edu.stedwards.matt.controllers;
 import edu.stedwards.matt.dao.JobDAO;
 import edu.stedwards.matt.models.entity.JobPosting;
 import edu.stedwards.matt.services.ParserService;   //src\main\java\edu\stedwards\matt\services\ParserService.Java
+import edu.stedwards.matt.services.ScraperService;
 
 public class JobUploadController {
 
@@ -12,6 +13,19 @@ public class JobUploadController {
     public JobUploadController() {
         this.parserService = new ParserService();
         this.jobDAO = new JobDAO();
+    }
+
+    public JobPosting uploadJobFromUrl(int userId, String url) {
+        ScraperService scraper = new ScraperService();
+        String scrapedText = scraper.scrapeJobPosting(url);
+        
+        if (scrapedText == null || scrapedText.trim().isEmpty()) {
+            System.out.println("Controller Error: Failed to retrieve text from URL.");
+            return null;
+        }
+        
+        // Feed the scraped text directly into your existing ingestion pipeline
+        return uploadJobFromText(userId, scrapedText);
     }
 
     // simulates the API endpoint

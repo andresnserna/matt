@@ -1,7 +1,22 @@
+-- Drop child tables first
+DROP TABLE IF EXISTS application_material;
+DROP TABLE IF EXISTS job_posting;
+DROP TABLE IF EXISTS company;
+DROP TABLE IF EXISTS projects;
+DROP TABLE IF EXISTS websites;
+DROP TABLE IF EXISTS awards_certs;
+DROP TABLE IF EXISTS skill;
+DROP TABLE IF EXISTS education;
+DROP TABLE IF EXISTS experience;
+
+-- Drop parent table last
+DROP TABLE IF EXISTS user_profile;
+
+
 -- User and Profile Core
 CREATE TABLE user_profile (
     user_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    password_
+    password_hash TEXT NOT NULL,
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
     email TEXT,
