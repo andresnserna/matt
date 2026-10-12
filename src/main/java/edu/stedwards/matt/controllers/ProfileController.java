@@ -1,10 +1,12 @@
 package edu.stedwards.matt.controllers;
 
+import java.io.IOException;
 import java.util.Map;
 
 import edu.stedwards.matt.dao.SkillDAO;
 import edu.stedwards.matt.dao.UserDAO;
 import edu.stedwards.matt.models.entity.User;
+import edu.stedwards.matt.services.DocumentExtractionService;
 import edu.stedwards.matt.services.ParserService;
 
 public class ProfileController {
@@ -15,6 +17,17 @@ public class ProfileController {
     public ProfileController() {
         this.parserService = new ParserService();
         this.userDAO = new UserDAO();
+    }
+
+    public Map<String, String> uploadResumeFile(String filePath) {
+        DocumentExtractionService docService = new DocumentExtractionService();
+        try {
+            String rawText = docService.extractText(filePath);
+            return parseResumeText(rawText); // Passes the extracted text to your existing AI parser
+        } catch (IOException e) {
+            System.err.println("Upload failed: " + e.getMessage());
+            return null;
+        }
     }
 
     // 1. Send raw text to the AI parser

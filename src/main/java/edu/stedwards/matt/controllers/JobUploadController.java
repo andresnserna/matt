@@ -1,7 +1,10 @@
 package edu.stedwards.matt.controllers;
 
+import java.io.IOException;
+
 import edu.stedwards.matt.dao.JobDAO;
 import edu.stedwards.matt.models.entity.JobPosting;
+import edu.stedwards.matt.services.DocumentExtractionService;
 import edu.stedwards.matt.services.ParserService;   //src\main\java\edu\stedwards\matt\services\ParserService.Java
 import edu.stedwards.matt.services.ScraperService;
 
@@ -26,6 +29,17 @@ public class JobUploadController {
         
         // Feed the scraped text directly into your existing ingestion pipeline
         return uploadJobFromText(userId, scrapedText);
+    }
+
+    public JobPosting uploadJobFromFile(int userId, String filePath) {
+        DocumentExtractionService docService = new DocumentExtractionService();
+        try {
+            String rawText = docService.extractText(filePath);
+            return uploadJobFromText(userId, rawText); // Passes the text to your existing text upload method
+        } catch (IOException e) {
+            System.err.println("Upload failed: " + e.getMessage());
+            return null;
+        }
     }
 
     // simulates the API endpoint

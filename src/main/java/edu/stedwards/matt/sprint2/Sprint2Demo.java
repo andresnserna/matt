@@ -99,17 +99,26 @@ public class Sprint2Demo {
 
     private void uploadResume() {
         printHeading("Start onboarding - upload your resume");
-        // Changed to readMultilineInput to capture the entire pasted block
-        String resume = readMultilineInput("Paste a resume excerpt. Enter END on its own line when finished:\n");
+        String inputData = readMultilineInput("Enter a file path (e.g., C:\\resume.pdf) OR paste your resume (Enter END to finish):\n");
         
-        if (resume == null) {
+        if (inputData == null) {
             screen = Screen.LOGIN;
             return;
         }
 
+        // Try to read it as a file first. If it fails, assume it's just pasted text.
+        String parsedText = inputData;
+        try {
+            edu.stedwards.matt.services.DocumentExtractionService docService = new edu.stedwards.matt.services.DocumentExtractionService();
+            parsedText = docService.extractText(inputData.trim());
+            System.out.println("File successfully read!");
+        } catch (Exception e) {
+            // Not a valid file path, proceed with the raw pasted text
+        }
+
         System.out.println("Parsing resume...");
         profileFields.clear();
-        profileFields.putAll(backend.parse(DemoBackend.ParseJob.RESUME, null, resume));
+        profileFields.putAll(backend.parse(DemoBackend.ParseJob.RESUME, null, parsedText));
         screen = Screen.PROFILE_FOUND;
     }
 
@@ -206,11 +215,23 @@ public class Sprint2Demo {
             case 1 -> readInput("Enter the job posting URL: ");
             case 2 -> readMultilineInput(
                     "Paste the job posting. Enter END on its own line when finished:\n");
-            case 3 -> readInput("Enter a file path or paste the file contents: ");
+            case 3 -> readInput("Enter a file path (e.g., C:\\job.pdf): ");
             default -> null;
         };
         if (data == null) {
             return;
+        }
+
+        // NEW: Actually extract the text if the user chose "File upload"
+        if (choice == 3) {
+            try {
+                edu.stedwards.matt.services.DocumentExtractionService docService = new edu.stedwards.matt.services.DocumentExtractionService();
+                data = docService.extractText(data.trim());
+                System.out.println("File successfully read!");
+            } catch (Exception e) {
+                System.out.println("Error reading file: " + e.getMessage());
+                return; // Stop if the file fails to read
+            }
         }
 
         System.out.println("Parsing job posting...");
