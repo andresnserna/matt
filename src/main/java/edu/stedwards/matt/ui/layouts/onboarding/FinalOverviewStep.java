@@ -1,6 +1,6 @@
 package edu.stedwards.matt.ui.layouts.onboarding;
 
-import edu.stedwards.matt.ui.interaction.VisualElements;
+import edu.stedwards.matt.ui.TextStyles;
 import edu.stedwards.matt.ui.interaction.Buttons;
 import edu.stedwards.matt.ui.labels.OnboardingScreenText;
 import javafx.geometry.Pos;
@@ -28,7 +28,7 @@ public class FinalOverviewStep extends BorderPane{
 
    public FinalOverviewStep() {
       getStyleClass().addAll("app-onboarding", "welcome-screen");
-      setTop(new VisualElements().buildWizardScreenTitle(
+      setTop(TextStyles.buildTitle(
             OnboardingScreenText.FIN_TITLE, "welcome-title-prefix"));
       setCenter(buildOverviewMessage());
       setBottom(new Buttons().buildNextButton());

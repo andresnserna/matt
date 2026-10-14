@@ -5,7 +5,7 @@
 package edu.stedwards.matt.ui.layouts.onboarding;
 
 import edu.stedwards.matt.ui.interaction.Buttons;
-import edu.stedwards.matt.ui.interaction.VisualElements;
+import edu.stedwards.matt.ui.TextStyles;
 import edu.stedwards.matt.ui.labels.OnboardingScreenText;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
@@ -16,6 +16,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
 public class WelcomeStep extends BorderPane {
+
    private TextFlow buildScreenTitle() {
       Text welcome = new Text(OnboardingScreenText.WELC_TITLE);
       welcome.getStyleClass().add("welcome-title-prefix");
@@ -23,7 +24,7 @@ public class WelcomeStep extends BorderPane {
       Text brand = new Text("Matt");
       brand.getStyleClass().add("welcome-title-brand");
 
-      return new VisualElements().buildWizardScreenTitle(welcome, brand);
+      return TextStyles.buildTitle(welcome, brand);
    }
 
    private VBox buildWelcomeMessage() {

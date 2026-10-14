@@ -4,9 +4,9 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.Optional;
 
+import edu.stedwards.matt.ui.TextStyles;
 import edu.stedwards.matt.ui.interaction.Buttons;
 import edu.stedwards.matt.ui.interaction.Inputs;
-import edu.stedwards.matt.ui.interaction.VisualElements;
 import edu.stedwards.matt.ui.labels.OnboardingScreenText;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -23,8 +23,8 @@ import javafx.stage.Window;
 
 public class ResumeUploadStep extends BorderPane {
    private Path selectedResume;
-   private final TextField apiKeyField = Inputs.textField(
-         "XXXXX - XXXXX - XXXXX - XXXXX", 200, "resume-upload-api-key");
+   private final TextField apiKeyField = Inputs.inputField(
+         "XXXXX - XXXXX - XXXXX - XXXXX", 200, 200, "resume-upload-api-key");
 
    private Label buildInstruction(String text) {
       Label instruction = new Label(text);
@@ -77,7 +77,7 @@ public class ResumeUploadStep extends BorderPane {
    public ResumeUploadStep() {
       getStyleClass().addAll("app-onboarding", "welcome-screen", "resume-upload-screen");
 
-      TextFlow title = new VisualElements().buildWizardScreenTitle(
+      TextFlow title = TextStyles.buildTitle(
             OnboardingScreenText.UPLOAD_TITLE, "welcome-title-prefix");
       setTop(title);
       BorderPane.setMargin(title, new Insets(0, 0, 48, 0));

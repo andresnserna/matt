@@ -250,3 +250,30 @@
 .start-screen-loading-percentage {
     -fx-text-fill: #e5e7eb;
 }
+
+.content-scroll {
+    -fx-background-color: transparent;
+}
+
+.content-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.content-scroll .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 10px;
+}
+
+.content-scroll .scroll-bar:vertical .track {
+    -fx-background-color: #EDF6F9;
+    -fx-background-radius: 5px;
+}
+
+.content-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: #83C5BE;
+    -fx-background-radius: 5px;
+}
+
+.content-scroll .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #006D77;
+}
