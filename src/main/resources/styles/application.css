@@ -5,6 +5,10 @@
     -fx-text-alignment: center;
 }
 
+.wizard-background {
+    -fx-background-color: linear-gradient(to bottom, white, white, #EDF6F9, #EDF6F9, #83C5BE, #006D77);
+}
+
 .page-heading {
     -fx-font-size: 30px;
     -fx-font-weight: bold;

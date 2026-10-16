@@ -21,7 +21,7 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 
-public class ResumeUploadStep extends BorderPane {
+public class OnboardingUploadStep extends BorderPane {
    private Path selectedResume;
    private final TextField apiKeyField = Inputs.inputField(
          "XXXXX - XXXXX - XXXXX - XXXXX", 200, 200, "resume-upload-api-key");
@@ -74,7 +74,7 @@ public class ResumeUploadStep extends BorderPane {
       return apiKeyField.getText();
    }
 
-   public ResumeUploadStep() {
+   public OnboardingUploadStep() {
       getStyleClass().addAll("app-onboarding", "welcome-screen", "resume-upload-screen");
 
       TextFlow title = TextStyles.buildTitle(

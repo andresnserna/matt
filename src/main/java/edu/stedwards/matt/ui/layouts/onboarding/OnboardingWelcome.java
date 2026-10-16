@@ -15,7 +15,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
-public class WelcomeStep extends BorderPane {
+public class OnboardingWelcome extends BorderPane {
 
    private TextFlow buildScreenTitle() {
       Text welcome = new Text(OnboardingScreenText.WELC_TITLE);
@@ -54,8 +54,8 @@ public class WelcomeStep extends BorderPane {
       return message;
    }
 
-   public WelcomeStep() {
-      getStyleClass().addAll("app-onboarding", "welcome-screen");
+   public OnboardingWelcome() {
+      getStyleClass().addAll("wizard-background", "welcome-screen");
       setTop(buildScreenTitle());
       setCenter(buildWelcomeMessage());
       setBottom(new Buttons().buildNextButton());

@@ -8,6 +8,6 @@ package edu.stedwards.matt.ui.layouts.onboarding;
 // onboarding - awards/certs
 // onboarding - websites
 
-public class EnterInfoStep {
+public class OnboardingEnterInfo {
    
 }

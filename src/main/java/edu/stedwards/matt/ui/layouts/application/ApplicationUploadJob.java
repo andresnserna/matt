@@ -1,5 +1,5 @@
 package edu.stedwards.matt.ui.layouts.application;
 
-public class UploadJobPostStep {
+public class ApplicationUploadJob {
 
 }

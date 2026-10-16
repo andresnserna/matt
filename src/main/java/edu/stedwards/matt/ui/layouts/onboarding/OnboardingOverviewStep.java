@@ -7,7 +7,7 @@ import javafx.geometry.Pos;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 
-public class FinalOverviewStep extends BorderPane{
+public class OnboardingOverviewStep extends BorderPane{
 
    private VBox buildOverviewMessage() {
       VBox message = new VBox();
@@ -26,7 +26,7 @@ public class FinalOverviewStep extends BorderPane{
       return allInfoContainers;
    }
 
-   public FinalOverviewStep() {
+   public OnboardingOverviewStep() {
       getStyleClass().addAll("app-onboarding", "welcome-screen");
       setTop(TextStyles.buildTitle(
             OnboardingScreenText.FIN_TITLE, "welcome-title-prefix"));

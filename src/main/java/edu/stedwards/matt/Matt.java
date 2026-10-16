@@ -16,11 +16,11 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import java.util.List;
 import java.util.function.Supplier;
-import edu.stedwards.matt.ui.layouts.application.ApplicationHomeStep;
-import edu.stedwards.matt.ui.layouts.onboarding.FinalOverviewStep;
+import edu.stedwards.matt.ui.layouts.application.ApplicationHome;
+import edu.stedwards.matt.ui.layouts.onboarding.OnboardingOverviewStep;
 import edu.stedwards.matt.ui.layouts.onboarding.OnboardingLayout;
-import edu.stedwards.matt.ui.layouts.onboarding.ResumeUploadStep;
-import edu.stedwards.matt.ui.layouts.onboarding.WelcomeStep;
+import edu.stedwards.matt.ui.layouts.onboarding.OnboardingUploadStep;
+import edu.stedwards.matt.ui.layouts.onboarding.OnboardingWelcome;
 import edu.stedwards.matt.ui.layouts.other.LoginLayout;
 import edu.stedwards.matt.ui.layouts.other.MainLayout;
 import edu.stedwards.matt.ui.layouts.other.StartLayout;
@@ -43,7 +43,7 @@ public class Matt extends Application {
 
     private void startNormalApplication(Stage stage) {
         OnboardingLayout onboardingLayout = new OnboardingLayout();
-        onboardingLayout.showStep(new WelcomeStep());
+        onboardingLayout.showStep(new OnboardingWelcome());
         StartLayout startLayout = new StartLayout("application",
                 () -> stage.getScene().setRoot(onboardingLayout));
 
@@ -58,12 +58,12 @@ public class Matt extends Application {
     private void startLayoutPreview(Stage stage) {
         List<PreviewScreen> screens = List.of(
                 new PreviewScreen("Start", () -> new StartLayout("application")),
-                new PreviewScreen("Welcome", WelcomeStep::new),
-                new PreviewScreen("Resume Upload", ResumeUploadStep::new),
-                new PreviewScreen("Final Overview", FinalOverviewStep::new),
+                new PreviewScreen("Welcome", OnboardingWelcome::new),
+                new PreviewScreen("Resume Upload", OnboardingUploadStep::new),
+                new PreviewScreen("Final Overview", OnboardingOverviewStep::new),
                 new PreviewScreen("Login", LoginLayout::new),
                 new PreviewScreen("Main", MainLayout::new),
-                new PreviewScreen("Application Home", ApplicationHomeStep::new));
+                new PreviewScreen("Application Home", ApplicationHome::new));
 
         int[] currentIndex = { 0 };
         BorderPane preview = new BorderPane();

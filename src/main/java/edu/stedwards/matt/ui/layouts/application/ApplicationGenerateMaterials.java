@@ -1,5 +1,5 @@
 package edu.stedwards.matt.ui.layouts.application;
 
-public class ApplicationOverviewStep {
+public class ApplicationGenerateMaterials {
    
 }
