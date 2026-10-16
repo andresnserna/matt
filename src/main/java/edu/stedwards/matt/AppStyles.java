@@ -17,6 +17,10 @@ import javafx.scene.Scene;
 
 public final class AppStyles {
     public static final String APP_CSS = "/styles/app.css";
+    public static final String APPLICATION_CSS = "/styles/application.css";
+    private static final List<String> STYLESHEETS = List.of(
+            APP_CSS,
+            APPLICATION_CSS);
     private static final List<String> SF_PRO_FAMILIES = List.of(
             "SF Pro", "SF Pro Text", "SF Pro Display");
 
@@ -24,9 +28,11 @@ public final class AppStyles {
     }
 
     public static void apply(Scene scene) {
-        URL css = AppStyles.class.getResource(APP_CSS);
-        if (css != null) {
-            scene.getStylesheets().add(css.toExternalForm());
+        for (String stylesheet : STYLESHEETS) {
+            URL css = AppStyles.class.getResource(stylesheet);
+            if (css != null) {
+                scene.getStylesheets().add(css.toExternalForm());
+            }
         }
 
         applyPlatformFont(scene.getRoot());

@@ -39,11 +39,6 @@
     -fx-font-weight: bold;
 }
 
-.start-screen-created-by {
-    -fx-font-size: 11px;
-    -fx-text-fill: #6b7280;
-}
-
 .app-root {
     -fx-padding: 24px;
     -fx-alignment: center;
@@ -52,7 +47,7 @@
 }
 
 .app-onboarding {
-    -fx-background-color: linear-gradient(to bottom, white, white, white, #EDF6F9, #EDF6F9, #83C5BE, #006D77);
+    -fx-background-color: linear-gradient(to bottom, white, white, #EDF6F9, #EDF6F9, #83C5BE, #006D77);
 }
 
 .welcome-screen {
@@ -64,7 +59,6 @@
 }
 
 .resume-upload-screen .welcome-title {
-    -fx-font-family: "Georgia";
     -fx-font-size: 64px;
     -fx-font-style: italic;
 }

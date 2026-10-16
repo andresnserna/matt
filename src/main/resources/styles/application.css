@@ -1,0 +1,84 @@
+.wizard-title {
+    -fx-font-size: 36px;
+    -fx-font-style: italic;
+    -fx-text-fill: #006D77;
+    -fx-text-alignment: center;
+}
+
+.page-heading {
+    -fx-font-size: 30px;
+    -fx-font-weight: bold;
+    -fx-font-style: italic;
+    -fx-text-fill: #006D77;
+}
+
+.split-color-heading {
+    -fx-font-size: 30px;
+    -fx-text-alignment: center;
+}
+
+.wizard-title.split-color-heading {
+    -fx-font-size: 36px;
+    -fx-font-style: italic;
+    -fx-text-alignment: center;
+}
+
+.split-color-heading-primary {
+    -fx-fill: #668A8C;
+}
+
+.split-color-heading-emphasis {
+    -fx-fill: #006D77;
+    -fx-font-weight: bold;
+}
+
+.prompt-heading {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #006D77;
+}
+
+.subheading {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #668A8C;
+}
+
+.column-heading {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #006D77;
+}
+
+.field-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #668A8C;
+}
+
+.body-text {
+    -fx-font-size: 16px;
+    -fx-text-fill: #4B5563;
+}
+
+.helper-text {
+    -fx-font-size: 12px;
+    -fx-text-fill: #9A9A9A;
+    /* -fx-text-fill: red; */
+}
+
+.page-heading-subtitle {
+    -fx-font-size: 14px;
+    -fx-font-style: italic;
+    -fx-text-fill: #9A9A9A;
+}
+
+.hyperlink {
+    -fx-text-fill: #E29578;
+    -fx-underline: true;
+}
+
+.hyperlink-text {
+    -fx-fill: #E29578;
+    -fx-underline: true;
+}

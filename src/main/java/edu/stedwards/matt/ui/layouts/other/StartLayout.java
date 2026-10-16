@@ -4,10 +4,7 @@
  */
 package edu.stedwards.matt.ui.layouts.other;
 
-import com.github.weisj.jsvg.parser.SVGLoader;
-import com.github.weisj.jsvg.SVGDocument;
 import com.github.weisj.jsvg.ui.jfx.FXSVGCanvas;
-import java.net.URL;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
@@ -15,10 +12,6 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.scene.SnapshotParameters;
-import javafx.scene.image.PixelReader;
-import javafx.scene.image.WritableImage;
-import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import edu.stedwards.matt.ui.labels.StartScreenText;
 import javafx.scene.layout.HBox;
@@ -56,7 +49,7 @@ public class StartLayout extends BorderPane {
     private HBox buildLoadingText(String loadingItem) {
         HBox row = new HBox();
         row.setAlignment(Pos.CENTER);
-        Label prefix = TextStyles.buildLabel(StartScreenText.SUBTITLE_LOADING, "start-screen-loading-prefix");
+        Label prefix = TextStyles.buildLabel(StartScreenText.SUBTITLE_LOADING, "helper-text");
         Label item = TextStyles.buildLabel(loadingItem, "start-screen-loading-item");
         row.getChildren().addAll(prefix, item);
         return row;
@@ -66,7 +59,7 @@ public class StartLayout extends BorderPane {
      * ?
      */
     private HBox buildCreatedBy() {
-        Label label = TextStyles.buildLabel(StartScreenText.CREATED_BY, "start-screen-created-by");
+        Label label = TextStyles.buildLabel(StartScreenText.CREATED_BY, "helper-text");
         HBox footer = new HBox(label);
         footer.setAlignment(Pos.CENTER);
         return footer;
