@@ -18,14 +18,13 @@ import javafx.scene.Scene;
 public final class AppStyles {
     public static final String APP_CSS = "/styles/app.css";
     public static final String APPLICATION_CSS = "/styles/application.css";
+
     private static final List<String> STYLESHEETS = List.of(
             APP_CSS,
             APPLICATION_CSS);
+
     private static final List<String> SF_PRO_FAMILIES = List.of(
             "SF Pro", "SF Pro Text", "SF Pro Display");
-
-    private AppStyles() {
-    }
 
     public static void apply(Scene scene) {
         for (String stylesheet : STYLESHEETS) {
@@ -60,5 +59,8 @@ public final class AppStyles {
             root.getStyleClass().add(styleClass);
             return;
         }
+    }
+
+    private AppStyles() {
     }
 }

@@ -77,8 +77,7 @@ public class OnboardingUploadStep extends BorderPane {
    public OnboardingUploadStep() {
       getStyleClass().addAll("app-onboarding", "welcome-screen", "resume-upload-screen");
 
-      TextFlow title = TextStyles.buildTitle(
-            OnboardingScreenText.UPLOAD_TITLE, "welcome-title-prefix");
+      TextFlow title = TextStyles.buildTitle(OnboardingScreenText.UPLOAD_TITLE, "welcome-title-prefix");
       setTop(title);
       BorderPane.setMargin(title, new Insets(0, 0, 48, 0));
 

@@ -16,7 +16,11 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import java.util.List;
 import java.util.function.Supplier;
+import edu.stedwards.matt.ui.layouts.application.ApplicationConfirmFields;
+import edu.stedwards.matt.ui.layouts.application.ApplicationGenerateMaterials;
 import edu.stedwards.matt.ui.layouts.application.ApplicationHome;
+import edu.stedwards.matt.ui.layouts.application.ApplicationUploadJob;
+import edu.stedwards.matt.ui.layouts.onboarding.OnboardingEnterInfo;
 import edu.stedwards.matt.ui.layouts.onboarding.OnboardingOverviewStep;
 import edu.stedwards.matt.ui.layouts.onboarding.OnboardingLayout;
 import edu.stedwards.matt.ui.layouts.onboarding.OnboardingUploadStep;
@@ -24,6 +28,9 @@ import edu.stedwards.matt.ui.layouts.onboarding.OnboardingWelcome;
 import edu.stedwards.matt.ui.layouts.other.LoginLayout;
 import edu.stedwards.matt.ui.layouts.other.MainLayout;
 import edu.stedwards.matt.ui.layouts.other.StartLayout;
+import edu.stedwards.matt.ui.layouts.template.TemplatesCreator;
+import edu.stedwards.matt.ui.layouts.template.TemplatesOverview;
+import edu.stedwards.matt.ui.layouts.template.TemplatesUploadOrNew;
 import fr.brouillard.oss.cssfx.CSSFX;
 
 public class Matt extends Application {
@@ -57,13 +64,20 @@ public class Matt extends Application {
 
     private void startLayoutPreview(Stage stage) {
         List<PreviewScreen> screens = List.of(
-                new PreviewScreen("Start", () -> new StartLayout("application")),
+                new PreviewScreen("Start", () -> new StartLayout("application")),                
+                new PreviewScreen("Login", LoginLayout::new),
                 new PreviewScreen("Welcome", OnboardingWelcome::new),
                 new PreviewScreen("Resume Upload", OnboardingUploadStep::new),
+                new PreviewScreen("Personal Information", OnboardingEnterInfo::new),
                 new PreviewScreen("Final Overview", OnboardingOverviewStep::new),
-                new PreviewScreen("Login", LoginLayout::new),
                 new PreviewScreen("Main", MainLayout::new),
-                new PreviewScreen("Application Home", ApplicationHome::new));
+                new PreviewScreen("Application Home", ApplicationHome::new),
+                new PreviewScreen("Upload Application", ApplicationUploadJob::new),
+                new PreviewScreen("Confirm Application Fields", ApplicationConfirmFields::new),
+                new PreviewScreen("Application Materials", ApplicationGenerateMaterials::new),
+                new PreviewScreen("Upload or Create Template", TemplatesUploadOrNew::new),
+                new PreviewScreen("Create Template", TemplatesCreator::new),
+                new PreviewScreen("Template Overview", TemplatesOverview::new));
 
         int[] currentIndex = { 0 };
         BorderPane preview = new BorderPane();
@@ -88,7 +102,7 @@ public class Matt extends Application {
             showCurrentScreen.run();
         });
 
-        HBox navigation = new HBox(8, previous, screenCount, next);
+        HBox navigation = new HBox(8, previous, next, screenCount);
         navigation.setAlignment(Pos.CENTER_LEFT);
         navigation.setPadding(new Insets(8));
         navigation.getStyleClass().add("layout-preview-controls");

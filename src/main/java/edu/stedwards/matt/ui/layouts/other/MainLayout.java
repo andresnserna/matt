@@ -7,6 +7,7 @@ package edu.stedwards.matt.ui.layouts.other;
 // import javafx.scene.layout.VBox;
 import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import edu.stedwards.matt.ui.interaction.VisualElements;
 
 
@@ -18,6 +19,7 @@ import edu.stedwards.matt.ui.interaction.VisualElements;
  */
 
 public class MainLayout extends BorderPane {
+    private final VisualElements visualElements = new VisualElements();
     private Node currentStep;
 
     public void showStep(Node step) {
@@ -25,19 +27,23 @@ public class MainLayout extends BorderPane {
         currentStep = step;
         getChildren().add(currentStep);
     }
-
+    
+    /**
+     * building the home page for the app, this encompasses many elements, but can
+     * be swapped with different layouts so that main owns the sidebar, and the
+     * content to the right of it changes based on the menu item
+     */
     public BorderPane buildMainHomeLayout(){
         BorderPane mainHomeLayout = new BorderPane();
-        //building the home page for the app, this encompasses many elements, but can be 
-        // swapped with different layouts so that main owns the sidebar, and the content 
-        // to the right of it changes based on the menu item
+
+        //this is where whatever page is selected from the sidebar will show
 
         return mainHomeLayout;
     }
 
     public MainLayout(){
         getStyleClass().add("");
-        setLeft(new VisualElements().mainSideBar());
-        // setCenter(new VisualElements().collapsableDrawer("Title", null));
+        setLeft(visualElements.mainSideBar());
+        setCenter(buildMainHomeLayout());
     }
 }

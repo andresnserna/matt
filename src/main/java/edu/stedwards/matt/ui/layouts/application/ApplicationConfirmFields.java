@@ -1,5 +1,22 @@
 package edu.stedwards.matt.ui.layouts.application;
 
-public class ApplicationConfirmFields {
-   
+import edu.stedwards.matt.ui.TextStyles;
+import edu.stedwards.matt.ui.interaction.Buttons;
+import edu.stedwards.matt.ui.labels.ApplicationScreenText;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.text.TextFlow;
+
+public class ApplicationConfirmFields extends BorderPane {
+
+   public ApplicationConfirmFields(){
+      getStyleClass().addAll("screen-padding");
+      
+      TextFlow title = TextStyles.buildTitle(ApplicationScreenText.PLACEHOLDER_TITLE, "wizard-title");
+      setTop(title);
+      
+      // setCenter(buildWelcomeMessage());
+      
+      setBottom(new Buttons().buildNextButton());
+   }
+
 }

@@ -3,6 +3,8 @@ package edu.stedwards.matt.ui.labels;
 public class OnboardingScreenText {
    // GLOBAL
    public static final String CONFIRM_MESSAGE_1 = "Does this all look right? Click on a field to edit it.";
+   public static final String PLACEHOLDER_TITLE = "PLACEHOLDER";
+   public static final String PLACEHOLDER_MESSAGE = "This is placeholder text for the screen this text is in. the actual content will differ.";
 
    // Button Labels
    public static final String BUTTON_NEXT = "Next";

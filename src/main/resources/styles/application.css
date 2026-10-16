@@ -1,3 +1,20 @@
+.root {
+    -fx-font-family: "Calibri";
+    -fx-background-color: white;
+}
+
+.app-font-sf-pro {
+    -fx-font-family: "SF Pro";
+}
+
+.app-font-sf-pro-text {
+    -fx-font-family: "SF Pro Text";
+}
+
+.app-font-sf-pro-display {
+    -fx-font-family: "SF Pro Display";
+}
+
 .wizard-title {
     -fx-font-size: 36px;
     -fx-font-style: italic;
@@ -5,7 +22,12 @@
     -fx-text-alignment: center;
 }
 
-.wizard-background {
+.screen-padding {
+    -fx-padding: 36px 50px 36px;
+    padding: 36px 50px 36px;
+}
+
+.onboarding-background {
     -fx-background-color: linear-gradient(to bottom, white, white, #EDF6F9, #EDF6F9, #83C5BE, #006D77);
 }
 
@@ -85,4 +107,52 @@
 .hyperlink-text {
     -fx-fill: #E29578;
     -fx-underline: true;
+}
+
+.sidebar {
+    -fx-background-color: #EDF6F9;
+    -fx-padding: 12px;
+}
+
+.sidebar-toggle-button {
+    -fx-background-color: transparent;
+    -fx-font-size: 20px;
+    -fx-text-fill: #006D77;
+    -fx-padding: 4px 8px;
+    -fx-cursor: hand;
+}
+
+.sidebar-toggle-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.35);
+}
+
+.sidebar-version-label {
+    -fx-font-size: 10px;
+    -fx-font-style: italic;
+    -fx-text-fill: #9A9A9A;
+}
+
+.drawer {
+    -fx-spacing: 8px;
+}
+
+.drawer-header {
+    -fx-alignment: center-left;
+}
+
+.sidebar-drawer-title {
+    -fx-font-size: 16px;
+    /* -fx-font-weight: bold; */
+    -fx-text-fill: #006D77;
+}
+
+.drawer-toggle {
+    -fx-background-color: transparent;
+    -fx-font-size: 16px;
+    -fx-text-fill: #006D77;
+    -fx-cursor: hand;
+}
+
+.drawer-content {
+    -fx-padding: 8px 0 0 0;
 }

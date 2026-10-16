@@ -5,7 +5,13 @@
 package edu.stedwards.matt.ui.layouts.onboarding;
 
 import javafx.scene.layout.VBox;
+import javafx.scene.text.TextFlow;
+import edu.stedwards.matt.ui.TextStyles;
+import edu.stedwards.matt.ui.interaction.Buttons;
+import edu.stedwards.matt.ui.labels.OnboardingScreenText;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Priority;
 
 /**
@@ -15,14 +21,25 @@ import javafx.scene.layout.Priority;
  * It is not responsible for database writes, application state management, or stage construction.
  */
 
-public class OnboardingLayout extends VBox {
+public class OnboardingLayout extends BorderPane {
     private Node currentStep;
 
     public void showStep(Node step) {
-        getChildren().clear();
         currentStep = step;
         VBox.setVgrow(currentStep, Priority.ALWAYS);
-        getChildren().add(currentStep);
-    }
+        setCenter(currentStep);
+        BorderPane.setAlignment(currentStep, Pos.CENTER_LEFT);
+    } 
 
+    public OnboardingLayout(){
+        getStyleClass().addAll("wizard-background", "screen-padding");
+        
+        TextFlow title = TextStyles.buildTitle(OnboardingScreenText.PLACEHOLDER_TITLE, "wizard-title");
+        setTop(title);
+        
+        // setCenter(showStep());
+        
+        setBottom(new Buttons().buildNextButton());
+    }
+   
 }
