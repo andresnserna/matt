@@ -8,15 +8,18 @@ import javafx.scene.control.Button;
 import com.github.weisj.jsvg.SVGDocument;
 import com.github.weisj.jsvg.parser.SVGLoader;
 import com.github.weisj.jsvg.ui.jfx.FXSVGCanvas;
+
+import edu.stedwards.matt.ui.labels.MainScreenText;
 import edu.stedwards.matt.ui.labels.OtherScreenText;
 import javafx.scene.control.ProgressBar;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.shape.Line;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import java.net.URL;
 import java.util.Objects;
-
+import edu.stedwards.matt.ui.interaction.Buttons;
 
 
 public class VisualElements {
@@ -24,10 +27,16 @@ public class VisualElements {
    private static final double DRAWER_SIDE_INSET = 8;
    private double sidebarWidth = 240;
 
+   /**
+    * ?
+    */
    public double getSidebarWidth() {
       return sidebarWidth;
    }
 
+   /**
+    * ?
+    */
    public void setSidebarWidth(double sidebarWidth) {
       if (!Double.isFinite(sidebarWidth) || sidebarWidth <= 2 * DRAWER_SIDE_INSET) {
          throw new IllegalArgumentException("Sidebar width must be greater than 16 pixels");
@@ -70,8 +79,20 @@ public class VisualElements {
       sideBar.getStyleClass().add("sidebar");
       sideBar.setMinWidth(COLLAPSED_SIDEBAR_WIDTH);
       sideBar.setPrefWidth(getSidebarWidth());
+      double buttonWidth = getSidebarWidth() - (2 * DRAWER_SIDE_INSET) - 4;
 
-      
+      VBox menuButtons = new VBox();
+      // make the buttons + add the unpressed style class
+      Button homeButton = Buttons.button(MainScreenText.BUTTON_HOME, null, buttonWidth, "sidebar-button");
+      Button templatesButton = Buttons.button(MainScreenText.BUTTON_TEMPLATES, null, buttonWidth, "sidebar-button");
+      Button applicationsButton = Buttons.button(MainScreenText.BUTTON_APPLICATIONS, null, buttonWidth, "sidebar-button");
+      Button myInfoButton = Buttons.button(MainScreenText.BUTTON_MY_INFO, null, buttonWidth, "sidebar-button");
+      Button settingsButton = Buttons.button(MainScreenText.BUTTON_SETTINGS, null, buttonWidth, "sidebar-button");
+
+      // add conditional code for when button pressed, change the styleclass
+
+      // ok now add em all to the vbox
+      menuButtons.getChildren().addAll(homeButton, templatesButton, applicationsButton, myInfoButton, settingsButton);
 
       VBox recentApplicationsContent = new VBox();
          //add the recent items from db
@@ -105,9 +126,15 @@ public class VisualElements {
       toggle.getStyleClass().add("sidebar-toggle-button");
       toggle.setAccessibleText("Collapse sidebar");
       footer.getChildren().addAll(versionLabel, footerSpacer, toggle);
-
       VBox.setVgrow(footer, Priority.NEVER);
-      sideBar.getChildren().addAll(recentMaterialsDrawer, recentApplicationsDrawer, spacer, footer);
+
+      //build the side bar
+      sideBar.getChildren().addAll(
+         menuButtons, 
+         recentMaterialsDrawer, recentApplicationsDrawer, 
+         spacer, 
+         footer
+      );
 
       toggle.setOnAction(event -> {
          boolean collapsing = sideBar.getPrefWidth() > COLLAPSED_SIDEBAR_WIDTH;
@@ -132,6 +159,9 @@ public class VisualElements {
       return sideBar;
    }
 
+   /**
+    * ?
+    */
    private void setMenuBarItems(boolean visible, Label versionLabel, VBox recentMaterialsDrawer, VBox recentApplicationsDrawer) {
       versionLabel.setVisible(visible);
       versionLabel.setManaged(visible);
@@ -161,11 +191,15 @@ public class VisualElements {
       toggle.getStyleClass().add("drawer-toggle");
       toggle.setAccessibleText("Collapse " + title);
 
+      // the line that goes below the drawer
+      Line drawerBar = new Line(0, 0, width - 8, 0);
+      drawerBar.getStyleClass().add("drawer-bar");
+
       HBox header = new HBox(heading, headerSpacer, toggle);
       header.getStyleClass().add("drawer-header");
       header.setAlignment(Pos.CENTER_LEFT);
 
-      VBox drawer = new VBox(header, content);
+      VBox drawer = new VBox(header, drawerBar, content);
       drawer.getStyleClass().addAll("drawer", styleClass);
       drawer.setMinWidth(width);
       drawer.setPrefWidth(width);

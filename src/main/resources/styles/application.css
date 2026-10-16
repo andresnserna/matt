@@ -132,8 +132,31 @@
     -fx-text-fill: #9A9A9A;
 }
 
+.sidebar-button {
+    -fx-background-color: transparent;
+    -fx-font-size: 20px;
+    -fx-text-fill: #006D77;
+    -fx-padding: 4px 8px;
+    -fx-cursor: hand;
+}
+
+.sidebar-button:hover {
+    -fx-background-color: #006D77;
+    -fx-text-fill: white;
+}
+
+.sidebar-button-selected {
+    -fx-background-color: transparent;
+    -fx-font-size: 16px;
+    -fx-text-fill: #006D77;
+    -fx-padding: 4px 8px;
+    -fx-border-color: #006D77;
+    -fx-border-width: 0 0 0 4px;
+    -fx-font-weight: bold;
+}
+
 .drawer {
-    -fx-spacing: 8px;
+    -fx-spacing: 4px;
 }
 
 .drawer-header {
@@ -143,14 +166,19 @@
 .sidebar-drawer-title {
     -fx-font-size: 16px;
     /* -fx-font-weight: bold; */
-    -fx-text-fill: #006D77;
+    -fx-text-fill: #BBBBBB;
 }
 
 .drawer-toggle {
     -fx-background-color: transparent;
     -fx-font-size: 16px;
-    -fx-text-fill: #006D77;
+    -fx-text-fill: #BBBBBB;
     -fx-cursor: hand;
+}
+
+.drawer-bar {
+    -fx-stroke: #BBBBBB;
+    /* -fx-stroke-width: 2px; */
 }
 
 .drawer-content {
