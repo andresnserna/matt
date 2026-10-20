@@ -66,9 +66,6 @@
 .welcome-title {
     -fx-font-size: 64px;
     -fx-font-style: italic;
-}
-
-.welcome-title-prefix {
     -fx-fill: #668A8C;
 }
 
@@ -133,6 +130,8 @@
     -fx-background-color: #006D77;
     -fx-background-radius: 10px;
     -fx-text-fill: white;
+    -fx-content-display: right;
+    -fx-graphic-text-gap: 8px;
     -fx-font-style: italic;
     -fx-font-weight: bold;
     -fx-font-size: 16px;

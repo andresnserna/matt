@@ -42,7 +42,6 @@ public class MainLayout extends BorderPane {
     }
 
     public MainLayout(){
-        getStyleClass().add("");
         setLeft(visualElements.mainSideBar());
         setCenter(buildMainHomeLayout());
     }

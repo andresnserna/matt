@@ -15,7 +15,6 @@ public class ApplicationHome extends BorderPane{
    }
 
    public ApplicationHome(){
-      getStyleClass().add("");
       setCenter(buildApplicationHomeLayout());
    }
    

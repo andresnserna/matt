@@ -49,7 +49,7 @@ public class StartLayout extends BorderPane {
     private HBox buildLoadingText(String loadingItem) {
         HBox row = new HBox();
         row.setAlignment(Pos.CENTER);
-        Label prefix = TextStyles.buildLabel(StartScreenText.SUBTITLE_LOADING, "helper-text");
+        Label prefix = TextStyles.buildLabel(StartScreenText.SUBTITLE_LOADING, "screen-subtitle");
         Label item = TextStyles.buildLabel(loadingItem, "start-screen-loading-item");
         row.getChildren().addAll(prefix, item);
         return row;
@@ -59,7 +59,7 @@ public class StartLayout extends BorderPane {
      * ?
      */
     private HBox buildCreatedBy() {
-        Label label = TextStyles.buildLabel(StartScreenText.CREATED_BY, "helper-text");
+        Label label = TextStyles.buildLabel(StartScreenText.CREATED_BY, "screen-subtitle");
         HBox footer = new HBox(label);
         footer.setAlignment(Pos.CENTER);
         return footer;

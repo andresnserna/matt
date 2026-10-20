@@ -21,9 +21,7 @@ public final class StartScreenText {
     // public static final String SUBTITLE_LOADING_ITEM_3 = "Materials";
     public static final String CREATED_BY = "Created by Andres Serna & Javier Zavala Copyright 2026";
     public static final TextAlignment CREATED_BY_ALIGNMENT = TextAlignment.CENTER;
-
-
-
+    
     private StartScreenText() {
     }
 }

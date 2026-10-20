@@ -57,7 +57,7 @@ public class TextStyles {
     */
    public static TextFlow buildTitle(Text... titleParts) {
       TextFlow title = new TextFlow(titleParts);
-      title.getStyleClass().add("welcome-title");
+      // title.getStyleClass().add("welcome-title");
       // title.setTextAlignment(alignment);
       return title;
    }

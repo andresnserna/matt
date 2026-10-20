@@ -7,6 +7,7 @@ import java.util.Optional;
 import edu.stedwards.matt.ui.TextStyles;
 import edu.stedwards.matt.ui.interaction.Buttons;
 import edu.stedwards.matt.ui.interaction.Inputs;
+import edu.stedwards.matt.ui.interaction.VisualElements;
 import edu.stedwards.matt.ui.labels.OnboardingScreenText;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -75,15 +76,17 @@ public class OnboardingUploadStep extends BorderPane {
    }
 
    public OnboardingUploadStep() {
-      getStyleClass().addAll("app-onboarding", "welcome-screen", "resume-upload-screen");
+      // getStyleClass().addAll("app-onboarding", "welcome-screen", "resume-upload-screen");
+      getStyleClass().addAll("wizard-background", "welcome-screen");
 
-      TextFlow title = TextStyles.buildTitle(OnboardingScreenText.UPLOAD_TITLE, "welcome-title-prefix");
+      TextFlow title = TextStyles.buildTitle(OnboardingScreenText.UPLOAD_TITLE, "onboarding-wizard-title");
       setTop(title);
       BorderPane.setMargin(title, new Insets(0, 0, 48, 0));
 
       VBox content = buildContent();
-      setCenter(content);
-      BorderPane.setMargin(content, new Insets(0, 0, 12, 0));
+      var scrollContent = VisualElements.wizardScrollable(content);
+      setCenter(scrollContent);
+      BorderPane.setMargin(scrollContent, new Insets(0, 0, 24, 0));
 
       setBottom(new Buttons().buildNextButton());
    }

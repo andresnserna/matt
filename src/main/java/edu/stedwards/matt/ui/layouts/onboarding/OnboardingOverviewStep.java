@@ -2,7 +2,9 @@ package edu.stedwards.matt.ui.layouts.onboarding;
 
 import edu.stedwards.matt.ui.TextStyles;
 import edu.stedwards.matt.ui.interaction.Buttons;
+import edu.stedwards.matt.ui.interaction.VisualElements;
 import edu.stedwards.matt.ui.labels.OnboardingScreenText;
+import javafx.geometry.Insets;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextFlow;
@@ -22,13 +24,14 @@ public class OnboardingOverviewStep extends BorderPane {
    }
 
    public OnboardingOverviewStep(){
-      getStyleClass().addAll("wizard-background", "screen-padding");
+      getStyleClass().addAll("wizard-background", "welcome-screen");
       
-      TextFlow title = TextStyles.buildTitle(OnboardingScreenText.FIN_TITLE, "wizard-title");
+      TextFlow title = TextStyles.buildTitle(OnboardingScreenText.FIN_TITLE, "onboarding-wizard-title");
       // ^^this title will change with the specific step you're on, so this impl rn is temporary
       setTop(title);
-      
-      // setCenter(buildWelcomeMessage());
+      var scrollContent = VisualElements.wizardScrollable(buildAllInfoContainers());
+      setCenter(scrollContent);
+      BorderPane.setMargin(scrollContent, new Insets(0, 0, 24, 0));
       
       setBottom(new Buttons().buildNextButton());
    }

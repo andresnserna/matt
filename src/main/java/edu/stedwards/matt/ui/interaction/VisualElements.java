@@ -4,6 +4,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.control.Button;
 import com.github.weisj.jsvg.SVGDocument;
 import com.github.weisj.jsvg.parser.SVGLoader;
@@ -17,12 +18,15 @@ import javafx.scene.Node;
 import javafx.scene.shape.Line;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.css.PseudoClass;
+import org.kordamp.ikonli.javafx.FontIcon;
 import java.net.URL;
 import java.util.Objects;
 import edu.stedwards.matt.ui.interaction.Buttons;
 
 
 public class VisualElements {
+   private static final PseudoClass SCROLLABLE_PSEUDO_CLASS = PseudoClass.getPseudoClass("scrollable");
    private static final double COLLAPSED_SIDEBAR_WIDTH = 64;
    private static final double DRAWER_SIDE_INSET = 8;
    private double sidebarWidth = 240;
@@ -55,6 +59,49 @@ public class VisualElements {
       return scrollPane;
    }
 
+   /** 
+    * Scrollable wizard content with an inset shadow only while content overflows.
+    */
+   public static StackPane wizardScrollable(Node content) {
+      ScrollPane scrollPane = new ScrollPane(content);
+      scrollPane.setFitToWidth(true);
+      scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+      scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+      scrollPane.getStyleClass().add("wizard-scroll-pane");
+
+      StackPane container = new StackPane(scrollPane);
+      container.getStyleClass().add("wizard-scroll-container");
+      container.setMinHeight(0);
+
+      Node[] observedViewport = {null};
+      Runnable[] refreshScrollableState = new Runnable[1];
+      refreshScrollableState[0] = () -> {
+         Node viewport = scrollPane.lookup(".viewport");
+         if (viewport == null) {
+            return;
+         }
+         if (viewport != observedViewport[0]) {
+            observedViewport[0] = viewport;
+            viewport.layoutBoundsProperty().addListener(
+                  (observable, oldBounds, newBounds) -> refreshScrollableState[0].run());
+         }
+
+         boolean canScroll = content.getBoundsInLocal().getHeight()
+               > viewport.getBoundsInLocal().getHeight() + 1;
+         scrollPane.pseudoClassStateChanged(SCROLLABLE_PSEUDO_CLASS, canScroll);
+      };
+
+      content.layoutBoundsProperty().addListener(
+            (observable, oldBounds, newBounds) -> refreshScrollableState[0].run());
+      scrollPane.layoutBoundsProperty().addListener(
+            (observable, oldBounds, newBounds) -> refreshScrollableState[0].run());
+      scrollPane.skinProperty().addListener(
+            (observable, oldSkin, newSkin) -> refreshScrollableState[0].run());
+      scrollPane.sceneProperty().addListener(
+            (observable, oldScene, newScene) -> refreshScrollableState[0].run());
+      return container;
+   }
+
    /**
     * a container box that has information printed in it, not editable, just
     * presented in a concise and uniform way, but a button in the heading bar can
@@ -82,12 +129,13 @@ public class VisualElements {
       double buttonWidth = getSidebarWidth() - (2 * DRAWER_SIDE_INSET) - 4;
 
       VBox menuButtons = new VBox();
+      menuButtons.setSpacing(8);
       // make the buttons + add the unpressed style class
-      Button homeButton = Buttons.button(MainScreenText.BUTTON_HOME, null, buttonWidth, "sidebar-button");
-      Button templatesButton = Buttons.button(MainScreenText.BUTTON_TEMPLATES, null, buttonWidth, "sidebar-button");
-      Button applicationsButton = Buttons.button(MainScreenText.BUTTON_APPLICATIONS, null, buttonWidth, "sidebar-button");
-      Button myInfoButton = Buttons.button(MainScreenText.BUTTON_MY_INFO, null, buttonWidth, "sidebar-button");
-      Button settingsButton = Buttons.button(MainScreenText.BUTTON_SETTINGS, null, buttonWidth, "sidebar-button");
+      Button homeButton = Buttons.button(MainScreenText.BUTTON_HOME_ICON, MainScreenText.BUTTON_HOME, null, buttonWidth, "sidebar-button");
+      Button templatesButton = Buttons.button(MainScreenText.BUTTON_TEMPLATES_ICON, MainScreenText.BUTTON_TEMPLATES, null, buttonWidth, "sidebar-button");
+      Button applicationsButton = Buttons.button(MainScreenText.BUTTON_APPLICATIONS_ICON, MainScreenText.BUTTON_APPLICATIONS, null, buttonWidth, "sidebar-button");
+      Button myInfoButton = Buttons.button(MainScreenText.BUTTON_MY_INFO_ICON, MainScreenText.BUTTON_MY_INFO, null, buttonWidth, "sidebar-button");
+      Button settingsButton = Buttons.button(MainScreenText.BUTTON_SETTINGS_ICON, MainScreenText.BUTTON_SETTINGS, null, buttonWidth, "sidebar-button");
 
       // add conditional code for when button pressed, change the styleclass
 
@@ -182,13 +230,25 @@ public class VisualElements {
       double width = parentContainerWidth - 2 * DRAWER_SIDE_INSET;
 
       Label heading = new Label(title);
-      heading.getStyleClass().add("drawer-title");
+      heading.getStyleClass().add("sidebar-drawer-title");
 
       Region headerSpacer = new Region();
       HBox.setHgrow(headerSpacer, Priority.ALWAYS);
 
-      Button toggle = new Button("⌃");
-      toggle.getStyleClass().add("drawer-toggle");
+      Button toggle = Buttons.button(OtherScreenText.DRAWER_UP_ICON, event -> {
+               boolean collapsing = content.isManaged();
+               content.setVisible(!collapsing);
+               content.setManaged(!collapsing);
+
+               Button source = (Button) event.getSource();
+               FontIcon icon = (FontIcon) source.getGraphic();
+               icon.setIconCode(collapsing
+                     ? OtherScreenText.DRAWER_DOWN_ICON
+                     : OtherScreenText.DRAWER_UP_ICON);
+               source.setAccessibleText((collapsing ? "Expand " : "Collapse ") + title);
+            },
+            "drawer-toggle");
+
       toggle.setAccessibleText("Collapse " + title);
 
       // the line that goes below the drawer
@@ -205,14 +265,6 @@ public class VisualElements {
       drawer.setPrefWidth(width);
       drawer.setMaxWidth(width);
       content.getStyleClass().add("drawer-content");
-
-      toggle.setOnAction(event -> {
-         boolean collapsing = content.isManaged();
-         content.setVisible(!collapsing);
-         content.setManaged(!collapsing);
-         toggle.setText(collapsing ? "⌄" : "⌃");
-         toggle.setAccessibleText((collapsing ? "Expand " : "Collapse ") + title);
-      });
 
       return drawer;
    }

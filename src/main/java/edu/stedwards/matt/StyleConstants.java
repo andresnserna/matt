@@ -12,7 +12,8 @@ public final class StyleConstants {
     // COLORS
     public static final String COLOR_PRIMARY_TEAL = "#006D77";
     public static final String COLOR_SECONDARY_TEAL = "#83C5BE";
-    public static final String COLOR_TERTIARY_BLUE = "#EDF6F9";
+    public static final String COLOR_TERTIARY_TEAL = "#668A8C";
+    public static final String COLOR_BACKGROUND_BLUE = "#EDF6F9";
     public static final String COLOR_SECONDARY_ORANGE = "#FFDDD2";
     public static final String COLOR_PRIMARY_ORANGE = "#E29578";
     public static final String COLOR_PRIMARY_GREY = "#9A9A9A";

@@ -2,8 +2,11 @@ package edu.stedwards.matt.ui.layouts.onboarding;
 
 import edu.stedwards.matt.ui.TextStyles;
 import edu.stedwards.matt.ui.interaction.Buttons;
+import edu.stedwards.matt.ui.interaction.VisualElements;
 import edu.stedwards.matt.ui.labels.OnboardingScreenText;
+import javafx.geometry.Insets;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.TextFlow;
 
 // onboarding - personal info
@@ -17,12 +20,14 @@ import javafx.scene.text.TextFlow;
 public class OnboardingEnterInfo extends BorderPane {
 
    public OnboardingEnterInfo(){
-      getStyleClass().addAll("wizard-background", "screen-padding");
+      getStyleClass().addAll("wizard-background", "welcome-screen");
       
-      TextFlow title = TextStyles.buildTitle(OnboardingScreenText.PI_TITLE, "wizard-title");
+      TextFlow title = TextStyles.buildTitle(OnboardingScreenText.PI_TITLE, "onboarding-wizard-title");
       setTop(title);
       
-      // setCenter(buildWelcomeMessage());
+      var scrollContent = VisualElements.wizardScrollable(new VBox());
+      setCenter(scrollContent);
+      BorderPane.setMargin(scrollContent, new Insets(0, 0, 24, 0));
       
       setBottom(new Buttons().buildNextButton());
    }

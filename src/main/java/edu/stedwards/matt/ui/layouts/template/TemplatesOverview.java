@@ -11,7 +11,7 @@ public class TemplatesOverview extends BorderPane {
    public TemplatesOverview(){
       getStyleClass().addAll("screen-padding");
       
-      TextFlow title = TextStyles.buildTitle(TemplatesScreenText.PLACEHOLDER_TITLE, "wizard-title");
+      TextFlow title = TextStyles.buildTitle(TemplatesScreenText.PLACEHOLDER_TITLE, "screen-title");
       setTop(title);
       
       // setCenter(buildWelcomeMessage());

@@ -20,6 +20,9 @@ import javafx.scene.text.TextAlignment;
 
 public class Buttons {
 
+   /**
+    * text only button
+    */
 	public static Button button(String text, EventHandler<ActionEvent> onAction, double width, String... styleClasses) {
 		Button button = new Button(text);
 
@@ -35,15 +38,22 @@ public class Buttons {
 		return button;
 	}
 
-   public static Button button(Image icon, String text, EventHandler<ActionEvent> onAction, double width, String... styleClasses) {
+   /**
+    * text and icon button
+    */
+   public static Button button(FontAwesomeSolid iconType, String text, EventHandler<ActionEvent> onAction, double width, String... styleClasses) {
       Button button = new Button(text);
 
       if (onAction != null) {
          button.setOnAction(onAction);
       }
 
-      // button.setGraphic(icon);
+      FontIcon icon = new FontIcon(iconType);
+      // icon.setIconSize(16);
+      // icon.setIconColor(Color.web("#006D77")); // < decided in the styleclass
+      icon.getStyleClass().addAll(styleClasses);
 
+      button.setGraphic(icon);
       button.setPrefWidth(width);
       button.setMinWidth(width);
       button.setMaxWidth(width);
@@ -52,13 +62,33 @@ public class Buttons {
       return button;
    }
 
+   /**
+    * icon only button
+    */
+   public static Button button(FontAwesomeSolid iconType, EventHandler<ActionEvent> onAction, String... styleClasses) {
+      Button button = new Button();
+
+      if (onAction != null) {
+         button.setOnAction(onAction);
+      }
+
+      FontIcon icon = new FontIcon(iconType);
+      // icon.setIconSize(16);
+      // icon.setIconColor(Color.web("#006D77")); // < decided in the styleclass
+      icon.getStyleClass().addAll(styleClasses);
+      button.setGraphic(icon);
+
+      button.getStyleClass().addAll(styleClasses);
+      return button;
+   }
+
 	public HBox buildNextButton() {
       Button next = Buttons.button(
-            OnboardingScreenText.BUTTON_NEXT, null, Region.USE_COMPUTED_SIZE, "onboarding-next-button");
-      next.setGraphic(new Label("›"));
-      next.setContentDisplay(ContentDisplay.RIGHT);
-      next.setGraphicTextGap(8);
-
+            FontAwesomeSolid.CHEVRON_RIGHT,
+            OnboardingScreenText.BUTTON_NEXT,
+            null,
+            Region.USE_COMPUTED_SIZE,
+            "onboarding-next-button");
       HBox footer = new HBox(next);
       footer.setAlignment(Pos.CENTER_RIGHT);
       return footer;
