@@ -18,14 +18,17 @@ public class SystemInfo {
         return System.getProperty("javafx.version");
     }
 
-    // TODO: find the key for this property
     public static String systemOSVersion() {
-        return System.getProperty("op");
+        return System.getProperty("os.version");
     }
 
-    // TODO: find the key for this property
     public static String systemOSPlatform() {
-        return System.getProperty("op");
+        return System.getProperty("os.name");
+    }
+
+    public static String projectVersion() {
+        String version = SystemInfo.class.getPackage().getImplementationVersion();
+        return version == null ? "Development" : version;
     }
 
 }

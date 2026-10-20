@@ -4,6 +4,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.Optional;
 
+import edu.stedwards.matt.ui.TextStyles;
 import edu.stedwards.matt.ui.interaction.Buttons;
 import edu.stedwards.matt.ui.interaction.Inputs;
 import edu.stedwards.matt.ui.interaction.VisualElements;
@@ -21,10 +22,10 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 
-public class ResumeUploadStep extends BorderPane {
+public class OnboardingUploadStep extends BorderPane {
    private Path selectedResume;
-   private final TextField apiKeyField = Inputs.textField(
-         "XXXXX - XXXXX - XXXXX - XXXXX", 200, "resume-upload-api-key");
+   private final TextField apiKeyField = Inputs.inputField(
+         "XXXXX - XXXXX - XXXXX - XXXXX", 200, 200, "resume-upload-api-key");
 
    private Label buildInstruction(String text) {
       Label instruction = new Label(text);
@@ -74,17 +75,18 @@ public class ResumeUploadStep extends BorderPane {
       return apiKeyField.getText();
    }
 
-   public ResumeUploadStep() {
-      getStyleClass().addAll("app-onboarding", "welcome-screen", "resume-upload-screen");
+   public OnboardingUploadStep() {
+      // getStyleClass().addAll("app-onboarding", "welcome-screen", "resume-upload-screen");
+      getStyleClass().addAll("wizard-background", "welcome-screen");
 
-      TextFlow title = new VisualElements().buildWizardScreenTitle(
-            OnboardingScreenText.UPLOAD_TITLE, "welcome-title-prefix");
+      TextFlow title = TextStyles.buildTitle(OnboardingScreenText.UPLOAD_TITLE, "onboarding-wizard-title");
       setTop(title);
       BorderPane.setMargin(title, new Insets(0, 0, 48, 0));
 
       VBox content = buildContent();
-      setCenter(content);
-      BorderPane.setMargin(content, new Insets(0, 0, 12, 0));
+      var scrollContent = VisualElements.wizardScrollable(content);
+      setCenter(scrollContent);
+      BorderPane.setMargin(scrollContent, new Insets(0, 0, 24, 0));
 
       setBottom(new Buttons().buildNextButton());
    }

@@ -13,6 +13,7 @@ module edu.stedwards.matt {
     requires org.jsoup;
     requires org.apache.pdfbox;
     requires java.net.http;
+    requires fr.brouillard.oss.cssfx;
     exports edu.stedwards.matt;
     
 

@@ -39,11 +39,6 @@
     -fx-font-weight: bold;
 }
 
-.start-screen-created-by {
-    -fx-font-size: 11px;
-    -fx-text-fill: #6b7280;
-}
-
 .app-root {
     -fx-padding: 24px;
     -fx-alignment: center;
@@ -52,7 +47,7 @@
 }
 
 .app-onboarding {
-    -fx-background-color: linear-gradient(to bottom, white, white, white, #EDF6F9, #EDF6F9, #83C5BE, #006D77);
+    -fx-background-color: linear-gradient(to bottom, white, white, #EDF6F9, #EDF6F9, #83C5BE, #006D77);
 }
 
 .welcome-screen {
@@ -64,7 +59,6 @@
 }
 
 .resume-upload-screen .welcome-title {
-    -fx-font-family: "Georgia";
     -fx-font-size: 64px;
     -fx-font-style: italic;
 }
@@ -72,9 +66,6 @@
 .welcome-title {
     -fx-font-size: 64px;
     -fx-font-style: italic;
-}
-
-.welcome-title-prefix {
     -fx-fill: #668A8C;
 }
 
@@ -139,6 +130,8 @@
     -fx-background-color: #006D77;
     -fx-background-radius: 10px;
     -fx-text-fill: white;
+    -fx-content-display: right;
+    -fx-graphic-text-gap: 8px;
     -fx-font-style: italic;
     -fx-font-weight: bold;
     -fx-font-size: 16px;
@@ -249,4 +242,31 @@
 
 .start-screen-loading-percentage {
     -fx-text-fill: #e5e7eb;
+}
+
+.content-scroll {
+    -fx-background-color: transparent;
+}
+
+.content-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.content-scroll .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 10px;
+}
+
+.content-scroll .scroll-bar:vertical .track {
+    -fx-background-color: #EDF6F9;
+    -fx-background-radius: 5px;
+}
+
+.content-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: #83C5BE;
+    -fx-background-radius: 5px;
+}
+
+.content-scroll .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #006D77;
 }

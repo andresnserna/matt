@@ -1,13 +1,20 @@
 package edu.stedwards.matt.ui.labels;
 
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
+
 public class OnboardingScreenText {
    // GLOBAL
    public static final String CONFIRM_MESSAGE_1 = "Does this all look right? Click on a field to edit it.";
+   public static final String PLACEHOLDER_TITLE = "PLACEHOLDER";
+   public static final String PLACEHOLDER_MESSAGE = "This is placeholder text for the screen this text is in. the actual content will differ.";
 
    // Button Labels
    public static final String BUTTON_NEXT = "Next";
    public static final String BUTTON_BACK = "Back ";
    public static final String UPLOAD_BUTTON_SUBTITLE = "Supported Format: .docx .pdf .txt .rtf";
+   public static final FontAwesomeSolid BUTTON_NEXT_ICON = FontAwesomeSolid.CHEVRON_RIGHT;
+   public static final FontAwesomeSolid BUTTON_FINISH_ICON = FontAwesomeSolid.CHEVRON_RIGHT;
+   public static final FontAwesomeSolid RESUME_UPLOAD_ICON = FontAwesomeSolid.UPLOAD;
 
    // onboarding - welcome
    public static final String WELC_TITLE = "Welcome to ";
@@ -53,6 +60,11 @@ public class OnboardingScreenText {
 
    // onboarding - experiance EXP_
    public static final String EXP_TITLE = "Experience";
+   public static final FontAwesomeSolid EXPERIENCE_COPY_ICON = FontAwesomeSolid.COPY;
+   public static final FontAwesomeSolid EXPERIENCE_DELETE_ICON = FontAwesomeSolid.TRASH;
+   public static final FontAwesomeSolid OVERVIEW_EXPERIENCE_EDIT_ICON = FontAwesomeSolid.PEN;
+   public static final FontAwesomeSolid ATTACHED_FILE_ICON = FontAwesomeSolid.PAPERCLIP;
+   public static final FontAwesomeSolid TRY_AGAIN_ICON = FontAwesomeSolid.SYNC;
 
    // onboarding - projects PROJ_
    public static final String PROJ_TITLE = "Projects";

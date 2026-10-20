@@ -3,7 +3,7 @@ package edu.stedwards.matt.ui.layouts.application;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.BorderPane;
 
-public class ApplicationHomeStep extends BorderPane{
+public class ApplicationHome extends BorderPane{
 
    public BorderPane buildApplicationHomeLayout(){
       BorderPane applicationHomeLayout = new BorderPane();
@@ -14,8 +14,7 @@ public class ApplicationHomeStep extends BorderPane{
       return applicationHomeLayout;
    }
 
-   public ApplicationHomeStep(){
-      getStyleClass().add("");
+   public ApplicationHome(){
       setCenter(buildApplicationHomeLayout());
    }
    
