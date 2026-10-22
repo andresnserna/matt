@@ -16,4 +16,12 @@ public class MainScreenText {
    public static final FontAwesomeSolid BUTTON_MY_INFO_ICON = FontAwesomeSolid.USER;
    public static final FontAwesomeSolid BUTTON_SETTINGS_ICON = FontAwesomeSolid.COG;
 
+   public static final String RECENT_APPLICATIONS_DRAWER_TITLE = "Recent Applications";
+   public static final String RECENTLY_GENERATED_DRAWER_TITLE = "Recently Generated";
+   public static final String QUICK_START_TITLE = "Quick start an application...";
+   public static final String GREETING_PREFIX_MORNING = "Good Morning, ";
+   public static final String GREETING_PREFIX_AFTERNOON = "Good Afternoon, ";
+   public static final String GREETING_PREFIX_EVENING = "Good Evening, ";
+   public static final String GREETING_SUFFIX = ".";
+
 }

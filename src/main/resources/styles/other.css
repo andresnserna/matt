@@ -1,0 +1,27 @@
+.start-screen-progress .track {
+    -fx-background-color: #374151;
+}
+
+.start-screen-progress .bar {
+    -fx-background-color: #34d399;
+}
+
+.start-screen-loading-percentage {
+    -fx-text-fill: #e5e7eb;
+}
+.remember-me-checkbox {
+    -fx-font-size: 14px;
+    -fx-text-fill: #E29578;
+    -fx-cursor: hand;
+}
+
+.remember-me-checkbox .box {
+    -fx-background-color: white;
+    -fx-border-color: #BBBBBB;
+    -fx-border-radius: 2px;
+    -fx-background-radius: 2px;
+}
+
+.remember-me-checkbox:selected .mark {
+    -fx-background-color: #E29578;
+}

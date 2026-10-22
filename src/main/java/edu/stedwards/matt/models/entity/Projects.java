@@ -66,4 +66,18 @@ public class Projects {
     public void setEndDate(String endDate){
         this.endDate = endDate;
     }
+
+    /**
+     * Copies the project data into a new unsaved entity, preserving its owner but not its ID.
+     */
+    public Projects copy(){
+        Projects copy = new Projects();
+        copy.setUserID(userId);
+        copy.setProjectName(projectName);
+        copy.setDescription(description);
+        copy.setUrl(url);
+        copy.setStartDate(startDate);
+        copy.setEndDate(endDate);
+        return copy;
+    }
 }

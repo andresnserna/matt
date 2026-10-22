@@ -6,6 +6,7 @@ public class AwardsCerts {
     private String title;
     private String issuer;
     private String dateReceived;
+    private String description;
 
     // getters
     public int getAwardID(){
@@ -28,6 +29,10 @@ public class AwardsCerts {
         return dateReceived;
     }
 
+    public String getDescription(){
+        return description;
+    }
+
     // setters
     public void setAwardID(int awardId){
         this.awardId = awardId;
@@ -47,5 +52,22 @@ public class AwardsCerts {
 
     public void setDateReceived(String dateReceived){
         this.dateReceived = dateReceived;
+    }
+
+    public void setDescription(String description){
+        this.description = description;
+    }
+
+    /**
+     * Copies the award data into a new unsaved entity, preserving its owner but not its ID.
+     */
+    public AwardsCerts copy(){
+        AwardsCerts copy = new AwardsCerts();
+        copy.setUserID(userId);
+        copy.setTitle(title);
+        copy.setIssuer(issuer);
+        copy.setDateReceived(dateReceived);
+        copy.setDescription(description);
+        return copy;
     }
 }

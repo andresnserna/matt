@@ -14,6 +14,7 @@ public final class StartScreenText {
     public static final TextAlignment APP_TITLE_ALIGNMENT = TextAlignment.CENTER;
 
     public static final String SUBTITLE_LOADING = "Loading ";
+    public static final String SUBTITLE_LOADING_ITEM = "ITEM_TO_LOAD...";
     public static final TextAlignment SUBTITLE_LOADING_ALIGNMENT = TextAlignment.CENTER;
 
     // public static final String SUBTITLE_LOADING_ITEM_1 = "Resources";

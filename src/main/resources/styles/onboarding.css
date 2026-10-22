@@ -70,6 +70,33 @@
    -fx-background-color: #005B63;
 }
 
+.onboarding-column-heading {
+   -fx-font-size: 20px;
+   -fx-text-fill: #006D77;
+   -fx-text-alignment: center;
+}
+
+.input-label {
+   -fx-font-size: 18px;
+   -fx-text-fill: #006D77;
+}
+
+.about-job-heading {
+   -fx-font-size: 20px;
+   -fx-font-weight: bold;
+   -fx-text-fill: #668A8C;
+}
+
+.about-job-label {
+   -fx-font-size: 20px;
+   -fx-text-fill: #668A8C;
+}
+
+.about-job-content {
+   -fx-font-size: 20px;
+   -fx-text-fill: #9A9A9A;
+}
+
 .wizard-scroll-container {
    /* -fx-border-color: red; */
    /* -fx-border-width: 1px; */
@@ -87,4 +114,99 @@
 
 .wizard-scroll-pane:scrollable {
    -fx-effect: innershadow(gaussian, rgba(0, 0, 0, 0.18), 12, 0.2, 0, 0);
+}
+
+/* Small icon-only controls on experience cards. */
+.experience-icon-button {
+   -fx-background-color: transparent;
+   -fx-background-radius: 6px;
+   -fx-padding: 4px 6px;
+   -fx-cursor: hand;
+}
+
+.experience-icon-button .ikonli-font-icon {
+   -fx-icon-color: #668A8C;
+   -fx-icon-size: 18px;
+}
+
+.experience-icon-button:hover {
+   -fx-background-color: #EDF6F9;
+}
+
+.experience-icon-button:focused {
+   -fx-effect: dropshadow(gaussian, rgba(0, 109, 119, 0.4), 4, 0.2, 0, 0);
+}
+
+.experience-delete-button:hover .ikonli-font-icon {
+   -fx-icon-color: #E29578;
+}
+
+.upload-method-group {
+   -fx-alignment: center-left;
+   -fx-spacing: 16px;
+}
+
+.upload-method-or {
+   -fx-font-size: 18px;
+   -fx-font-style: italic;
+   -fx-font-weight: bold;
+   -fx-text-fill: #E29578;
+}
+
+.parsed-info-card {
+   -fx-background-color: #F3F9FA;
+   -fx-border-color: #668A8C;
+   -fx-border-radius: 10px;
+   -fx-background-radius: 10px;
+   -fx-border-width: 1px;
+}
+
+.parsed-info-card-header {
+   -fx-spacing: 12px;
+   -fx-padding: 12px 24px;
+   -fx-background-color: white;
+   -fx-background-radius: 9px 9px 0 0;
+   -fx-border-color: transparent transparent #D6D6D6 transparent;
+}
+
+.parsed-info-card-heading {
+   -fx-font-size: 24px;
+   -fx-font-weight: bold;
+   -fx-text-fill: #668A8C;
+}
+
+.parsed-info-card-content {
+   -fx-padding: 24px;
+   -fx-background-color: transparent;
+}
+
+/* Empty hooks for the experience card and its shared input/card classes. */
+.experience-editable-card {
+}
+
+.input-label {
+}
+
+.input-field-text {
+}
+
+.input-field-spacing {
+}
+
+.experience-icon-button {
+}
+
+.experience-delete-button {
+}
+
+.parsed-info-card {
+}
+
+.parsed-info-card-header {
+}
+
+.parsed-info-card-heading {
+}
+
+.parsed-info-card-content {
 }

@@ -22,12 +22,6 @@ public class LoginLayout extends VBox {
         setSpacing(12);
         setAlignment(Pos.CENTER);
 
-        Label title = new Label(LoginScreenText.LOGIN_TITLE);
-        title.getStyleClass().add("title-label");
-
-        Button loginButton = new Button(LoginScreenText.LOGIN_BUTTON);
-        loginButton.getStyleClass().add("primary-button");
-
-        getChildren().addAll(title, loginButton);
+        //logo up 
     }
 }
