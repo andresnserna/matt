@@ -18,12 +18,18 @@ import javafx.scene.Scene;
 public final class AppStyles {
     public static final String APP_CSS = "/styles/app.css";
     public static final String APPLICATION_CSS = "/styles/application.css";
+    public static final String MYINFO_CSS = "/styles/myinfo.css";
     public static final String ONBOARDING_CSS = "/styles/onboarding.css";
+    public static final String OTHER_CSS = "/styles/other.css";
+    public static final String TEMPLATES_CSS = "/styles/templates.css";
 
     private static final List<String> STYLESHEETS = List.of(
             APP_CSS,
             APPLICATION_CSS,
-            ONBOARDING_CSS);
+            MYINFO_CSS,
+            ONBOARDING_CSS,
+            OTHER_CSS,
+            TEMPLATES_CSS);
 
     private static final List<String> SF_PRO_FAMILIES = List.of(
             "SF Pro", "SF Pro Text", "SF Pro Display");

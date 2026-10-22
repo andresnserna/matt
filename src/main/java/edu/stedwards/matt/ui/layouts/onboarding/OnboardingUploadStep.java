@@ -29,7 +29,7 @@ public class OnboardingUploadStep extends BorderPane {
 
    private Label buildInstruction(String text) {
       Label instruction = new Label(text);
-      instruction.getStyleClass().add("resume-upload-instruction");
+      instruction.getStyleClass().add("onboarding-wizard-subtitle");
       instruction.setWrapText(true);
       instruction.setMaxWidth(Double.MAX_VALUE);
       instruction.setAlignment(Pos.CENTER_LEFT);
@@ -55,7 +55,7 @@ public class OnboardingUploadStep extends BorderPane {
 
    private VBox buildContent() {
       HBox uploadSection = new Buttons()
-            .buildUploadButtonGroup(576, 8, this::chooseResume);
+            .buildUploadButton(576, 8, this::chooseResume);
       VBox content = new VBox(
             30,
             buildInstruction(OnboardingScreenText.UPLOAD_MESSAGE_1),
@@ -76,8 +76,8 @@ public class OnboardingUploadStep extends BorderPane {
    }
 
    public OnboardingUploadStep() {
-      // getStyleClass().addAll("app-onboarding", "welcome-screen", "resume-upload-screen");
-      getStyleClass().addAll("wizard-background", "welcome-screen");
+      // getStyleClass().addAll("app-onboarding", "screen-padding", "resume-upload-screen");
+      getStyleClass().addAll("wizard-background", "screen-padding");
 
       TextFlow title = TextStyles.buildTitle(OnboardingScreenText.UPLOAD_TITLE, "onboarding-wizard-title");
       setTop(title);

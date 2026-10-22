@@ -1,0 +1,38 @@
+.template-choice-button {
+   -fx-background-color: white;
+   -fx-background-radius: 12px;
+   -fx-border-color: #83C5BE;
+   -fx-border-radius: 12px;
+   -fx-border-width: 1px;
+   -fx-text-fill: #668A8C;
+   -fx-alignment: top-left;
+   -fx-wrap-text: true;
+   -fx-padding: 10px;
+   -fx-cursor: hand;
+}
+
+.template-choice-button:hover {
+   -fx-background-color: #F3FAFA;
+}
+
+.template-choice-button-selected {
+   -fx-background-color: linear-gradient(to bottom, white 48%, #83C5BE 100%);
+   -fx-border-color: #83C5BE;
+}
+
+.template-choice-button-coral {
+   -fx-border-color: #E29578;
+   -fx-text-fill: #E29578;
+}
+
+.template-choice-button-coral:hover {
+   -fx-background-color: #FFF7F3;
+}
+
+.template-choice-button-coral.template-choice-button-selected {
+   -fx-background-color: linear-gradient(to bottom, white 35%, #E29578 100%);
+}
+
+.template-choice-button:focused {
+   -fx-effect: dropshadow(gaussian, rgba(0, 109, 119, 0.35), 5, 0.2, 0, 0);
+}

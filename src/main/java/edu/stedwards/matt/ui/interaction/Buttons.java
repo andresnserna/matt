@@ -94,7 +94,7 @@ public class Buttons {
       return footer;
    }
 
-   public HBox buildUploadButtonGroup(int width, int spacing, EventHandler<ActionEvent> onUpload) {
+   public HBox buildUploadButton(int width, int spacing, EventHandler<ActionEvent> onUpload) {
       Button upload = Buttons.button("Upload", onUpload, width, "resume-upload-button");
 
       FontIcon uploadIcon = new FontIcon(FontAwesomeSolid.UPLOAD);
@@ -106,7 +106,7 @@ public class Buttons {
       upload.setMaxWidth(Double.MAX_VALUE);
 
       Label supportedFormats = new Label(OnboardingScreenText.UPLOAD_BUTTON_SUBTITLE);
-      supportedFormats.getStyleClass().add("resume-upload-supported-formats");
+      supportedFormats.getStyleClass().add("onboarding-wizard-supported-formats");
       supportedFormats.setTextAlignment(TextAlignment.CENTER);
 
       VBox controls = new VBox(spacing, upload, supportedFormats);

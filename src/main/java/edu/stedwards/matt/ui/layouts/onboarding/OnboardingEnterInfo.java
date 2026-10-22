@@ -10,17 +10,11 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.TextFlow;
 
 // onboarding - personal info
-// onboarding - education
-// onboarding - experiance
-// onboarding - projects
-// onboarding - skills
-// onboarding - awards/certs
-// onboarding - websites
 
 public class OnboardingEnterInfo extends BorderPane {
 
    public OnboardingEnterInfo(){
-      getStyleClass().addAll("wizard-background", "welcome-screen");
+      getStyleClass().addAll("wizard-background", "screen-padding");
       
       TextFlow title = TextStyles.buildTitle(OnboardingScreenText.PI_TITLE, "onboarding-wizard-title");
       setTop(title);

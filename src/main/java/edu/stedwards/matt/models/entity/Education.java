@@ -66,4 +66,18 @@ public class Education {
     public void setGpa(String gpa){
         this.gpa = gpa;
     }
+
+    /**
+     * Copies the education data into a new unsaved entity, preserving its owner but not its ID.
+     */
+    public Education copy(){
+        Education copy = new Education();
+        copy.setUserID(userId);
+        copy.setInstitution(institution);
+        copy.setDegree(degree);
+        copy.setStartDate(startDate);
+        copy.setEndDate(endDate);
+        copy.setGpa(gpa);
+        return copy;
+    }
 }

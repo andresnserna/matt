@@ -28,6 +28,7 @@ import edu.stedwards.matt.ui.layouts.onboarding.OnboardingWelcome;
 import edu.stedwards.matt.ui.layouts.other.LoginLayout;
 import edu.stedwards.matt.ui.layouts.other.MainLayout;
 import edu.stedwards.matt.ui.layouts.other.StartLayout;
+import edu.stedwards.matt.ui.layouts.other.EverythingLayout;
 import edu.stedwards.matt.ui.layouts.template.TemplatesCreator;
 import edu.stedwards.matt.ui.layouts.template.TemplatesOverview;
 import edu.stedwards.matt.ui.layouts.template.TemplatesUploadOrNew;
@@ -77,7 +78,8 @@ public class Matt extends Application {
                 new PreviewScreen("Application Materials", ApplicationGenerateMaterials::new),
                 new PreviewScreen("Upload or Create Template", TemplatesUploadOrNew::new),
                 new PreviewScreen("Create Template", TemplatesCreator::new),
-                new PreviewScreen("Template Overview", TemplatesOverview::new));
+                new PreviewScreen("Template Overview", TemplatesOverview::new),
+                new PreviewScreen("Everything", EverythingLayout::new));
 
         int[] currentIndex = { 0 };
         BorderPane preview = new BorderPane();

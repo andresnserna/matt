@@ -66,4 +66,18 @@ public class Experience {
     public void setDescription(String description){
         this.description = description;
     }
+
+    /**
+     * Copies the experience data into a new unsaved entity, preserving its owner but not its ID.
+     */
+    public Experience copy(){
+        Experience copy = new Experience();
+        copy.setUserID(userId);
+        copy.setJobTitle(jobTitle);
+        copy.setCompanyName(companyName);
+        copy.setStartDate(startDate);
+        copy.setEndDate(endDate);
+        copy.setDescription(description);
+        return copy;
+    }
 }

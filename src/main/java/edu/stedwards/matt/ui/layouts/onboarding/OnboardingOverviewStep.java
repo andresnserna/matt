@@ -24,7 +24,7 @@ public class OnboardingOverviewStep extends BorderPane {
    }
 
    public OnboardingOverviewStep(){
-      getStyleClass().addAll("wizard-background", "welcome-screen");
+      getStyleClass().addAll("wizard-background", "screen-padding");
       
       TextFlow title = TextStyles.buildTitle(OnboardingScreenText.FIN_TITLE, "onboarding-wizard-title");
       // ^^this title will change with the specific step you're on, so this impl rn is temporary
@@ -34,6 +34,48 @@ public class OnboardingOverviewStep extends BorderPane {
       BorderPane.setMargin(scrollContent, new Insets(0, 0, 24, 0));
       
       setBottom(new Buttons().buildNextButton());
+   }
+
+   /**
+     * 
+     */
+   public static void buildEducationSectionViewOnly() {
+
+   }
+
+   /**
+    * 
+    */
+   public static void buildExperienceSectionViewOnly() {
+
+   }
+
+   /**
+    * 
+    */
+   public static void buildProjectsSectionViewOnly() {
+
+   }
+
+   /**
+    * 
+    */
+   public static void buildSkillsSectionViewOnly() {
+
+   }
+
+   /**
+    * 
+    */
+   public static void buildAwardsCertsSectionViewOnly() {
+
+   }
+
+   /**
+    * 
+    */
+   public static void buildWebsitesSectionViewOnly() {
+
    }
 
 }

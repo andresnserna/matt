@@ -12,7 +12,7 @@ import javafx.scene.text.TextFlow;
 public class ApplicationUploadJob extends BorderPane {
 
    public ApplicationUploadJob(){
-      getStyleClass().addAll("wizard-background", "welcome-screen");
+      getStyleClass().addAll("screen-padding");
       
       TextFlow title = TextStyles.buildTitle(ApplicationScreenText.PLACEHOLDER_TITLE, "screen-title");
       setTop(title);

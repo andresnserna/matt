@@ -57,7 +57,7 @@ public class OnboardingWelcome extends BorderPane {
    }
 
    public OnboardingWelcome() {
-      getStyleClass().addAll("wizard-background", "welcome-screen");
+      getStyleClass().addAll("wizard-background", "screen-padding");
       setTop(buildScreenTitle());
       var scrollContent = VisualElements.wizardScrollable(buildWelcomeMessage());
       setCenter(scrollContent);
