@@ -57,7 +57,7 @@ public class Matt extends Application {
 
         stage.setTitle("Matt");
         stage.setScene(new Scene(startLayout, StyleConstants.WINDOW_WIDTH, StyleConstants.WINDOW_HEIGHT));
-        AppStyles.apply(stage.getScene());
+        AppStyle.apply(stage.getScene());
 
         stage.show();
         CSSFX.start();
@@ -113,7 +113,7 @@ public class Matt extends Application {
 
         stage.setTitle("Matt - Layout Preview");
         stage.setScene(new Scene(preview, StyleConstants.WINDOW_WIDTH, StyleConstants.WINDOW_HEIGHT));
-        AppStyles.apply(stage.getScene());
+        AppStyle.apply(stage.getScene());
         stage.show();
         CSSFX.start();
     }

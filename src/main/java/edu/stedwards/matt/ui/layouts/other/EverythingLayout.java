@@ -35,7 +35,8 @@ public class EverythingLayout extends BorderPane {
       gallery.getChildren().addAll(
             section("Buttons", buttonExamples()),
             section("Inputs", inputExamples()),
-            section("Visual Elements", visualElementExamples()));
+            section("Visual Elements", visualElementExamples()),
+            section("Application and Template Components", appComponentExamples()));
 
       javafx.scene.control.ScrollPane scrollPane = VisualElements.scrollable(gallery);
       scrollPane.setFitToHeight(false);
@@ -122,6 +123,39 @@ public class EverythingLayout extends BorderPane {
       VBox widthExample = new VBox(6, widthLabel, widthPreview);
       widthExample.setAlignment(Pos.CENTER_LEFT);
       examples.getChildren().add(example("VisualElements.getSidebarWidth() / setSidebarWidth(double)", widthExample));
+      return examples;
+   }
+
+   /** Builds previews of the application, job detail, template, and file components. */
+   private VBox appComponentExamples() {
+      VBox examples = new VBox(12);
+      String sampleCopy = "A preview of parsed job text. This section shows how the component wraps longer descriptions while keeping the content readable.";
+      examples.getChildren().addAll(
+            example("VisualElements.buildLoginBox(EventHandler, EventHandler)", VisualElements.buildLoginBox(null, null)),
+            example("VisualElements.buildApplicationListCard(String, String, int, String, int, EventHandler)",
+                  VisualElements.buildApplicationListCard("Software Engineer", "Acrisure", 5, "d", 2, null)),
+            example("VisualElements.buildJobDetailsContainer(String, String, String, String, String, String, String)",
+                  VisualElements.buildJobDetailsContainer("Job Title", "City, ST", "Company Name", "$100,000/yr – $101,000/yr",
+                        "– some requirement sentence.\n– another requirement sentence that wraps onto two lines.",
+                        "– some nice-to-have experience.\n– another preferred qualification.", "– health and dental coverage.")),
+            example("VisualElements.buildTemplatePickerContainer(List<TemplateOption>, double, double)",
+                  VisualElements.buildTemplatePickerContainer(List.of(
+                        new VisualElements.TemplateOption("Resume Template", null, "template-card-teal"),
+                        new VisualElements.TemplateOption("Cover Letter Template", null, "template-card-orange"),
+                        new VisualElements.TemplateOption("Cover Letter Template 2", null, "template-card-orange")), 520, 440)),
+            example("VisualElements.buildJobDetailsRawTextContainer(String)",
+                  VisualElements.buildJobDetailsRawTextContainer((sampleCopy + " ").repeat(12))),
+            example("VisualElements.buildSidebarListItem_App(int, String, String, String, EventHandler)",
+                  VisualElements.buildSidebarListItem_App(4, "h", "Acrisure, Software Inc.", "Software Engineer", null)),
+            example("VisualElements.buildSidebarListItem_Mat(int, String, String, EventHandler)",
+                  VisualElements.buildSidebarListItem_Mat(4, "h", "resume - john whitmore.pdf", null)),
+            example("VisualElements.buildFileCountBadge(int)", VisualElements.buildFileCountBadge(2)),
+            example("VisualElements.buildRelativeTimeLabel(int, String, boolean)",
+                  VisualElements.buildRelativeTimeLabel(5, "d", true)),
+            example("VisualElements.buildAttachedFileLabel(String)",
+                  VisualElements.buildAttachedFileLabel("JiuhhiJKHgkjhG_download_9_00_12.pdf")),
+            example("Buttons.buildTemplatePickerCard(String, EventHandler, double, double, String...)",
+                  Buttons.buildTemplatePickerCard("Resume Template", null, 225, 185, "template-card-teal")));
       return examples;
    }
 

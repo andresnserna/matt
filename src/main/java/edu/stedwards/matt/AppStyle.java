@@ -15,7 +15,7 @@ import javafx.scene.Scene;
  * TODO: (LONG description of this class)
  */
 
-public final class AppStyles {
+public final class AppStyle {
     public static final String APP_CSS = "/styles/app.css";
     public static final String APPLICATION_CSS = "/styles/application.css";
     public static final String MYINFO_CSS = "/styles/myinfo.css";
@@ -36,7 +36,7 @@ public final class AppStyles {
 
     public static void apply(Scene scene) {
         for (String stylesheet : STYLESHEETS) {
-            URL css = AppStyles.class.getResource(stylesheet);
+            URL css = AppStyle.class.getResource(stylesheet);
             if (css != null) {
                 scene.getStylesheets().add(css.toExternalForm());
             }
@@ -69,6 +69,6 @@ public final class AppStyles {
         }
     }
 
-    private AppStyles() {
+    private AppStyle() {
     }
 }

@@ -26,7 +26,7 @@ public class BaseWindow {
         this.stage = new Stage();
         this.stage.setTitle(title);
         this.scene = new Scene(root, width, height);
-        AppStyles.apply(this.scene);
+        AppStyle.apply(this.scene);
         this.stage.setScene(this.scene);
     }
 
