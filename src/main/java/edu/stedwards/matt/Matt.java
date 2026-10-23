@@ -22,7 +22,7 @@ import edu.stedwards.matt.ui.layouts.application.ApplicationHome;
 import edu.stedwards.matt.ui.layouts.application.ApplicationUploadJob;
 import edu.stedwards.matt.ui.layouts.onboarding.OnboardingEnterInfo;
 import edu.stedwards.matt.ui.layouts.onboarding.OnboardingOverviewStep;
-import edu.stedwards.matt.ui.layouts.onboarding.OnboardingLayout;
+import edu.stedwards.matt.ui.layouts.onboarding.OnboardingStepLayout;
 import edu.stedwards.matt.ui.layouts.onboarding.OnboardingUploadStep;
 import edu.stedwards.matt.ui.layouts.onboarding.OnboardingWelcome;
 import edu.stedwards.matt.ui.layouts.other.LoginLayout;
@@ -50,7 +50,7 @@ public class Matt extends Application {
     }
 
     private void startNormalApplication(Stage stage) {
-        OnboardingLayout onboardingLayout = new OnboardingLayout();
+        OnboardingStepLayout onboardingLayout = new OnboardingStepLayout();
         onboardingLayout.showStep(new OnboardingWelcome());
         StartLayout startLayout = new StartLayout("application",
                 () -> stage.getScene().setRoot(onboardingLayout));

@@ -103,7 +103,7 @@ public class EverythingLayout extends BorderPane {
                   visuals.infoContainer(320, 120, "Information", 1, infoContent)),
             example("VisualElements.buildUploadMethodGroup3()", VisualElements.buildUploadMethodGroup3()),
             example("VisualElements.buildParsedInfoCardEditable(String, List<Node>, List<Button>, String...)",
-                  VisualElements.buildParsedInfoCardEditable(
+                  VisualElements.buildParsedInfoCard(
                         "Experience 1", List.of(experienceFields, roleDescription),
                         List.of(copyButton, deleteButton))),
             example("VisualElements.mainSideBar()", visuals.mainSideBar()),

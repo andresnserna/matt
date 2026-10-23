@@ -5,9 +5,6 @@
 package edu.stedwards.matt.ui.layouts.onboarding;
 
 import javafx.scene.text.TextFlow;
-
-import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
-
 import edu.stedwards.matt.ui.TextStyles;
 import edu.stedwards.matt.ui.interaction.Buttons;
 import edu.stedwards.matt.ui.interaction.Inputs;
@@ -22,11 +19,15 @@ import edu.stedwards.matt.models.entity.Websites;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.geometry.Insets;
 import javafx.scene.layout.VBox;
 import javafx.collections.ListChangeListener;
@@ -35,6 +36,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.function.Consumer;
+
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 
 /**
  * Builds the onboarding layout for first-time or introductory user flow.
@@ -49,7 +53,7 @@ import java.util.function.Supplier;
 // onboarding - awards/certs
 // onboarding - websites
 
-public class OnboardingLayout extends BorderPane {
+public class OnboardingStepLayout extends BorderPane {
     // Holds the active wizard page and observes whichever section list is currently displayed.
     private Node currentStep;
     private ObservableList<?> shownItems;
@@ -69,7 +73,7 @@ public class OnboardingLayout extends BorderPane {
     /**
      * Sets up the shared onboarding background, heading, and navigation footer.
      */
-    public OnboardingLayout(){
+    public OnboardingStepLayout(){
         getStyleClass().addAll("wizard-background", "screen-padding");
         
         TextFlow title = TextStyles.buildTitle(OnboardingScreenText.PLACEHOLDER_TITLE, "onboarding-wizard-title");
@@ -84,7 +88,7 @@ public class OnboardingLayout extends BorderPane {
      * Builds a shared editable card with the existing copy and delete controls.
      */
     private static VBox buildEditableSectionCard(String heading, Node fields, Runnable onDuplicate, Runnable onDelete) {
-        Button duplicate = Buttons.button(FontAwesomeSolid.COPY,
+        Button duplicate = Buttons.button(OnboardingScreenText.CONTENT_CARD_COPY_ICON,
                         event -> {
                                 if (onDuplicate != null)
                                         onDuplicate.run();
@@ -93,7 +97,7 @@ public class OnboardingLayout extends BorderPane {
 
         duplicate.setAccessibleText("Duplicate section");
 
-        Button delete = Buttons.button(FontAwesomeSolid.TRASH,
+        Button delete = Buttons.button(OnboardingScreenText.CONTENT_CARD_DELETE_ICON,
                         event -> {
                                 if (onDelete != null)
                                         onDelete.run();
@@ -101,7 +105,7 @@ public class OnboardingLayout extends BorderPane {
                         "experience-icon-button", "experience-delete-button");
         delete.setAccessibleText("Delete section");
 
-        return VisualElements.buildParsedInfoCardEditable(heading, List.of(fields), List.of(duplicate, delete));
+        return VisualElements.buildParsedInfoCard(heading, List.of(fields), List.of(duplicate, delete));
     }
 
     /**
@@ -116,9 +120,7 @@ public class OnboardingLayout extends BorderPane {
                 items.add(emptyItemFactory.get());
         }
 
-        // TODO: Set the final spacing and placement for the repeated section cards
-        // here.
-        VBox cards = new VBox();
+        VBox cards = new VBox(16);
         cards.setFillWidth(true);
         Runnable refresh = () -> {
                 cards.getChildren().clear();
@@ -174,6 +176,43 @@ public class OnboardingLayout extends BorderPane {
             VBox build(T item, int sectionNumber, Runnable onDuplicate, Runnable onDelete);
     }
 
+    /** Builds a labeled month/year input and stores its value as MM/YYYY. */
+    private static VBox monthYearGroup(String labelText, String value, Consumer<String> onDateChanged) {
+        String[] parts = monthYearParts(value);
+        TextField month = Inputs.inputField(OnboardingScreenText.DATE_MONTH_PLACEHOLDER, 54, 70);
+        TextField year = Inputs.inputField(OnboardingScreenText.DATE_YEAR_PLACEHOLDER, 82, 100);
+        month.setText(parts[0]);
+        year.setText(parts[1]);
+        Runnable update = () -> {
+            String combined = month.getText().trim() + "/" + year.getText().trim();
+            onDateChanged.accept(combined.equals("/") ? "" : combined);
+        };
+        month.textProperty().addListener((observable, oldValue, newValue) -> update.run());
+        year.textProperty().addListener((observable, oldValue, newValue) -> update.run());
+
+        HBox dateFields = new HBox(8, month, new Label("/"), year);
+        dateFields.setAlignment(Pos.CENTER_LEFT);
+        return Inputs.buildInputGroup(TextStyles.buildLabel(labelText, "input-label"), dateFields);
+    }
+
+    private static String[] monthYearParts(String value) {
+        if (value == null || value.isBlank()) {
+            return new String[] {"", ""};
+        }
+        String[] parts = value.trim().split("[/\\-.]", -1);
+        if (parts.length == 3) {
+            return parts[0].length() == 4
+                    ? new String[] {parts[1], parts[0]}
+                    : new String[] {parts[0], parts[2]};
+        }
+        if (parts.length == 2) {
+            return parts[0].length() == 4
+                    ? new String[] {parts[1], parts[0]}
+                    : new String[] {parts[0], parts[1]};
+        }
+        return new String[] {"", ""};
+    }
+
     /**
      * Builds an editable education card for the education onboarding step.
      */
@@ -193,16 +232,20 @@ public class OnboardingLayout extends BorderPane {
 
         VBox institutionGroup = Inputs.buildInputGroup(TextStyles.buildLabel(OnboardingScreenText.EDU_LABEL_INSTITUTION, "input-label"), institution);
         VBox degreeGroup = Inputs.buildInputGroup(TextStyles.buildLabel(OnboardingScreenText.EDU_LABEL_DEGREE, "input-label"), degree);
-        HBox dates = new HBox(
-                VisualElements.dateGroup(OnboardingScreenText.EDU_LABEL_START_DATE, sectionData.getStartDate(),
-                        value -> sectionData.setStartDate(value)),
-                VisualElements.dateGroup(OnboardingScreenText.EDU_LABEL_END_DATE, sectionData.getEndDate(),
-                        value -> sectionData.setEndDate(value)));
-        VBox gpaGroup = Inputs.buildInputGroup(
-                TextStyles.buildLabel(OnboardingScreenText.EDU_LABEL_GPA, "input-label"), gpa);
+        VBox graduation = monthYearGroup(OnboardingScreenText.EDU_LABEL_GRADUATION, sectionData.getEndDate(), sectionData::setEndDate);
+        VBox gpaGroup = Inputs.buildInputGroup(TextStyles.buildLabel(OnboardingScreenText.EDU_LABEL_GPA, "input-label"), gpa);
 
-        // TODO: Set final spacing and placement for education fields here.
-        VBox fields = new VBox(new HBox(institutionGroup, degreeGroup, dates), gpaGroup);
+        HBox firstRow = new HBox(16, degreeGroup, institutionGroup);
+        Region firstRowSpacer = new Region();
+        firstRow.getChildren().addAll(firstRowSpacer, graduation);
+        firstRow.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(firstRowSpacer, Priority.ALWAYS);
+
+        Region secondRowSpacer = new Region();
+        HBox secondRow = new HBox(16, secondRowSpacer, gpaGroup);
+        secondRow.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(secondRowSpacer, Priority.ALWAYS);
+        VBox fields = new VBox(16, firstRow, secondRow);
         return buildEditableSectionCard(OnboardingScreenText.EDU_CARD_PREFIX + sectionNumber, fields, onDuplicate, onDelete);
     }
 
@@ -210,7 +253,7 @@ public class OnboardingLayout extends BorderPane {
      * Displays one editable card for each education model in the scrollable wizard area.
      */
     public void showEducationStep(ObservableList<Education> educationItems) {
-        showEditableSections(educationItems, OnboardingScreenText.EDU_TITLE, Education::new, Education::copy, OnboardingLayout::buildEducationSectionEditable);
+        showEditableSections(educationItems, OnboardingScreenText.EDU_TITLE, Education::new, Education::copy, OnboardingStepLayout::buildEducationSectionEditable);
     }
 
     /**
@@ -235,7 +278,6 @@ public class OnboardingLayout extends BorderPane {
         description.textProperty().addListener((observable, oldValue, newValue) -> sectionData.setDescription(newValue));
 
         // Arrange the labeled fields into the rows shown in the experience card design.
-        // TODO: Finalize spacing and placement for the experience fields in this container.
         VBox jobTitleGroup = Inputs.buildInputGroup(
                 TextStyles.buildLabel(OnboardingScreenText.EXP_LABEL_JOB_TITLE, "input-label"), jobTitle);
         VBox companyGroup = Inputs.buildInputGroup(
@@ -246,14 +288,13 @@ public class OnboardingLayout extends BorderPane {
                 VisualElements.dateGroup(OnboardingScreenText.EXP_LABEL_END_DATE, sectionData.getEndDate(),
                         value -> sectionData.setEndDate(value)));
 
-        HBox mainFields = new HBox(16, jobTitleGroup, companyGroup, dates);
+        Region mainFieldsSpacer = new Region();
+        HBox mainFields = new HBox(16, jobTitleGroup, companyGroup, mainFieldsSpacer, dates);
         mainFields.setAlignment(Pos.TOP_LEFT);
-        HBox.setHgrow(jobTitleGroup, Priority.ALWAYS);
-        HBox.setHgrow(companyGroup, Priority.ALWAYS);
-        HBox.setHgrow(dates, Priority.ALWAYS);
+        HBox.setHgrow(mainFieldsSpacer, Priority.ALWAYS);
 
         VBox descriptionGroup = Inputs.buildInputGroup(TextStyles.buildLabel(OnboardingScreenText.EXP_LABEL_DESCRIPTION, "input-label"), description);
-        VBox inputGroups = new VBox(20, mainFields, descriptionGroup);
+        VBox inputGroups = new VBox(16, mainFields, descriptionGroup);
 
         // Add card actions; the parent step supplies callbacks that update its model list.
         Button duplicate = Buttons.button(FontAwesomeSolid.COPY,
@@ -265,18 +306,14 @@ public class OnboardingLayout extends BorderPane {
                 "experience-icon-button", "experience-delete-button");
         delete.setAccessibleText("Delete experience");
 
-        return VisualElements.buildParsedInfoCardEditable(
+        return VisualElements.buildParsedInfoCard(
                 OnboardingScreenText.EXP_CARD_PREFIX + sectionNumber,
                 List.of(inputGroups), List.of(duplicate, delete), "experience-editable-card");
     }
 
-    /**
-     * Displays one editable card for each experience model in the scrollable wizard area.
-     * Map parser results into {@link Experience} objects before passing the observable list here;
-     * changes to the list refresh the displayed cards.
-     */
+    /** Displays one editable experience card for each model in the wizard. */
     public void showExperienceStep(ObservableList<Experience> experiences) {
-        showEditableSections(experiences, OnboardingScreenText.EXP_TITLE, Experience::new, Experience::copy, OnboardingLayout::buildExperienceSectionEditable);
+        showEditableSections(experiences, OnboardingScreenText.EXP_TITLE, Experience::new, Experience::copy, OnboardingStepLayout::buildExperienceSectionEditable);
     }
 
     /**
@@ -286,27 +323,39 @@ public class OnboardingLayout extends BorderPane {
         final Projects sectionData = project == null ? new Projects() : project;
 
         TextField name = Inputs.inputField(OnboardingScreenText.LABEL_PROJECT_TITLE_PLACEHOLDER,240, Double.MAX_VALUE);
-        TextField url = Inputs.inputField(OnboardingScreenText.LABEL_PROJECT_URL_PLACEHOLDER,260, Double.MAX_VALUE);
+        TextField role = Inputs.inputField(OnboardingScreenText.PROJ_LABEL_ROLE, 220, Double.MAX_VALUE);
+        TextField location = Inputs.inputField(OnboardingScreenText.PROJ_LABEL_LOCATION, 220, Double.MAX_VALUE);
         TextArea description = Inputs.textArea(OnboardingScreenText.LABEL_PROJECT_DESCRIPTION_PLACEHOLDER,400, Double.MAX_VALUE, 100, 180);
         
         name.setText(Inputs.nullToEmpty(sectionData.getProjectName()));
-        url.setText(Inputs.nullToEmpty(sectionData.getUrl()));
+        role.setText(Inputs.nullToEmpty(sectionData.getRole()));
+        location.setText(Inputs.nullToEmpty(sectionData.getLocation()));
         description.setText(Inputs.nullToEmpty(sectionData.getDescription()));
         name.textProperty().addListener((o, oldValue, newValue) -> sectionData.setProjectName(newValue));
-        url.textProperty().addListener((o, oldValue, newValue) -> sectionData.setUrl(newValue));
+        role.textProperty().addListener((o, oldValue, newValue) -> sectionData.setRole(newValue));
+        location.textProperty().addListener((o, oldValue, newValue) -> sectionData.setLocation(newValue));
         description.textProperty().addListener((o, oldValue, newValue) -> sectionData.setDescription(newValue));
 
         VBox nameGroup = Inputs.buildInputGroup(TextStyles.buildLabel(OnboardingScreenText.PROJ_LABEL_TITLE, "input-label"), name);
-        VBox urlGroup = Inputs.buildInputGroup(TextStyles.buildLabel(OnboardingScreenText.PROJ_LABEL_URL, "input-label"), url);
+        VBox roleGroup = Inputs.buildInputGroup(TextStyles.buildLabel(OnboardingScreenText.PROJ_LABEL_ROLE, "input-label"), role);
         HBox dates = new HBox(
                 VisualElements.dateGroup(OnboardingScreenText.PROJ_LABEL_START_DATE, sectionData.getStartDate(),
                         value -> sectionData.setStartDate(value)),
                 VisualElements.dateGroup(OnboardingScreenText.PROJ_LABEL_END_DATE, sectionData.getEndDate(),
                         value -> sectionData.setEndDate(value)));
+        VBox locationGroup = Inputs.buildInputGroup(TextStyles.buildLabel(OnboardingScreenText.PROJ_LABEL_LOCATION, "input-label"), location);
         VBox descriptionGroup = Inputs.buildInputGroup(TextStyles.buildLabel(OnboardingScreenText.PROJ_LABEL_DESCRIPTION, "input-label"), description);
 
-        // TODO: Set final spacing and placement for project fields here.
-        VBox fields = new VBox(new HBox(nameGroup, urlGroup), dates, descriptionGroup);
+        Region firstRowSpacer = new Region();
+        HBox firstRow = new HBox(16, nameGroup, roleGroup, firstRowSpacer, dates);
+        firstRow.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(firstRowSpacer, Priority.ALWAYS);
+
+        Region secondRowSpacer = new Region();
+        HBox secondRow = new HBox(16, secondRowSpacer, locationGroup);
+        secondRow.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(secondRowSpacer, Priority.ALWAYS);
+        VBox fields = new VBox(16, firstRow, secondRow, descriptionGroup);
         return buildEditableSectionCard(OnboardingScreenText.PROJ_CARD_PREFIX + sectionNumber,
                 fields, onDuplicate, onDelete);
     }
@@ -316,24 +365,102 @@ public class OnboardingLayout extends BorderPane {
      * Map parsed project data into {@link Projects} objects before passing the list here.
      */
     public void showProjectsStep(ObservableList<Projects> projects){
-        showEditableSections(projects, OnboardingScreenText.PROJ_TITLE, Projects::new, Projects::copy, OnboardingLayout::buildProjectsSectionEditable);
+        showEditableSections(projects, OnboardingScreenText.PROJ_TITLE, Projects::new, Projects::copy, OnboardingStepLayout::buildProjectsSectionEditable);
     }
 
 
-    /**
-     * Builds an editable skills card for the skills onboarding step.
-     */
-    public static VBox buildSkillsSectionEditable() {
-        return null;
+    /** Builds a clickable skill chip; clicking it runs the supplied remove action. */
+    public static Button buildSkillsSectionEditable(Skill skill, Runnable onDelete) {
+        final Skill sectionData = skill == null ? new Skill() : skill;
+        Button chip = Buttons.button(
+                Inputs.nullToEmpty(sectionData.getSkillName()),
+                event -> {
+                    if (onDelete != null) {
+                        onDelete.run();
+                    }
+                },
+                Region.USE_COMPUTED_SIZE,
+                "onboarding-chiplet-button");
+        chip.setAccessibleText("Delete skill " + Inputs.nullToEmpty(sectionData.getSkillName()));
+
+        return chip;
     }
 
-    /**
-     * Displays one editable card for each experience model in the scrollable wizard area.
-     * Map parser results into {@link Experience} objects before passing the observable list here;
-     * changes to the list refresh the displayed cards.
-     */
+    /** Builds the prompt, text field, and add button used above the skill chips. */
+    private HBox buildSkillsSectionEditable(ObservableList<Skill> skills) {
+        Label prompt = TextStyles.buildLabel(OnboardingScreenText.SKL_ADD_PROMPT, "onboarding-chiplet-prompt");
+        TextField skillName = Inputs.inputField(OnboardingScreenText.SKL_ADD_PLACEHOLDER, 340, 500);
+        Button add = Buttons.button("+", event -> {
+            String name = skillName.getText().trim();
+            if (!name.isEmpty()) {
+                Skill skill = new Skill();
+                skill.setSkillName(name);
+                skills.add(skill);
+                skillName.clear();
+            }
+        }, 36, "onboarding-chiplet-add-button");
+        add.setAccessibleText("Add skill");
+
+        HBox inputRow = new HBox(12, prompt, skillName, add);
+        inputRow.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(skillName, Priority.NEVER);
+        return inputRow;
+    }
+
+    /** Displays the add-skill row and wrapping, removable skill chips. */
     public void showSkillsStep(ObservableList<Skill> skills){
+        showEditableChipletSection(
+                skills,
+                OnboardingScreenText.SKL_TITLE,
+                OnboardingScreenText.SKL_CONFIRM_MESSAGE,
+                buildSkillsSectionEditable(skills),
+                OnboardingStepLayout::buildSkillsSectionEditable);
+    }
 
+    /**
+     * Shows a single editable chiplet section. List changes rebuild the flow pane;
+     * each chip's delete action removes its corresponding item.
+     */
+    private <T> void showEditableChipletSection(
+            ObservableList<T> items,
+            String title,
+            String instruction,
+            Node inputRow,
+            ChipletFactory<T> chipFactory) {
+        Objects.requireNonNull(items, "items");
+        Objects.requireNonNull(inputRow, "inputRow");
+        Objects.requireNonNull(chipFactory, "chipFactory");
+        detachShownItemsListener();
+
+        Label instructionLabel = new Label(instruction);
+        instructionLabel.getStyleClass().add("onboarding-wizard-subtitle");
+
+        FlowPane chips = new FlowPane();
+        chips.setHgap(16);
+        chips.setVgap(12);
+
+        Runnable refresh = () -> {
+            chips.getChildren().clear();
+            for (T item : items) {
+                chips.getChildren().add(chipFactory.build(item, () -> items.remove(item)));
+            }
+        };
+        ListChangeListener<T> listener = change -> refresh.run();
+        items.addListener(listener);
+        shownItems = items;
+        shownItemsListener = listener;
+        refresh.run();
+
+        VBox content = new VBox(28, instructionLabel, inputRow, new Separator(), chips);
+        content.setFillWidth(true);
+        content.getStyleClass().add("onboarding-chiplet-section");
+        setTop(TextStyles.buildTitle(title, "onboarding-wizard-title"));
+        showStep(content);
+    }
+
+    @FunctionalInterface
+    private interface ChipletFactory<T> {
+        Node build(T item, Runnable onDelete);
     }
 
     /**
@@ -342,50 +469,78 @@ public class OnboardingLayout extends BorderPane {
     public static VBox buildAwardsCertsSectionEditable(AwardsCerts award, int sectionNumber, Runnable onDuplicate, Runnable onDelete) {
         final AwardsCerts sectionData = award == null ? new AwardsCerts() : award;
 
-        TextField title = Inputs.inputField(OnboardingScreenText.LABEL_AWARD_TITLE_PLACEHOLDER,240, Double.MAX_VALUE);
+        TextField awardName = Inputs.inputField(OnboardingScreenText.LABEL_AWARD_TITLE_PLACEHOLDER,240, Double.MAX_VALUE);
         TextField issuer = Inputs.inputField(OnboardingScreenText.LABEL_ISSUER_PLACEHOLDER, 240, Double.MAX_VALUE);
-        TextArea description = Inputs.textArea(OnboardingScreenText.LABEL_AWARD_DESCRIPTION_PLACEHOLDER, 400, Double.MAX_VALUE, 100, 180);
         
-        title.setText(Inputs.nullToEmpty(sectionData.getTitle()));
+        awardName.setText(Inputs.nullToEmpty(sectionData.getTitle()));
         issuer.setText(Inputs.nullToEmpty(sectionData.getIssuer()));
-        description.setText(Inputs.nullToEmpty(sectionData.getDescription()));
-        title.textProperty().addListener((o, oldValue, newValue) -> sectionData.setTitle(newValue));
+        awardName.textProperty().addListener((o, oldValue, newValue) -> sectionData.setTitle(newValue));
         issuer.textProperty().addListener((o, oldValue, newValue) -> sectionData.setIssuer(newValue));
-        description.textProperty().addListener((o, oldValue, newValue) -> sectionData.setDescription(newValue));
 
-        VBox titleGroup = Inputs.buildInputGroup(TextStyles.buildLabel(OnboardingScreenText.AWDCT_LABEL_TITLE, "input-label"), title);
+        VBox titleGroup = Inputs.buildInputGroup(TextStyles.buildLabel(OnboardingScreenText.AWDCT_LABEL_TITLE, "input-label"), awardName);
         VBox issuerGroup = Inputs.buildInputGroup(TextStyles.buildLabel(OnboardingScreenText.AWDCT_LABEL_ISSUER, "input-label"), issuer);
-        VBox date = VisualElements.dateGroup(OnboardingScreenText.AWDCT_LABEL_DATE_ISSUED,sectionData.getDateReceived(), sectionData::setDateReceived);
-        VBox descriptionGroup = Inputs.buildInputGroup(TextStyles.buildLabel(OnboardingScreenText.AWDCT_LABEL_DESCRIPTION, "input-label"), description);
+        VBox date = monthYearGroup(OnboardingScreenText.AWDCT_LABEL_DATE_ISSUED, sectionData.getDateReceived(), sectionData::setDateReceived);
 
-        // TODO: Set final spacing and placement for award fields here.
-        VBox fields = new VBox(new HBox(titleGroup, issuerGroup, date), descriptionGroup);
-        return buildEditableSectionCard(OnboardingScreenText.AWDCT_CARD_PREFIX + sectionNumber, fields, onDuplicate, onDelete);
+        Region rowSpacer = new Region();
+        HBox awardRow = new HBox(16, titleGroup, issuerGroup, rowSpacer, date);
+        awardRow.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(rowSpacer, Priority.ALWAYS);
+        return buildEditableSectionCard(OnboardingScreenText.AWDCT_CARD_PREFIX + sectionNumber, awardRow, onDuplicate, onDelete);
     }
 
     /**
      * Displays one editable card for each award or certification model in the wizard area.
      */
     public void showAwardsStep(ObservableList<AwardsCerts> awards) {
-        showEditableSections(awards, OnboardingScreenText.AWDCT_TITLE, AwardsCerts::new, AwardsCerts::copy, OnboardingLayout::buildAwardsCertsSectionEditable);
+        showEditableSections(awards, OnboardingScreenText.AWDCT_TITLE, AwardsCerts::new, AwardsCerts::copy, OnboardingStepLayout::buildAwardsCertsSectionEditable);
     }
 
-    /**
-     * Builds an editable website links card for the websites onboarding step.
-     */
-    public static VBox buildWebsitesSectionEditable() {
-        return null;
+    /** Builds the platform and URL entry row for adding website chips. */
+    private HBox buildWebsitesSectionEditable(ObservableList<Websites> websites) {
+        Label prompt = TextStyles.buildLabel(OnboardingScreenText.WEB_ADD_PROMPT, "onboarding-chiplet-prompt");
+        TextField platform = Inputs.inputField(OnboardingScreenText.LABEL_PLATFORM_PLACEHOLDER, 150, 220);
+        TextField url = Inputs.inputField(OnboardingScreenText.LABEL_WEBSITE_URL_PLACEHOLDER, 300, 480);
+        Button add = Buttons.button("+", event -> {
+            String websitePlatform = platform.getText().trim();
+            String websiteUrl = url.getText().trim();
+            if (!websitePlatform.isEmpty() || !websiteUrl.isEmpty()) {
+                Websites website = new Websites();
+                website.setUrlType(websitePlatform);
+                website.setUrl(websiteUrl);
+                websites.add(website);
+                platform.clear();
+                url.clear();
+            }
+        }, 36, "onboarding-chiplet-add-button");
+        add.setAccessibleText("Add website");
+
+        HBox inputRow = new HBox(12, prompt, platform, url, add);
+        inputRow.setAlignment(Pos.CENTER_LEFT);
+        return inputRow;
     }
 
-    /**
-     * Displays one editable card for each experience model in the scrollable wizard
-     * area.
-     * Map parser results into {@link Experience} objects before passing the
-     * observable list here;
-     * changes to the list refresh the displayed cards.
-     */
+    /** Displays a platform and URL entry row with wrapping, removable website chips. */
     public void showWebsitesStep(ObservableList<Websites> websites) {
+        showEditableChipletSection(
+                websites,
+                OnboardingScreenText.WEB_TITLE,
+                OnboardingScreenText.WEB_CONFIRM_MESSAGE,
+                buildWebsitesSectionEditable(websites),
+                OnboardingStepLayout::buildWebsiteChipEditable);
+    }
 
+    /** Builds a clickable website chip; clicking it runs the supplied remove action. */
+    private static Button buildWebsiteChipEditable(Websites website, Runnable onDelete) {
+        String platform = Inputs.nullToEmpty(website.getUrlType());
+        String url = Inputs.nullToEmpty(website.getUrl());
+        String chipText = platform.isBlank() ? url : url.isBlank() ? platform : platform + " · " + url;
+        Button chip = Buttons.button(
+                chipText,
+                event -> onDelete.run(),
+                Region.USE_COMPUTED_SIZE,
+                "onboarding-chiplet-button");
+        chip.setAccessibleText("Delete website " + chipText);
+        return chip;
     }
    
 }

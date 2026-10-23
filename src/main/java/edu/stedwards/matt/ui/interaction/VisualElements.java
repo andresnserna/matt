@@ -419,7 +419,7 @@ public class VisualElements {
    /**
     * Builds an editable parsed-information card with caller-provided fields, actions, and styles.
     */
-   public static VBox buildParsedInfoCardEditable(String headingText, List<? extends Node> inputGroups, List<Button> buttons, String... styleClasses) {
+   public static VBox buildParsedInfoCard(String headingText, List<? extends Node> inputGroups, List<Button> buttons, String... styleClasses) {
       Objects.requireNonNull(headingText, "headingText");
       Objects.requireNonNull(inputGroups, "inputGroups");
       Objects.requireNonNull(buttons, "buttons");
@@ -450,16 +450,43 @@ public class VisualElements {
    }
 
    /**
-    * builds together the upload button and a text area. this is for resume uploading
+    * overloaded function for one button cards.
+    * Builds an editable parsed-information card with caller-provided fields, actions, and styles.
     */
-   public static void buildUploadMethodGroup2() {
+   public static VBox buildParsedInfoCard(String headingText, List<? extends Node> inputGroups, Button button, String... styleClasses) {
+      Objects.requireNonNull(headingText, "headingText");
+      Objects.requireNonNull(inputGroups, "inputGroups");
+      Objects.requireNonNull(button, "buttons");
 
+      Label heading = new Label(headingText);
+      heading.getStyleClass().add("parsed-info-card-heading");
+
+      Region headingSpacer = new Region();
+      HBox.setHgrow(headingSpacer, Priority.ALWAYS);
+
+      HBox header = new HBox(heading, headingSpacer);
+      header.setAlignment(Pos.CENTER_LEFT);
+      header.getChildren().add(button);
+      header.getStyleClass().add("parsed-info-card-header");
+
+      VBox content = new VBox(20);
+      content.getChildren().addAll(inputGroups);
+      content.getStyleClass().add("parsed-info-card-content");
+      content.setMaxWidth(Double.MAX_VALUE);
+      VBox.setVgrow(content, Priority.ALWAYS);
+
+      VBox card = new VBox(header, content);
+      card.getStyleClass().add("parsed-info-card");
+      card.getStyleClass().addAll(styleClasses);
+      card.setMaxWidth(Double.MAX_VALUE);
+      VBox.setVgrow(card, Priority.ALWAYS);
+      return card;
    }
 
    /**
-    * Builds an view-only parsed-information card with caller-provided fields and styles.
+    * builds together the upload button and a text area. this is for resume uploading
     */
-   public static VBox buildParsedInfoCardViewOnly(String headingText, List<? extends Node> content, List<Button> buttons, String... styleClasses) {
+   public static void buildUploadMethodGroup2() {
 
    }
 
