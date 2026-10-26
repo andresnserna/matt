@@ -14,7 +14,9 @@ module edu.stedwards.matt {
     requires org.apache.pdfbox;
     requires java.net.http;
     requires fr.brouillard.oss.cssfx;
+    requires javafx.web;
     exports edu.stedwards.matt;
+
     
 
 }
