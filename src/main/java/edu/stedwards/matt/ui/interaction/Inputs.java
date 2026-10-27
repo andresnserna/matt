@@ -124,8 +124,16 @@ public final class Inputs {
 	 * Field with unit suffix: "$124,000.00 / yr" the suffix is yr, and the / is
 	 * added in this func.
 	 */
-	private static void wrapInputFieldWithSuffix(TextField textField, String suffix, String... styleClasses) {
+	public static VBox wrapInputGroupWithSuffix(TextField textField, String suffix, String... styleClasses) {
+		Label suffixLabel = new Label("/ " + suffix);
+		HBox fieldWithSuffix = new HBox(8, textField, suffixLabel);
+		fieldWithSuffix.setAlignment(Pos.CENTER_LEFT);
+		HBox.setHgrow(textField, Priority.ALWAYS);
 
+		VBox inputGroup = new VBox(fieldWithSuffix);
+		inputGroup.setAlignment(Pos.TOP_LEFT);
+		inputGroup.getStyleClass().addAll(styleClasses);
+		return inputGroup;
 	}
 
 

@@ -119,4 +119,19 @@ public class Buttons {
       HBox.setHgrow(controls, Priority.ALWAYS);
       return group;
    }
+
+   /** Builds a clickable template tile with a wrapped title and caller-selected size and style variant. */
+   public static Button buildTemplatePickerCard(String templateName, EventHandler<ActionEvent> onSelect,
+         double width, double height, String... styleClasses) {
+      Button card = new Button(templateName);
+      card.setOnAction(onSelect);
+      card.setPrefSize(width, height);
+      card.setMinSize(width, height);
+      card.setMaxSize(width, height);
+      card.setWrapText(true);
+      card.setAlignment(Pos.TOP_LEFT);
+      card.getStyleClass().add("template-picker-card");
+      card.getStyleClass().addAll(styleClasses);
+      return card;
+   }
 }

@@ -4,6 +4,8 @@ public class Projects {
     private int projectId;
     private int userId;
     private String projectName;
+    private String role;
+    private String location;
     private String description;
     private String url;
     private String startDate;
@@ -20,6 +22,14 @@ public class Projects {
 
     public String getProjectName(){
         return projectName;
+    }
+
+    public String getRole(){
+        return role;
+    }
+
+    public String getLocation(){
+        return location;
     }
 
     public String getDescription(){
@@ -51,6 +61,14 @@ public class Projects {
         this.projectName = projectName;
     }
 
+    public void setRole(String role){
+        this.role = role;
+    }
+
+    public void setLocation(String location){
+        this.location = location;
+    }
+
     public void setDescription(String description){
         this.description = description;
     }
@@ -74,6 +92,8 @@ public class Projects {
         Projects copy = new Projects();
         copy.setUserID(userId);
         copy.setProjectName(projectName);
+        copy.setRole(role);
+        copy.setLocation(location);
         copy.setDescription(description);
         copy.setUrl(url);
         copy.setStartDate(startDate);

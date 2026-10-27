@@ -22,7 +22,7 @@ import edu.stedwards.matt.ui.layouts.application.ApplicationHome;
 import edu.stedwards.matt.ui.layouts.application.ApplicationUploadJob;
 import edu.stedwards.matt.ui.layouts.onboarding.OnboardingEnterInfo;
 import edu.stedwards.matt.ui.layouts.onboarding.OnboardingOverviewStep;
-import edu.stedwards.matt.ui.layouts.onboarding.OnboardingLayout;
+import edu.stedwards.matt.ui.layouts.onboarding.OnboardingStepLayout;
 import edu.stedwards.matt.ui.layouts.onboarding.OnboardingUploadStep;
 import edu.stedwards.matt.ui.layouts.onboarding.OnboardingWelcome;
 import edu.stedwards.matt.ui.layouts.other.LoginLayout;
@@ -50,14 +50,14 @@ public class Matt extends Application {
     }
 
     private void startNormalApplication(Stage stage) {
-        OnboardingLayout onboardingLayout = new OnboardingLayout();
+        OnboardingStepLayout onboardingLayout = new OnboardingStepLayout();
         onboardingLayout.showStep(new OnboardingWelcome());
         StartLayout startLayout = new StartLayout("application",
                 () -> stage.getScene().setRoot(onboardingLayout));
 
         stage.setTitle("Matt");
         stage.setScene(new Scene(startLayout, StyleConstants.WINDOW_WIDTH, StyleConstants.WINDOW_HEIGHT));
-        AppStyles.apply(stage.getScene());
+        AppStyle.apply(stage.getScene());
 
         stage.show();
         CSSFX.start();
@@ -113,7 +113,7 @@ public class Matt extends Application {
 
         stage.setTitle("Matt - Layout Preview");
         stage.setScene(new Scene(preview, StyleConstants.WINDOW_WIDTH, StyleConstants.WINDOW_HEIGHT));
-        AppStyles.apply(stage.getScene());
+        AppStyle.apply(stage.getScene());
         stage.show();
         CSSFX.start();
     }

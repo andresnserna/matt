@@ -75,6 +75,7 @@ public class OnboardingScreenText {
    public static final String EDU_LABEL_START_DATE = "Start Date";
    public static final String EDU_LABEL_END_DATE = "End Date";
    public static final String EDU_LABEL_GPA = "GPA";
+   public static final String EDU_LABEL_GRADUATION = "Graduation";
    public static final String LABEL_INSTITUTION_PLACEHOLDER = "University of Texas at Austin";
    public static final String LABEL_DEGREE_PLACEHOLDER = "B.S. Computer Science";
    public static final String LABEL_DATE_PLACEHOLDER = "MM / DD / YYYY";
@@ -102,6 +103,8 @@ public class OnboardingScreenText {
    public static final String PROJ_TITLE = "Projects";
    public static final String PROJ_CARD_PREFIX = "Project ";
    public static final String PROJ_LABEL_TITLE = "Project Name";
+   public static final String PROJ_LABEL_ROLE = "Your Role";
+   public static final String PROJ_LABEL_LOCATION = "Location";
    public static final String PROJ_LABEL_DESCRIPTION = "Description";
    public static final String PROJ_LABEL_URL = "Project URL";
    public static final String PROJ_LABEL_START_DATE = "Start Date";
@@ -112,10 +115,13 @@ public class OnboardingScreenText {
 
    // onboarding - skills SKL_
    public static final String SKL_TITLE = "Skills";
-   public static final String SKL_LABEL_NAME = "Skill";
-   public static final String SKL_LABEL_PROFICIENCY_LEVEL = "Proficiency Level";
+   public static final String SKL_CONFIRM_MESSAGE = "Does this all look right? Click on a skill to delete it.";
+   public static final String SKL_ADD_PROMPT = "Enter a new skill...";
+   public static final String SKL_ADD_PLACEHOLDER = "Organized";
+   // public static final String SKL_LABEL_NAME = "Skill";
+   // public static final String SKL_LABEL_PROFICIENCY_LEVEL = "Proficiency Level";
    public static final String LABEL_SKILL_NAME_PLACEHOLDER = "Java";
-   public static final String LABEL_PROFICIENCY_LEVEL_PLACEHOLDER = "Intermediate";
+   // public static final String LABEL_PROFICIENCY_LEVEL_PLACEHOLDER = "Intermediate";
    // public static final String SKL_CARD_PREFIX = "Skill ";
 
    // onboarding - awards/certs AWDCT
@@ -132,6 +138,8 @@ public class OnboardingScreenText {
 
    // onboarding - websites WEB_
    public static final String WEB_TITLE = "Websites";
+   public static final String WEB_CONFIRM_MESSAGE = "Does this all look right? Click on a website to delete it.";
+   public static final String WEB_ADD_PROMPT = "Enter a new website...";
    public static final String WEB_LABEL_URL = "URL";
    public static final String LABEL_PLATFORM_PLACEHOLDER = "LinkedIn";
    public static final String LABEL_WEBSITE_URL_PLACEHOLDER = "https://www.linkedin.com/in/yourname";

@@ -5,6 +5,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import com.github.weisj.jsvg.SVGDocument;
@@ -25,9 +26,13 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.shape.Line;
 import javafx.scene.control.Label;
+import javafx.scene.control.OverrunStyle;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.control.ScrollPane;
 import javafx.css.PseudoClass;
 import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import java.net.URL;
 import java.util.List;
 import java.util.Objects;
@@ -419,7 +424,7 @@ public class VisualElements {
    /**
     * Builds an editable parsed-information card with caller-provided fields, actions, and styles.
     */
-   public static VBox buildParsedInfoCardEditable(String headingText, List<? extends Node> inputGroups, List<Button> buttons, String... styleClasses) {
+   public static VBox buildParsedInfoCard(String headingText, List<? extends Node> inputGroups, List<Button> buttons, String... styleClasses) {
       Objects.requireNonNull(headingText, "headingText");
       Objects.requireNonNull(inputGroups, "inputGroups");
       Objects.requireNonNull(buttons, "buttons");
@@ -450,17 +455,198 @@ public class VisualElements {
    }
 
    /**
+    * overloaded function for one button cards.
+    * Builds an editable parsed-information card with caller-provided fields, actions, and styles.
+    */
+   public static VBox buildParsedInfoCard(String headingText, List<? extends Node> inputGroups, Button button, String... styleClasses) {
+      Objects.requireNonNull(headingText, "headingText");
+      Objects.requireNonNull(inputGroups, "inputGroups");
+      Objects.requireNonNull(button, "buttons");
+
+      Label heading = new Label(headingText);
+      heading.getStyleClass().add("parsed-info-card-heading");
+
+      Region headingSpacer = new Region();
+      HBox.setHgrow(headingSpacer, Priority.ALWAYS);
+
+      HBox header = new HBox(heading, headingSpacer);
+      header.setAlignment(Pos.CENTER_LEFT);
+      header.getChildren().add(button);
+      header.getStyleClass().add("parsed-info-card-header");
+
+      VBox content = new VBox(20);
+      content.getChildren().addAll(inputGroups);
+      content.getStyleClass().add("parsed-info-card-content");
+      content.setMaxWidth(Double.MAX_VALUE);
+      VBox.setVgrow(content, Priority.ALWAYS);
+
+      VBox card = new VBox(header, content);
+      card.getStyleClass().add("parsed-info-card");
+      card.getStyleClass().addAll(styleClasses);
+      card.setMaxWidth(Double.MAX_VALUE);
+      VBox.setVgrow(card, Priority.ALWAYS);
+      return card;
+   }
+
+   /**
     * builds together the upload button and a text area. this is for resume uploading
     */
    public static void buildUploadMethodGroup2() {
 
    }
 
-   /**
-    * Builds an view-only parsed-information card with caller-provided fields and styles.
-    */
-   public static VBox buildParsedInfoCardViewOnly(String headingText, List<? extends Node> content, List<Button> buttons, String... styleClasses) {
-
+   /** Builds the login form with icon fields, a remember option, a primary login action, and a sign-up link. */
+   public static VBox buildLoginBox(EventHandler<ActionEvent> onLogin, EventHandler<ActionEvent> onSignup) {
+      VBox box = new VBox(18);
+      box.setAlignment(Pos.CENTER);
+      box.getStyleClass().add("login-box");
+      box.getChildren().addAll(
+            Inputs.buildInputFieldWIcon(LoginScreenText.USERNAME_PLACEHOLDER, LoginScreenText.USERNAME_ICON, 420, 520, "login-field"),
+            Inputs.buildPasswordFieldWIcon(LoginScreenText.PASSWORD_PLACEHOLDER, LoginScreenText.PASSWORD_ICON, 420, 520, "login-field"),
+            buildCheckBoxWLabel());
+      Button login = Buttons.button(LoginScreenText.LOGIN_BUTTON, onLogin, 420, "login-submit");
+      Button signup = Buttons.button(LoginScreenText.SIGNUP_BUTTON, onSignup, 180, "signup-link-button");
+      box.getChildren().addAll(login, signup);
+      return box;
    }
+
+   /** Builds an application summary card with job and company names, generated-file count, age, and open action. */
+   public static HBox buildApplicationListCard(String jobTitle, String companyName, int age, String timeUnit,
+         int fileCount, EventHandler<ActionEvent> onOpen) {
+      Label title = new Label(safe(jobTitle)); title.getStyleClass().add("application-card-title");
+      Label company = new Label(safe(companyName)); company.getStyleClass().add("application-card-company");
+      VBox details = new VBox(8, title, new HBox(16, company, buildFileCountBadge(fileCount)));
+      Region spacer = new Region(); HBox.setHgrow(spacer, Priority.ALWAYS);
+      Button open = Buttons.button(ApplicationScreenText.APPLICATION_CARD_OPEN_ICON, onOpen, "application-card-open");
+      HBox actions = new HBox(18, buildRelativeTimeLabel(age, timeUnit, true), open);
+      actions.setAlignment(Pos.CENTER_RIGHT);
+      HBox card = new HBox(16, details, spacer, actions);
+      card.setAlignment(Pos.CENTER_LEFT);
+      card.getStyleClass().add("application-card");
+      return card;
+   }
+
+   /** Builds a scrollable job summary with title, location, compensation, requirements, preferences, and benefits. */
+   public static VBox buildJobDetailsContainer(String title, String location, String company, String payRange,
+         String requirements, String niceToHave, String benefits) {
+      VBox content = new VBox(14);
+      Label heading = new Label(safe(title) + "  –  " + safe(location)); heading.getStyleClass().add("job-detail-title");
+      Label companyLabel = new Label(safe(company)); companyLabel.getStyleClass().add("job-detail-company");
+      Label pay = new Label(safe(payRange)); pay.getStyleClass().add("job-detail-pay");
+      content.getChildren().addAll(heading, companyLabel, pay,
+            detailSection("Requirements", requirements), detailSection("Nice to Have", niceToHave),
+            detailSection("Benefits", benefits));
+      ScrollPane scroll = VisualElements.scrollable(content);
+      VBox container = new VBox(scroll); container.setPrefSize(540, 560);
+      VBox.setVgrow(scroll, Priority.ALWAYS);
+      container.getStyleClass().add("job-details-container");
+      return container;
+   }
+
+   /** Builds a bordered template panel containing one clickable card per supplied template option. */
+   public static VBox buildTemplatePickerContainer(List<TemplateOption> templates, double width, double height) {
+      Objects.requireNonNull(templates, "templates");
+      FlowPane cards = new FlowPane(16, 16); cards.getStyleClass().add("template-card-grid");
+      for (TemplateOption template : templates) {
+         cards.getChildren().add(Buttons.buildTemplatePickerCard(template.name(), template.onSelect(),
+               225, 185, template.styleClass()));
+      }
+      VBox picker = new VBox(cards);
+      picker.setPrefSize(width, height);
+      picker.getStyleClass().add("template-picker-container");
+      return picker;
+   }
+
+   /** Holds the display text, click action, and visual variant for one template choice. */
+   public record TemplateOption(String name, EventHandler<ActionEvent> onSelect, String styleClass) {
+      public TemplateOption(String name, EventHandler<ActionEvent> onSelect) { this(name, onSelect, "template-card-teal"); }
+   }
+
+   /** Shows the original job posting text in a bordered, scrollable preview with a soft fade at its lower edge. */
+   public static VBox buildJobDetailsRawTextContainer(String rawText) {
+
+      Label text = new Label(safe(rawText)); text.setWrapText(true); text.getStyleClass().add("raw-job-text");
+      ScrollPane scroll = VisualElements.scrollable(text); scroll.setPrefViewportHeight(420);
+      Region fadeOverlay = new Region(); fadeOverlay.setMouseTransparent(true); fadeOverlay.setMinHeight(90);
+      fadeOverlay.setMaxHeight(90); StackPane.setAlignment(fadeOverlay, Pos.BOTTOM_CENTER);
+      StackPane preview = new StackPane(scroll, fadeOverlay); preview.setPrefHeight(420);
+      preview.getStyleClass().add("raw-job-fade");
+      StackPane.setAlignment(scroll, Pos.TOP_CENTER);
+      VBox container = new VBox(preview); container.getStyleClass().add("raw-job-container");
+      return container;
+   }
+
+   /** Builds a recent-application sidebar row with compact age text, company and role, and an open action. */
+   public static HBox buildSidebarListItem_App(int age, String unit, String companyName, String jobTitle,
+         EventHandler<ActionEvent> onOpen) {
+
+      Label text = new Label(formatRelativeTime(age, unit, false) + " - " + safe(companyName) + ", " + safe(jobTitle));
+      text.setMaxWidth(Double.MAX_VALUE); HBox.setHgrow(text, Priority.ALWAYS); text.setTextOverrun(OverrunStyle.ELLIPSIS);
+      HBox row = new HBox(8, text, Buttons.button(FontAwesomeSolid.EXTERNAL_LINK_ALT, onOpen, "sidebar-item-open"));
+      row.setAlignment(Pos.CENTER_LEFT); row.getStyleClass().add("sidebar-list-item");
+      return row;
+   }
+
+   /** Builds a recent-material sidebar row with compact age text, the file name, and an open action. */
+   public static HBox buildSidebarListItem_Mat(int age, String unit, String materialFileName,
+         EventHandler<ActionEvent> onOpen) {
+
+      Label text = new Label(formatRelativeTime(age, unit, false) + " - " + safe(materialFileName));
+      text.setMaxWidth(Double.MAX_VALUE); HBox.setHgrow(text, Priority.ALWAYS); text.setTextOverrun(OverrunStyle.ELLIPSIS);
+      HBox row = new HBox(8, text, Buttons.button(FontAwesomeSolid.EXTERNAL_LINK_ALT, onOpen, "sidebar-item-open"));
+      row.setAlignment(Pos.CENTER_LEFT); row.getStyleClass().add("sidebar-list-item");
+      return row;
+   }
+
+   /** Builds the document icon and nonnegative generated-file count shown on an application. */
+   public static HBox buildFileCountBadge(int count) {
+
+      HBox badge = new HBox(8, new FontIcon(ApplicationScreenText.APPLICATION_DOCUMENT_COUNT_ICON),
+            new Label(Integer.toString(Math.max(0, count))));
+      badge.setAlignment(Pos.CENTER_LEFT); badge.getStyleClass().add("file-count-badge");
+      return badge;
+   }
+
+   /** Builds an italic relative-time label using the configured compact time suffixes. */
+   public static Label buildRelativeTimeLabel(int amount, String unit, boolean includeStarted) {
+
+      Label label = new Label(formatRelativeTime(amount, unit, includeStarted));
+      label.getStyleClass().add("relative-time-label");
+      return label;
+   }
+
+   /** Builds a paperclip label for the name of an attached file. */
+   public static HBox buildAttachedFileLabel(String fileName) {
+
+      FontIcon clip = new FontIcon(FontAwesomeSolid.PAPERCLIP); clip.setRotate(30);
+      Label name = new Label(safe(fileName)); name.getStyleClass().add("attached-file-name");
+      HBox label = new HBox(10, clip, name); label.setAlignment(Pos.CENTER_LEFT);
+      label.getStyleClass().add("attached-file-label");
+      return label;
+   }
+
+   /** Builds a heading and wrapped copy for one section of parsed job details. */
+   private static VBox detailSection(String headingText, String copy) {
+      Label heading = new Label(headingText); heading.getStyleClass().add("job-detail-section-title");
+      Label body = new Label(safe(copy)); body.setWrapText(true); body.getStyleClass().add("job-detail-copy");
+      return new VBox(8, heading, body);
+   }
+
+   /** Normalizes nullable display values to an empty string. */
+   private static String safe(String value) { return value == null ? "" : value; }
+
+   /** Formats the approved compact time suffixes used in recent application and material lists. */
+   private static String formatRelativeTime(int amount, String unit, boolean includeStarted) {
+      String suffix = safe(unit).trim();
+      if (!List.of(ApplicationScreenText.STARTED_TIME_MINUTES, ApplicationScreenText.STARTED_TIME_HOURS,
+            ApplicationScreenText.STARTED_TIME_DAYS, ApplicationScreenText.STARTED_TIME_WEEKS,
+            ApplicationScreenText.STARTED_TIME_YEARS).contains(suffix)) {
+         throw new IllegalArgumentException("Unsupported relative-time unit: " + unit);
+      }
+      return (includeStarted ? ApplicationScreenText.STARTED_TEXT + " " : "") + Math.max(0, amount)
+            + suffix + " " + ApplicationScreenText.STARTED_AGO;
+   }
+
+
 
 }
