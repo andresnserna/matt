@@ -237,15 +237,10 @@ public class OnboardingStepLayout extends BorderPane {
 
         HBox firstRow = new HBox(16, degreeGroup, institutionGroup);
         Region firstRowSpacer = new Region();
-        firstRow.getChildren().addAll(firstRowSpacer, graduation);
+        firstRow.getChildren().addAll(firstRowSpacer, graduation, gpaGroup);
         firstRow.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(firstRowSpacer, Priority.ALWAYS);
-
-        Region secondRowSpacer = new Region();
-        HBox secondRow = new HBox(16, secondRowSpacer, gpaGroup);
-        secondRow.setAlignment(Pos.CENTER_LEFT);
-        HBox.setHgrow(secondRowSpacer, Priority.ALWAYS);
-        VBox fields = new VBox(16, firstRow, secondRow);
+        VBox fields = new VBox(16, firstRow);
         return buildEditableSectionCard(OnboardingScreenText.EDU_CARD_PREFIX + sectionNumber, fields, onDuplicate, onDelete);
     }
 
@@ -267,7 +262,7 @@ public class OnboardingStepLayout extends BorderPane {
         // Create and initialize the editable fields from the supplied parser/profile data.
         TextField jobTitle = Inputs.inputField(OnboardingScreenText.LABEL_EXPERIENCE_JOB_TITLE_EXAMPLE, 240, Double.MAX_VALUE);
         TextField companyName = Inputs.inputField(OnboardingScreenText.LABEL_EXPERIENCE_COMPANY_EXAMPLE, 240, Double.MAX_VALUE);
-        TextArea description = Inputs.textArea(OnboardingScreenText.LABEL_EXPERIENCE_DESCRIPTION_EXAMPLE,400, Double.MAX_VALUE, 100, 180);
+        TextArea description = Inputs.textArea(OnboardingScreenText.LABEL_EXPERIENCE_DESCRIPTION_EXAMPLE, 400, Double.MAX_VALUE, 100, 120);
 
         jobTitle.setText(Inputs.nullToEmpty(sectionData.getJobTitle()));
         companyName.setText(Inputs.nullToEmpty(sectionData.getCompanyName()));
@@ -293,7 +288,13 @@ public class OnboardingStepLayout extends BorderPane {
         mainFields.setAlignment(Pos.TOP_LEFT);
         HBox.setHgrow(mainFieldsSpacer, Priority.ALWAYS);
 
-        VBox descriptionGroup = Inputs.buildInputGroup(TextStyles.buildLabel(OnboardingScreenText.EXP_LABEL_DESCRIPTION, "input-label"), description);
+        Label descriptionLabel = TextStyles.buildLabel(OnboardingScreenText.EXP_LABEL_DESCRIPTION, "input-label");
+        descriptionLabel.setLabelFor(description);
+        HBox descriptionInput = new HBox(description);
+        HBox.setHgrow(description, Priority.ALWAYS);
+        VBox descriptionGroup = new VBox(new HBox(descriptionLabel), descriptionInput);
+        descriptionGroup.setAlignment(Pos.TOP_LEFT);
+        descriptionGroup.getStyleClass().add("input-field-spacing");
         VBox inputGroups = new VBox(16, mainFields, descriptionGroup);
 
         // Add card actions; the parent step supplies callbacks that update its model list.
