@@ -41,8 +41,7 @@ import edu.stedwards.matt.ui.layouts.myinfo.MyInfoEditingStep;
 import edu.stedwards.matt.ui.layouts.myinfo.MyInfoHomeStep;
 import edu.stedwards.matt.ui.layouts.other.SettingsLayout;
 import edu.stedwards.matt.ui.layouts.template.TemplatesHome;
-import edu.stedwards.matt.ui.layouts.template.TemplatesCreator;
-import edu.stedwards.matt.ui.layouts.template.TemplatesOverview;
+import edu.stedwards.matt.ui.layouts.template.TemplatesEditor;
 import edu.stedwards.matt.ui.layouts.template.TemplatesUploadOrNew;
 import fr.brouillard.oss.cssfx.CSSFX;
 
@@ -105,9 +104,7 @@ public class Matt extends Application {
                 new PreviewScreen("Main - Templates - Upload or New",
                         () -> mainShell(TemplatesUploadOrNew::new)),
                 new PreviewScreen("Main - Templates - Template Creator",
-                        () -> mainShell(TemplatesCreator::new)),
-                new PreviewScreen("Main - Templates - Final Overview",
-                        () -> mainShell(TemplatesOverview::new)),
+                        () -> mainShell(TemplatesEditor::new)),
                 new PreviewScreen("Main - Applications", () -> mainAreaScreen("Applications")),
                 new PreviewScreen("Main - Applications - Home", () -> mainShell(ApplicationHome::new)),
                 new PreviewScreen("Main - Applications - Upload", () -> mainShell(ApplicationUploadJob::new)),

@@ -10,9 +10,9 @@ import javafx.geometry.Insets;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
-public class TemplatesCreator extends BorderPane {
+public class TemplatesEditor extends BorderPane {
 
-   public TemplatesCreator(){
+   public TemplatesEditor(){
       getStyleClass().addAll("screen-padding");
       
       TextFlow title = TextStyles.buildTitle(TemplatesScreenText.PLACEHOLDER_TITLE, "screen-title");
