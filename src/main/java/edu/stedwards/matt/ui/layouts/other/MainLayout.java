@@ -23,9 +23,8 @@ public class MainLayout extends BorderPane {
     private Node currentStep;
 
     public void showStep(Node step) {
-        getChildren().clear();
         currentStep = step;
-        getChildren().add(currentStep);
+        setCenter(currentStep);
     }
     
     /**

@@ -5,10 +5,8 @@
 package edu.stedwards.matt.ui.layouts.other;
 
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-import edu.stedwards.matt.ui.labels.LoginScreenText;
+import edu.stedwards.matt.ui.interaction.VisualElements;
 
 /**
  * Builds the login layout for user sign-in and authentication entry.
@@ -21,7 +19,9 @@ public class LoginLayout extends VBox {
     public LoginLayout() {
         setSpacing(12);
         setAlignment(Pos.CENTER);
+        getStyleClass().add("login-background");
 
         //logo up 
+        getChildren().add(VisualElements.buildLoginBox(null, null, 342, 206, 246));
     }
 }

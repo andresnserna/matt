@@ -1,7 +1,6 @@
 package edu.stedwards.matt.ui.layouts.template;
 
 import edu.stedwards.matt.ui.TextStyles;
-import edu.stedwards.matt.ui.interaction.Buttons;
 import edu.stedwards.matt.ui.labels.TemplatesScreenText;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.text.TextFlow;
@@ -16,7 +15,6 @@ public class TemplatesUploadOrNew extends BorderPane {
       
       // setCenter(buildWelcomeMessage());
       
-      setBottom(new Buttons().buildNextButton());
    }
 
 }

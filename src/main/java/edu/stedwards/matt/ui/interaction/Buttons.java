@@ -96,6 +96,8 @@ public class Buttons {
 
    public HBox buildUploadButton(int width, int spacing, EventHandler<ActionEvent> onUpload) {
       Button upload = Buttons.button("Upload", onUpload, width, "resume-upload-button");
+      upload.setMinWidth(0);
+      upload.setPrefWidth(width);
 
       FontIcon uploadIcon = new FontIcon(FontAwesomeSolid.UPLOAD);
       uploadIcon.setIconSize(10);

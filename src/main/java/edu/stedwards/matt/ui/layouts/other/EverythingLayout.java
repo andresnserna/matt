@@ -4,6 +4,8 @@ import edu.stedwards.matt.ui.interaction.Buttons;
 import edu.stedwards.matt.ui.interaction.Inputs;
 import edu.stedwards.matt.ui.interaction.VisualElements;
 import edu.stedwards.matt.ui.labels.LoginScreenText;
+import edu.stedwards.matt.ui.layouts.application.ApplicationHome;
+import edu.stedwards.matt.ui.layouts.template.TemplatesCreator;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -102,7 +104,8 @@ public class EverythingLayout extends BorderPane {
                   previewBox(new Label("Wizard scroll content preview")))),
             example("VisualElements.infoContainer(double, double, String, int, Node)",
                   visuals.infoContainer(320, 120, "Information", 1, infoContent)),
-            example("VisualElements.buildUploadMethodGroup3()", VisualElements.buildUploadMethodGroup3()),
+            example("VisualElements.buildUploadMethodGroup3(double)",
+                  VisualElements.buildUploadMethodGroup3(420)),
             example("VisualElements.buildParsedInfoCardEditable(String, List<Node>, List<Button>, String...)",
                   VisualElements.buildParsedInfoCard(
                         "Experience 1", List.of(experienceFields, roleDescription),
@@ -129,9 +132,27 @@ public class EverythingLayout extends BorderPane {
    /** Builds previews of the application, job detail, template, and file components. */
    private VBox appComponentExamples() {
       VBox examples = new VBox(12);
+      TemplatesCreator templateCreator = new TemplatesCreator();
+      templateCreator.setPrefSize(640, 420);
+      templateCreator.setMaxWidth(Double.MAX_VALUE);
+      ApplicationHome applicationHome = new ApplicationHome(
+            List.of(
+                  new ApplicationHome.ApplicationSummary("Software Engineer", "Acrisure", 2, "h", 2),
+                  new ApplicationHome.ApplicationSummary("Summer Analyst", "Google", 5, "d", 2)),
+            List.of(
+                  new ApplicationHome.ApplicationSummary("Entry Level Engineer", "Oracle", 1, "w", 3),
+                  new ApplicationHome.ApplicationSummary("Product Designer", "Example Co.", 1, "w", 0)),
+            List.of(
+                  new ApplicationHome.ApplicationSummary("Data Analyst", "Acme", 2, "w", 1)),
+            null, null);
+      applicationHome.setPrefSize(1000, 680);
+      applicationHome.setMaxWidth(Double.MAX_VALUE);
       String sampleCopy = "A preview of parsed job text. This section shows how the component wraps longer descriptions while keeping the content readable.";
       examples.getChildren().addAll(
-            example("VisualElements.buildLoginBox(EventHandler, EventHandler)", VisualElements.buildLoginBox(null, null)),
+            example("ApplicationHome(List<ApplicationSummary>, ...)", applicationHome),
+            example("TemplatesCreator()", templateCreator),
+            example("VisualElements.buildLoginBox(EventHandler, EventHandler, double, double, double)",
+                  VisualElements.buildLoginBox(null, null, 516, 420, 420)),
             example("VisualElements.buildApplicationListCard(String, String, int, String, int, EventHandler)",
                   VisualElements.buildApplicationListCard("Software Engineer", "Acrisure", 5, "d", 2, null)),
             example("VisualElements.buildJobDetailsContainer(String, String, String, String, String, String, String)",
@@ -176,7 +197,13 @@ public class EverythingLayout extends BorderPane {
 
    private VBox example(String componentName, Node component) {
       String[] name = componentName.split("\\.", 2);
-      TextFlow label = buildComponentName(name[0], name[1]);
+      TextFlow label;
+      if (name.length == 2) {
+         label = buildComponentName(name[0], name[1]);
+      } else {
+         label = new TextFlow(new Text(componentName));
+         label.getStyleClass().add("component-name");
+      }
       VBox example = new VBox(8, label, component);
       example.setAlignment(Pos.CENTER_LEFT);
       example.getStyleClass().add("component-example");
