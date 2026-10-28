@@ -64,6 +64,7 @@
     -fx-font-style: italic;
     -fx-fill: #006D77;
     -fx-text-alignment: center;
+    -fx-font-weight: bold;
 }
 
 .screen-title-split {

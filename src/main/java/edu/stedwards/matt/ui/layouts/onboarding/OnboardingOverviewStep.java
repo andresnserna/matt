@@ -72,6 +72,8 @@ public class OnboardingOverviewStep extends BorderPane {
          Runnable editAwards,
          Runnable editWebsites) {
       VBox allInfoContainers = new VBox(20);
+      allInfoContainers.setFillWidth(true);
+      allInfoContainers.setMaxWidth(Double.MAX_VALUE);
       if (education != null) {
          allInfoContainers.getChildren().addAll(buildViewOnlySections(education,
                (item, number) -> buildEducationCardViewOnly(item, number, editEducation)).getChildren());

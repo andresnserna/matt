@@ -94,10 +94,12 @@
     -fx-alignment: center-left;
     -fx-padding: 10px 16px;
     -fx-cursor: hand;
+    -fx-min-height: 76px;
 }
 
 .application-card-button:hover {
-    -fx-background-color: #F3FAFA;
+    -fx-background-color: linear-gradient(to right, white 42%, #E29578 100%);
+    -fx-border-color: #E29578;
 }
 
 .application-card-button-selected {
@@ -107,6 +109,23 @@
 
 .application-card-button:focused,
 .application-card-button-selected:focused {
+    -fx-effect: dropshadow(gaussian, rgba(0, 109, 119, 0.35), 5, 0.2, 0, 0);
+}
+
+/* Template choices are real buttons: teal marks the current selection and orange is hover. */
+.template-picker-card.application-template-card {
+    -fx-background-color: linear-gradient(to bottom, white 38%, #83C5BE 100%);
+    -fx-border-color: #83C5BE;
+    -fx-text-fill: #668A8C;
+}
+
+.template-picker-card.application-template-card:hover {
+    -fx-background-color: linear-gradient(to bottom, white 38%, #FFDDD2 100%);
+    -fx-border-color: #E29578;
+    -fx-text-fill: #E29578;
+}
+
+.template-picker-card.application-template-card:focused {
     -fx-effect: dropshadow(gaussian, rgba(0, 109, 119, 0.35), 5, 0.2, 0, 0);
 }
 
@@ -121,8 +140,42 @@
     -fx-icon-size: 22px;
 }
 
+.application-card-arrow-icon {
+    -fx-icon-color: #668A8C;
+    -fx-icon-size: 22px;
+}
+
+.application-card-button:hover .application-card-arrow-icon {
+    -fx-icon-color: white;
+}
+
 .application-card-button-selected .application-card-arrow .ikonli-font-icon {
     -fx-icon-color: white;
+}
+
+.application-card-button-selected .application-card-arrow-icon {
+    -fx-icon-color: white;
+}
+
+.application-section-header {
+    -fx-border-color: transparent transparent #BBBBBB transparent;
+    -fx-border-width: 0 0 1px 0;
+    -fx-padding: 6px 2px;
+}
+
+.application-section-title {
+    -fx-text-fill: #9A9A9A;
+    -fx-font-size: 16px;
+}
+
+.application-section-chevron {
+    -fx-background-color: transparent;
+    -fx-padding: 4px;
+    -fx-cursor: hand;
+}
+
+.application-section-chevron .ikonli-font-icon {
+    -fx-icon-color: #9A9A9A;
 }
 
 /* Collapsible section rows and template-folder dropdown. */

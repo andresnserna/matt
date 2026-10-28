@@ -282,7 +282,7 @@ public class OnboardingStepLayout extends BorderPane {
                 TextStyles.buildLabel(OnboardingScreenText.EXP_LABEL_JOB_TITLE, "input-label"), jobTitle);
         VBox companyGroup = Inputs.buildInputGroup(
                 TextStyles.buildLabel(OnboardingScreenText.EXP_LABEL_COMPANY_NAME, "input-label"), companyName);
-        HBox dates = new HBox(
+        HBox dates = new HBox(24,
                 VisualElements.dateGroup(OnboardingScreenText.EXP_LABEL_START_DATE, sectionData.getStartDate(),
                         value -> sectionData.setStartDate(value)),
                 VisualElements.dateGroup(OnboardingScreenText.EXP_LABEL_END_DATE, sectionData.getEndDate(),
@@ -338,24 +338,25 @@ public class OnboardingStepLayout extends BorderPane {
 
         VBox nameGroup = Inputs.buildInputGroup(TextStyles.buildLabel(OnboardingScreenText.PROJ_LABEL_TITLE, "input-label"), name);
         VBox roleGroup = Inputs.buildInputGroup(TextStyles.buildLabel(OnboardingScreenText.PROJ_LABEL_ROLE, "input-label"), role);
-        HBox dates = new HBox(
+        HBox dates = new HBox(24,
                 VisualElements.dateGroup(OnboardingScreenText.PROJ_LABEL_START_DATE, sectionData.getStartDate(),
                         value -> sectionData.setStartDate(value)),
                 VisualElements.dateGroup(OnboardingScreenText.PROJ_LABEL_END_DATE, sectionData.getEndDate(),
                         value -> sectionData.setEndDate(value)));
         VBox locationGroup = Inputs.buildInputGroup(TextStyles.buildLabel(OnboardingScreenText.PROJ_LABEL_LOCATION, "input-label"), location);
         VBox descriptionGroup = Inputs.buildInputGroup(TextStyles.buildLabel(OnboardingScreenText.PROJ_LABEL_DESCRIPTION, "input-label"), description);
+        description.setMaxWidth(Double.MAX_VALUE);
+        descriptionGroup.setMaxWidth(Double.MAX_VALUE);
 
         Region firstRowSpacer = new Region();
         HBox firstRow = new HBox(16, nameGroup, roleGroup, firstRowSpacer, dates);
         firstRow.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(firstRowSpacer, Priority.ALWAYS);
 
-        Region secondRowSpacer = new Region();
-        HBox secondRow = new HBox(16, secondRowSpacer, locationGroup);
-        secondRow.setAlignment(Pos.CENTER_LEFT);
-        HBox.setHgrow(secondRowSpacer, Priority.ALWAYS);
-        VBox fields = new VBox(16, firstRow, secondRow, descriptionGroup);
+        HBox secondRow = new HBox(16, descriptionGroup, locationGroup);
+        secondRow.setAlignment(Pos.TOP_LEFT);
+        HBox.setHgrow(descriptionGroup, Priority.ALWAYS);
+        VBox fields = new VBox(16, firstRow, secondRow);
         return buildEditableSectionCard(OnboardingScreenText.PROJ_CARD_PREFIX + sectionNumber,
                 fields, onDuplicate, onDelete);
     }

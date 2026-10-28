@@ -8,6 +8,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ContentDisplay;
 import com.github.weisj.jsvg.SVGDocument;
 import com.github.weisj.jsvg.parser.SVGLoader;
 import com.github.weisj.jsvg.ui.jfx.FXSVGCanvas;
@@ -348,29 +349,28 @@ public class VisualElements {
    }
 
    /**
-    * builds together the upload button, a text input for URLs, and a text area.
+    * Builds the three job-posting input choices: file upload, posting URL, or pasted description.
     */
-   public static HBox buildUploadMethodGroup3(){
-      HBox uploadControl = new Buttons().buildUploadButton(360, 8, null);
-      TextField jobUrl = Inputs.inputField(ApplicationScreenText.JOB_URL_PLACEHOLDER, 360, Double.MAX_VALUE);
-      TextArea jobDescription = Inputs.textArea(
-            ApplicationScreenText.JOB_DESCRIPTION_PLACEHOLDER, 360, Double.MAX_VALUE, 100, 160);
+   public static VBox buildUploadMethodGroup3(double width){
+      int uploadWidth = (int) Math.round(width);
+      HBox uploadControl = new Buttons().buildUploadButton(uploadWidth, 8, null);
+      TextField jobUrl = Inputs.inputField(ApplicationScreenText.JOB_URL_PLACEHOLDER, width, width);
+      TextField jobDescription = Inputs.inputField(
+            ApplicationScreenText.JOB_DESCRIPTION_PLACEHOLDER, width, width);
 
-      Label firstOr = new Label("or");
-      Label secondOr = new Label("or");
-      firstOr.getStyleClass().add("upload-method-or");
-      secondOr.getStyleClass().add("upload-method-or");
-
-      HBox.setHgrow(uploadControl, Priority.ALWAYS);
-      HBox.setHgrow(jobUrl, Priority.ALWAYS);
-      HBox.setHgrow(jobDescription, Priority.ALWAYS);
+      uploadControl.setPrefWidth(width);
       uploadControl.setMinWidth(0);
+      uploadControl.setMaxWidth(width);
       jobUrl.setMinWidth(0);
+      jobUrl.setMaxWidth(width);
       jobDescription.setMinWidth(0);
-      uploadControl.setMaxWidth(Double.MAX_VALUE);
+      jobDescription.setMaxWidth(width);
 
-      HBox methods = new HBox(16, uploadControl, firstOr, jobUrl, secondOr, jobDescription);
+      VBox methods = new VBox(16, uploadControl, jobUrl, jobDescription);
       methods.setAlignment(Pos.CENTER_LEFT);
+      methods.setPrefWidth(width);
+      methods.setMinWidth(0);
+      methods.setMaxWidth(width);
       methods.getStyleClass().add("upload-method-group");
       return methods;
    }
@@ -496,33 +496,43 @@ public class VisualElements {
    }
 
    /** Builds the login form with icon fields, a remember option, a primary login action, and a sign-up link. */
-   public static VBox buildLoginBox(EventHandler<ActionEvent> onLogin, EventHandler<ActionEvent> onSignup) {
+   public static VBox buildLoginBox(EventHandler<ActionEvent> onLogin, EventHandler<ActionEvent> onSignup,
+         double boxWidth, double fieldWidth, double buttonWidth) {
       VBox box = new VBox(18);
       box.setAlignment(Pos.CENTER);
+      box.setPrefWidth(boxWidth);
+      box.setMaxWidth(boxWidth);
       box.getStyleClass().add("login-box");
       box.getChildren().addAll(
-            Inputs.buildInputFieldWIcon(LoginScreenText.USERNAME_PLACEHOLDER, LoginScreenText.USERNAME_ICON, 420, 520, "login-field"),
-            Inputs.buildPasswordFieldWIcon(LoginScreenText.PASSWORD_PLACEHOLDER, LoginScreenText.PASSWORD_ICON, 420, 520, "login-field"),
+            Inputs.buildInputFieldWIcon(LoginScreenText.USERNAME_PLACEHOLDER, LoginScreenText.USERNAME_ICON, fieldWidth, fieldWidth, "login-field"),
+            Inputs.buildPasswordFieldWIcon(LoginScreenText.PASSWORD_PLACEHOLDER, LoginScreenText.PASSWORD_ICON, fieldWidth, fieldWidth, "login-field"),
             buildCheckBoxWLabel());
-      Button login = Buttons.button(LoginScreenText.LOGIN_BUTTON, onLogin, 420, "login-submit");
+      Button login = Buttons.button(LoginScreenText.LOGIN_BUTTON, onLogin, buttonWidth, "login-submit");
       Button signup = Buttons.button(LoginScreenText.SIGNUP_BUTTON, onSignup, 180, "signup-link-button");
       box.getChildren().addAll(login, signup);
       return box;
    }
 
-   /** Builds an application summary card with job and company names, generated-file count, age, and open action. */
-   public static HBox buildApplicationListCard(String jobTitle, String companyName, int age, String timeUnit,
+   /** Builds a clickable application card with job and company details, file count, and relative start time. */
+   public static Button buildApplicationListCard(String jobTitle, String companyName, int age, String timeUnit,
          int fileCount, EventHandler<ActionEvent> onOpen) {
       Label title = new Label(safe(jobTitle)); title.getStyleClass().add("application-card-title");
       Label company = new Label(safe(companyName)); company.getStyleClass().add("application-card-company");
       VBox details = new VBox(8, title, new HBox(16, company, buildFileCountBadge(fileCount)));
       Region spacer = new Region(); HBox.setHgrow(spacer, Priority.ALWAYS);
-      Button open = Buttons.button(ApplicationScreenText.APPLICATION_CARD_OPEN_ICON, onOpen, "application-card-open");
-      HBox actions = new HBox(18, buildRelativeTimeLabel(age, timeUnit, true), open);
-      actions.setAlignment(Pos.CENTER_RIGHT);
-      HBox card = new HBox(16, details, spacer, actions);
+      FontIcon arrow = new FontIcon(ApplicationScreenText.APPLICATION_CARD_OPEN_ICON);
+      arrow.getStyleClass().add("application-card-arrow-icon");
+      HBox cardContent = new HBox(18, details, spacer, buildRelativeTimeLabel(age, timeUnit, true), arrow);
+      cardContent.setAlignment(Pos.CENTER_LEFT);
+      cardContent.setMaxWidth(Double.MAX_VALUE);
+      Button card = new Button();
+      card.setGraphic(cardContent);
+      card.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
       card.setAlignment(Pos.CENTER_LEFT);
-      card.getStyleClass().add("application-card");
+      card.setMaxWidth(Double.MAX_VALUE);
+      card.setOnAction(onOpen);
+      card.setAccessibleText(safe(jobTitle) + " at " + safe(companyName));
+      card.getStyleClass().add("application-card-button");
       return card;
    }
 
@@ -565,14 +575,14 @@ public class VisualElements {
    /** Shows the original job posting text in a bordered, scrollable preview with a soft fade at its lower edge. */
    public static VBox buildJobDetailsRawTextContainer(String rawText) {
 
-      Label text = new Label(safe(rawText)); text.setWrapText(true); text.getStyleClass().add("raw-job-text");
-      ScrollPane scroll = VisualElements.scrollable(text); scroll.setPrefViewportHeight(420);
+      Label text = new Label(safe(rawText)); text.setWrapText(true); text.setMaxWidth(Double.MAX_VALUE); text.getStyleClass().add("raw-job-text");
+      ScrollPane scroll = VisualElements.scrollable(text); scroll.setPrefViewportHeight(420); scroll.setMinWidth(0); scroll.setMaxWidth(Double.MAX_VALUE);
       Region fadeOverlay = new Region(); fadeOverlay.setMouseTransparent(true); fadeOverlay.setMinHeight(90);
       fadeOverlay.setMaxHeight(90); StackPane.setAlignment(fadeOverlay, Pos.BOTTOM_CENTER);
-      StackPane preview = new StackPane(scroll, fadeOverlay); preview.setPrefHeight(420);
+      StackPane preview = new StackPane(scroll, fadeOverlay); preview.setPrefHeight(420); preview.setMinWidth(0); preview.setMaxWidth(Double.MAX_VALUE);
       preview.getStyleClass().add("raw-job-fade");
       StackPane.setAlignment(scroll, Pos.TOP_CENTER);
-      VBox container = new VBox(preview); container.getStyleClass().add("raw-job-container");
+      VBox container = new VBox(preview); container.setMinWidth(0); container.setMaxWidth(Double.MAX_VALUE); container.getStyleClass().add("raw-job-container");
       return container;
    }
 

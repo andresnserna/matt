@@ -121,9 +121,10 @@
 }
 
 .about-job-heading {
-   -fx-font-size: 20px;
+   -fx-font-size: 24px;
    -fx-font-weight: bold;
    -fx-text-fill: #668A8C;
+   /* -fx-text-fill: red; */
 }
 
 .about-job-label {
@@ -183,13 +184,6 @@
 .upload-method-group {
    -fx-alignment: center-left;
    -fx-spacing: 16px;
-}
-
-.upload-method-or {
-   -fx-font-size: 18px;
-   -fx-font-style: italic;
-   -fx-font-weight: bold;
-   -fx-text-fill: #E29578;
 }
 
 .parsed-info-card {
