@@ -5,7 +5,8 @@ import edu.stedwards.matt.ui.interaction.Inputs;
 import edu.stedwards.matt.ui.interaction.VisualElements;
 import edu.stedwards.matt.ui.labels.LoginScreenText;
 import edu.stedwards.matt.ui.layouts.application.ApplicationHome;
-import edu.stedwards.matt.ui.layouts.template.TemplatesCreator;
+import edu.stedwards.matt.ui.layouts.template.TemplatesEditor;
+import edu.stedwards.matt.controllers.TemplateEditorController;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -132,7 +133,7 @@ public class EverythingLayout extends BorderPane {
    /** Builds previews of the application, job detail, template, and file components. */
    private VBox appComponentExamples() {
       VBox examples = new VBox(12);
-      TemplatesCreator templateCreator = new TemplatesCreator();
+      TemplatesEditor templateCreator = new TemplatesEditor(new TemplateEditorController());
       templateCreator.setPrefSize(640, 420);
       templateCreator.setMaxWidth(Double.MAX_VALUE);
       ApplicationHome applicationHome = new ApplicationHome(

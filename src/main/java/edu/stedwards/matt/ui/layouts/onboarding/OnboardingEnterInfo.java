@@ -33,16 +33,10 @@ public class OnboardingEnterInfo extends BorderPane {
       return group;
    }
 
-   private VBox buildPersonalColumn(String heading, Node... fields) {
-      Label columnHeading = new Label(heading);
-      columnHeading.getStyleClass().add("onboarding-column-heading");
-      columnHeading.setMaxWidth(Double.MAX_VALUE);
-      columnHeading.setAlignment(Pos.CENTER);
-
+   private VBox buildPersonalColumn(Node... fields) {
       VBox column = new VBox(16);
       column.setFillWidth(true);
       column.setMaxWidth(Double.MAX_VALUE);
-      column.getChildren().add(columnHeading);
       column.getChildren().addAll(fields);
       return column;
    }
@@ -53,7 +47,7 @@ public class OnboardingEnterInfo extends BorderPane {
       instruction.setWrapText(true);
       instruction.setMaxWidth(Double.MAX_VALUE);
 
-      VBox nameColumn = buildPersonalColumn(OnboardingScreenText.PI_LABEL_HEADER_NAME,
+      VBox nameColumn = buildPersonalColumn(
             buildPersonalFieldGroup(OnboardingScreenText.PI_LABEL_FIRST, OnboardingScreenText.PI_EXAMPLE_FIRST),
             buildPersonalFieldGroup(OnboardingScreenText.PI_LABEL_LAST, OnboardingScreenText.PI_EXAMPLE_LAST));
 
@@ -69,7 +63,7 @@ public class OnboardingEnterInfo extends BorderPane {
       HBox.setHgrow(stateGroup, Priority.ALWAYS);
       HBox.setHgrow(zipGroup, Priority.ALWAYS);
 
-      VBox locationColumn = buildPersonalColumn(OnboardingScreenText.PI_LABEL_HEADER_LOCATION,
+      VBox locationColumn = buildPersonalColumn(
             buildPersonalFieldGroup(OnboardingScreenText.PI_LABEL_ADDY1,
                   OnboardingScreenText.LABEL_ADDY1_PLACEHOLDER),
             buildPersonalFieldGroup(OnboardingScreenText.PI_LABEL_ADDY2,
@@ -77,7 +71,7 @@ public class OnboardingEnterInfo extends BorderPane {
             buildPersonalFieldGroup(OnboardingScreenText.PI_LABEL_CITY,
                   OnboardingScreenText.LABEL_CITY_PLACEHOLDER), stateAndZip);
 
-      VBox contactColumn = buildPersonalColumn(OnboardingScreenText.PI_LABEL_HEADER_CONTACT,
+      VBox contactColumn = buildPersonalColumn(
             buildPersonalFieldGroup(OnboardingScreenText.PI_LABEL_PHONE,
                   OnboardingScreenText.LABEL_PHONE_PLACEHOLDER),
             buildPersonalFieldGroup(OnboardingScreenText.PI_LABEL_EMAIL,
