@@ -38,13 +38,11 @@ public class OnboardingScreenText {
 
    // onboarding - personal info
    public static final String PI_TITLE = "Personal Information";
-   public static final String PI_LABEL_HEADER_NAME = "Your Name";
    public static final String PI_LABEL_FIRST = "First";
    public static final String PI_LABEL_LAST = "Last";
    public static final String LABEL_FIRST_PLACEHOLDER = "Jane";
    public static final String LABEL_LAST_PLACEHOLDER = "Doe";
 
-   public static final String PI_LABEL_HEADER_LOCATION = "Based In";
    public static final String PI_LABEL_ADDY1 = "Address Line 1";
    public static final String PI_LABEL_ADDY2 = "Address Line 2";
    public static final String PI_LABEL_CITY = "City";
@@ -56,7 +54,6 @@ public class OnboardingScreenText {
    public static final String LABEL_STATE_PLACEHOLDER = "TX";
    public static final String LABEL_ZIP_PLACEHOLDER = "12345";
 
-   public static final String PI_LABEL_HEADER_CONTACT = "Contact Me";
    public static final String PI_LABEL_PHONE = "Phone";
    public static final String PI_LABEL_EMAIL = "Email";
    public static final String PI_LABEL_SUMMARY = "Professional Summary";

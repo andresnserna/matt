@@ -42,6 +42,8 @@ import edu.stedwards.matt.ui.layouts.myinfo.MyInfoHomeStep;
 import edu.stedwards.matt.ui.layouts.other.SettingsLayout;
 import edu.stedwards.matt.ui.layouts.template.TemplatesHome;
 import edu.stedwards.matt.ui.layouts.template.TemplatesEditor;
+import edu.stedwards.matt.controllers.TemplateEditorController;
+import edu.stedwards.matt.controllers.OnboardingStepController;
 import edu.stedwards.matt.ui.layouts.template.TemplatesUploadOrNew;
 import fr.brouillard.oss.cssfx.CSSFX;
 
@@ -61,7 +63,7 @@ public class Matt extends Application {
     }
 
     private void startNormalApplication(Stage stage) {
-        OnboardingStepLayout onboardingLayout = new OnboardingStepLayout();
+        OnboardingStepLayout onboardingLayout = new OnboardingStepLayout(new OnboardingStepController());
         onboardingLayout.showStep(new OnboardingWelcome());
         StartLayout startLayout = new StartLayout("application",
                 () -> stage.getScene().setRoot(onboardingLayout));
@@ -104,7 +106,7 @@ public class Matt extends Application {
                 new PreviewScreen("Main - Templates - Upload or New",
                         () -> mainShell(TemplatesUploadOrNew::new)),
                 new PreviewScreen("Main - Templates - Template Creator",
-                        () -> mainShell(TemplatesEditor::new)),
+                        () -> mainShell(() -> new TemplatesEditor(new TemplateEditorController()))),
                 new PreviewScreen("Main - Applications", () -> mainAreaScreen("Applications")),
                 new PreviewScreen("Main - Applications - Home", () -> mainShell(ApplicationHome::new)),
                 new PreviewScreen("Main - Applications - Upload", () -> mainShell(ApplicationUploadJob::new)),
@@ -164,7 +166,7 @@ public class Matt extends Application {
     }
 
     private Node onboardingStep(Consumer<OnboardingStepLayout> setup) {
-        OnboardingStepLayout layout = new OnboardingStepLayout();
+        OnboardingStepLayout layout = new OnboardingStepLayout(new OnboardingStepController());
         setup.accept(layout);
         return layout;
     }

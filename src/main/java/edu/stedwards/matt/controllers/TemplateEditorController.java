@@ -6,20 +6,29 @@ import edu.stedwards.matt.models.entity.Template;
 import edu.stedwards.matt.services.TemplateStorageService;
 import edu.stedwards.matt.services.TemplateService;
 import edu.stedwards.matt.services.DocumentExportService;
+import edu.stedwards.matt.services.TemplateFieldParserService;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
 
 public class TemplateEditorController {
     
     private final TemplateStorageService storageService;
     private final TemplateService templateService;
     private final DocumentExportService exportService;
+    private final TemplateFieldParserService fieldParserService;
 
     public TemplateEditorController() {
         this.storageService = new TemplateStorageService();
         this.templateService = new TemplateService();
         this.exportService = new DocumentExportService();
+        this.fieldParserService = new TemplateFieldParserService();
+    }
+
+    /** Returns the dynamic fields currently present in serialized editor HTML. */
+    public Set<String> extractDynamicFields(String htmlContent) {
+        return fieldParserService.extractFields(htmlContent);
     }
 
     
