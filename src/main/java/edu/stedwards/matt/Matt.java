@@ -99,10 +99,7 @@ public class Matt extends Application {
                 new PreviewScreen("Main", MainLayout::new),
                 new PreviewScreen("Main - Home", () -> mainAreaScreen("Home")),
                 new PreviewScreen("Main - Templates", () -> mainAreaScreen("Templates")),
-                new PreviewScreen("Main - Templates - Home", () -> mainShell(() -> {
-                    new TemplatesHome();
-                    return placeholderScreen("Templates Home");
-                })),
+                new PreviewScreen("Templates Home", () -> new TemplatesHome(previewTemplates())),
                 new PreviewScreen("Main - Templates - Upload or New",
                         () -> mainShell(TemplatesUploadOrNew::new)),
                 new PreviewScreen("Main - Templates - Template Creator",
@@ -163,6 +160,32 @@ public class Matt extends Application {
         AppStyle.apply(stage.getScene());
         stage.show();
         CSSFX.start();
+    }
+
+    private List<TemplatesHome.TemplateCardData> previewTemplates() {
+        return List.of(
+                previewTemplate("Cover Letter - Academic Field"),
+                previewTemplate("Resume - Software Engineering"),
+                previewTemplate("Cover Letter - Product Roles"),
+                previewTemplate("General Resume"));
+    }
+
+    private TemplatesHome.TemplateCardData previewTemplate(String name) {
+        return new TemplatesHome.TemplateCardData(name, "Updated 3w ago", "This is text This\nis text This is");
+    }
+
+    private List<JobPosting> previewApplications() {
+        return List.of(
+                previewApplication("Software Engineer", "Acrisure"),
+                previewApplication("Product Analyst", "Google"),
+                previewApplication("Entry Level Developer", "Oracle"));
+    }
+
+    private JobPosting previewApplication(String title, String company) {
+        JobPosting application = new JobPosting();
+        application.setJobTitle(title);
+        application.setCompanyName(company);
+        return application;
     }
 
     private Node onboardingStep(Consumer<OnboardingStepLayout> setup) {

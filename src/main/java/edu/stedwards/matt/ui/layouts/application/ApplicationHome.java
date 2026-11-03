@@ -1,5 +1,18 @@
 package edu.stedwards.matt.ui.layouts.application;
 
+import java.util.Collections;
+import java.util.List;
+import edu.stedwards.matt.models.entity.JobPosting;
+import edu.stedwards.matt.ui.TextStyles;
+import edu.stedwards.matt.ui.interaction.VisualElements;
+import edu.stedwards.matt.ui.labels.ApplicationScreenText;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
+import javafx.scene.control.Button;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -22,34 +35,36 @@ import javafx.scene.text.TextFlow;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
 
-/** Applications home screen, built from application summaries supplied by its caller. */
-public class ApplicationHome extends BorderPane {
-   /** Display fields needed to build one application card. */
-   public record ApplicationSummary(String jobTitle, String companyName, int age, String timeUnit, int fileCount) {
+public class ApplicationHome extends BorderPane{
+
+   public ApplicationHome(){
+      this(Collections.emptyList());
    }
 
-   private final List<ApplicationSummary> thisWeek;
-   private final List<ApplicationSummary> lastWeek;
-   private final List<ApplicationSummary> older;
-   private final Consumer<ApplicationSummary> onOpenApplication;
-   private final Runnable onNewApplication;
+   public ApplicationHome(List<JobPosting> applications){
+      setPadding(new Insets(42, 50, 36, 50));
+      setTop(TextStyles.buildTitle(ApplicationScreenText.APPLICATIONS_TITLE, "screen-title"));
 
-   /** Creates an empty applications screen. */
-   public ApplicationHome() {
-      this(List.of(), List.of(), List.of(), null, null);
-   }
+      VBox list = new VBox(14);
+      list.setPadding(new Insets(34, 0, 0, 0));
+      Label heading = new Label(ApplicationScreenText.APPLICATIONS_THIS_WEEK);
+      heading.getStyleClass().add("overview-screen-column-heading");
+      heading.setMaxWidth(Double.MAX_VALUE);
+      heading.setAlignment(Pos.CENTER_LEFT);
+      list.getChildren().add(heading);
+      for (JobPosting application : applications) {
+         list.getChildren().add(VisualElements.buildApplicationListCard(
+               application.getJobTitle(), application.getCompanyName(), 4, "h", 0, null));
+      }
+      setCenter(list);
 
-   /** Creates the screen from grouped application data without fetching it from the database. */
-   public ApplicationHome(List<ApplicationSummary> thisWeek, List<ApplicationSummary> lastWeek,
-         List<ApplicationSummary> older, Consumer<ApplicationSummary> onOpenApplication,
-         Runnable onNewApplication) {
-      this.thisWeek = List.copyOf(thisWeek);
-      this.lastWeek = List.copyOf(lastWeek);
-      this.older = List.copyOf(older);
-      this.onOpenApplication = onOpenApplication;
-      this.onNewApplication = onNewApplication;
-      getStyleClass().add("application-home-layout");
-      setCenter(buildApplicationHomeLayout());
+      Region spacer = new Region();
+      HBox.setHgrow(spacer, Priority.ALWAYS);
+      Button newApplication = new Button(ApplicationScreenText.NEW_APPLICATION_BUTTON);
+      newApplication.getStyleClass().add("new-application-button");
+      HBox footer = new HBox(spacer, newApplication);
+      footer.setPadding(new Insets(20, 0, 0, 0));
+      setBottom(footer);
    }
 
    public BorderPane buildApplicationHomeLayout() {

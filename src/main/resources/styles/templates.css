@@ -37,6 +37,60 @@
    -fx-effect: dropshadow(gaussian, rgba(0, 109, 119, 0.35), 5, 0.2, 0, 0);
 }
 
+.template-card-name {
+   -fx-font-size: 18px;
+   -fx-text-fill: #668A8C;
+}
+
+.template-card-edited-label {
+   -fx-font-size: 12px;
+   -fx-text-fill: #9A9A9A;
+   -fx-padding: 0 0 5px 0;
+}
+
+.template-card {
+   -fx-background-color: white;
+   -fx-background-radius: 18px;
+   -fx-border-color: #668A8C;
+   -fx-border-radius: 18px;
+   -fx-border-width: 1.2px;
+   -fx-padding: 18px 12px 0 12px;
+}
+
+.template-card-preview-area {
+   -fx-padding: 0 0 4px 0;
+}
+
+.template-card-preview {
+   -fx-font-size: 42px;
+   -fx-fill: #B7B7B7;
+}
+
+.template-card-footer {
+   -fx-border-color: #668A8C transparent transparent transparent;
+   -fx-border-width: 1px 0 0 0;
+   -fx-padding: 13px 0 12px 0;
+}
+
+.templates-home-title {
+   -fx-font-weight: bold;
+}
+
+.new-template-button, .new-application-button {
+   -fx-background-color: #007780;
+   -fx-background-radius: 16px;
+   -fx-text-fill: white;
+   -fx-font-size: 22px;
+   -fx-font-style: italic;
+   -fx-padding: 14px 28px;
+   -fx-cursor: hand;
+}
+
+.new-template-button:hover, .new-application-button:hover {
+   -fx-background-color: #006D77;
+}
+
+
 .template-editor-screen {
    -fx-background-color: #ffffff;
 }
