@@ -12,7 +12,7 @@ public class OllamaTest {
         String jsonPayload = "{"
 
                 // local model: llama3.2:3b
-                + "\"model\": \"gemma4:31b-cloud\","
+                + "\"model\": \"llama3.2:3b\","
                 + "\"prompt\": \"In one sentence, why is local data privacy important for job seekers?\","
                 + "\"stream\": false"
                 + "}";
