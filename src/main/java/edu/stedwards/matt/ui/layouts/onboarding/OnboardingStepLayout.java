@@ -537,6 +537,66 @@ public class OnboardingStepLayout extends BorderPane {
                 OnboardingStepLayout::buildWebsiteChipEditable);
     }
 
+    /** Append education input to accumulated onboarding data and navigate to the experience screen. */
+    public void handleEducationNext() {
+        // TODO: javi implement this button
+    }
+
+    /** Populate education fields with values parsed from the résumé. */
+    public void populateEducationFromParsedData() {
+        // TODO: javi implement this button
+    }
+
+    /** Append experience input to accumulated onboarding data and navigate to the projects screen. */
+    public void handleExperienceNext() {
+        // TODO: javi implement this button
+    }
+
+    /** Populate experience fields with values parsed from the résumé. */
+    public void populateExperienceFromParsedData() {
+        // TODO: javi implement this button
+    }
+
+    /** Append projects input to accumulated onboarding data and navigate to the skills screen. */
+    public void handleProjectsNext() {
+        // TODO: javi implement this button
+    }
+
+    /** Populate project fields with values parsed from the résumé. */
+    public void populateProjectsFromParsedData() {
+        // TODO: javi implement this button
+    }
+
+    /** Append skills input to accumulated onboarding data and navigate to the awards/certifications screen. */
+    public void handleSkillsNext() {
+        // TODO: javi implement this button
+    }
+
+    /** Populate skills fields with values parsed from the résumé. */
+    public void populateSkillsFromParsedData() {
+        // TODO: javi implement this button
+    }
+
+    /** Append awards and certifications input and navigate to the websites screen. */
+    public void handleAwardsNext() {
+        // TODO: javi implement this button
+    }
+
+    /** Populate awards and certifications fields with values parsed from the résumé. */
+    public void populateAwardsFromParsedData() {
+        // TODO: javi implement this button
+    }
+
+    /** Append website input to accumulated onboarding data and navigate to the final overview screen. */
+    public void handleWebsitesNext() {
+        // TODO: javi implement this button
+    }
+
+    /** Populate website fields with values parsed from the résumé. */
+    public void populateWebsitesFromParsedData() {
+        // TODO: javi implement this button
+    }
+
     /** Builds a clickable website chip; clicking it runs the supplied remove action. */
     private static Button buildWebsiteChipEditable(Websites website, Runnable onDelete) {
         String platform = Inputs.nullToEmpty(website.getUrlType());

@@ -1,18 +1,5 @@
 package edu.stedwards.matt.ui.layouts.application;
 
-import java.util.Collections;
-import java.util.List;
-import edu.stedwards.matt.models.entity.JobPosting;
-import edu.stedwards.matt.ui.TextStyles;
-import edu.stedwards.matt.ui.interaction.VisualElements;
-import edu.stedwards.matt.ui.labels.ApplicationScreenText;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.control.Label;
-import javafx.scene.control.Button;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -35,36 +22,30 @@ import javafx.scene.text.TextFlow;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import org.kordamp.ikonli.javafx.FontIcon;
 
-public class ApplicationHome extends BorderPane{
+/** Displays saved applications grouped by when they were added. */
+public class ApplicationHome extends BorderPane {
+   public record ApplicationSummary(String jobTitle, String companyName, int age, String timeUnit,
+         int fileCount) { }
 
-   public ApplicationHome(){
-      this(Collections.emptyList());
+   private final List<ApplicationSummary> thisWeek;
+   private final List<ApplicationSummary> lastWeek;
+   private final List<ApplicationSummary> older;
+   private final Runnable onNewApplication;
+   private final Consumer<ApplicationSummary> onOpenApplication;
+
+   public ApplicationHome() {
+      this(List.of(), List.of(), List.of(), null, null);
    }
 
-   public ApplicationHome(List<JobPosting> applications){
-      setPadding(new Insets(42, 50, 36, 50));
-      setTop(TextStyles.buildTitle(ApplicationScreenText.APPLICATIONS_TITLE, "screen-title"));
-
-      VBox list = new VBox(14);
-      list.setPadding(new Insets(34, 0, 0, 0));
-      Label heading = new Label(ApplicationScreenText.APPLICATIONS_THIS_WEEK);
-      heading.getStyleClass().add("overview-screen-column-heading");
-      heading.setMaxWidth(Double.MAX_VALUE);
-      heading.setAlignment(Pos.CENTER_LEFT);
-      list.getChildren().add(heading);
-      for (JobPosting application : applications) {
-         list.getChildren().add(VisualElements.buildApplicationListCard(
-               application.getJobTitle(), application.getCompanyName(), 4, "h", 0, null));
-      }
-      setCenter(list);
-
-      Region spacer = new Region();
-      HBox.setHgrow(spacer, Priority.ALWAYS);
-      Button newApplication = new Button(ApplicationScreenText.NEW_APPLICATION_BUTTON);
-      newApplication.getStyleClass().add("new-application-button");
-      HBox footer = new HBox(spacer, newApplication);
-      footer.setPadding(new Insets(20, 0, 0, 0));
-      setBottom(footer);
+   public ApplicationHome(List<ApplicationSummary> thisWeek, List<ApplicationSummary> lastWeek,
+         List<ApplicationSummary> older, Runnable onNewApplication,
+         Consumer<ApplicationSummary> onOpenApplication) {
+      this.thisWeek = List.copyOf(thisWeek);
+      this.lastWeek = List.copyOf(lastWeek);
+      this.older = List.copyOf(older);
+      this.onNewApplication = onNewApplication;
+      this.onOpenApplication = onOpenApplication;
+      setCenter(buildApplicationHomeLayout());
    }
 
    public BorderPane buildApplicationHomeLayout() {
@@ -99,17 +80,32 @@ public class ApplicationHome extends BorderPane{
       return layout;
    }
 
-   private VBox buildSection(String title, List<ApplicationSummary> applications, boolean expanded) {
+   /** Load application records from the database and populate the application cards. */
+   public void loadApplicationsFromDatabase() {
+      // TODO: javi implement this button
+   }
+
+   /** Open the generate screen with the selected application's details and available templates. */
+   public void handleApplicationCardSelected() {
+      // TODO: javi implement this button
+   }
+
+   /** Navigate to Main - Applications - Upload. */
+   public void handleNewApplication() {
+      // TODO: javi implement this button
+   }
+
+   private VBox buildSection(String title, List<ApplicationSummary> applications, boolean initiallyExpanded) {
       Label sectionTitle = new Label(title);
       sectionTitle.getStyleClass().add("application-section-title");
 
-      FontIcon chevron = new FontIcon(expanded
+      FontIcon chevron = new FontIcon(initiallyExpanded
             ? ApplicationScreenText.SECTION_DROPDOWN_ICON
             : ApplicationScreenText.MORE_ICON);
       Button toggle = new Button();
       toggle.setGraphic(chevron);
       toggle.getStyleClass().add("application-section-chevron");
-      toggle.setAccessibleText((expanded ? "Collapse " : "Expand ") + title);
+      toggle.setAccessibleText((initiallyExpanded ? "Collapse " : "Expand ") + title);
 
       Region spacer = new Region();
       HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -130,8 +126,8 @@ public class ApplicationHome extends BorderPane{
                });
          cards.getChildren().add(card);
       }
-      cards.setVisible(expanded);
-      cards.setManaged(expanded);
+      cards.setVisible(initiallyExpanded);
+      cards.setManaged(initiallyExpanded);
 
       toggle.setOnAction(event -> {
          boolean showCards = !cards.isVisible();

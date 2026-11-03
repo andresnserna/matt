@@ -49,6 +49,16 @@ public class ApplicationGenerateMaterials extends BorderPane {
       BorderPane.setMargin(content, new Insets(0, 0, 12, 0));
    }
 
+   /** Load the company name from the current job-posting database record for the screen title. */
+   public void loadCompanyNameFromDatabase() {
+      // TODO: javi implement this button
+   }
+
+   /** Send the job, user, and selected template data with a prompt to fill its dynamic fields, then generate the application material. */
+   public void handleTemplateSelected() {
+      // TODO: javi implement this button
+   }
+
    private HBox buildColumns() {
       Label aboutHeading = new Label(ApplicationScreenText.ABOUT_THE_JOB_TITLE);
       aboutHeading.getStyleClass().add("about-job-heading");

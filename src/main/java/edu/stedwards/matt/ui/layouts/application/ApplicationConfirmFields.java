@@ -42,6 +42,16 @@ public class ApplicationConfirmFields extends BorderPane {
       setBottom(footer);
    }
 
+   /** Clear stored job-posting and parsed data, then return to Main - Applications - Upload. */
+   public void handleTryAgain() {
+      // TODO: javi implement this button
+   }
+
+   /** Save the confirmed job-posting data, then open its generate screen using the saved record ID. */
+   public void handleFinish() {
+      // TODO: javi implement this button
+   }
+
    private HBox buildOverviewColumns() {
       VBox posting = new VBox(12,
             VisualElements.buildJobDetailsRawTextContainer(

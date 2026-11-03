@@ -65,4 +65,9 @@ public class OnboardingWelcome extends BorderPane {
       setBottom(new Buttons().buildNextButton());
       BorderPane.setAlignment(getCenter(), Pos.CENTER_LEFT);
    }
+
+   /** Save any welcome-screen input and navigate to the onboarding resume upload screen. */
+   public void handleNext() {
+      // TODO: javi implement this button
+   }
 }

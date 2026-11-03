@@ -104,5 +104,15 @@ public class OnboardingEnterInfo extends BorderPane {
       
       setBottom(new Buttons().buildNextButton());
    }
+
+   /** Append personal-info input to accumulated onboarding data and navigate to the education screen. */
+   public void handleNext() {
+      // TODO: javi implement this button
+   }
+
+   /** Populate personal-info fields with values parsed from the résumé. */
+   public void populateFromParsedData() {
+      // TODO: javi implement this button
+   }
    
 }

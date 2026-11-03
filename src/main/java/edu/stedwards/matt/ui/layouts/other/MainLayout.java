@@ -44,4 +44,29 @@ public class MainLayout extends BorderPane {
         setLeft(visualElements.mainSideBar());
         setCenter(buildMainHomeLayout());
     }
+
+    /** Show the home screen layout, which is currently an empty placeholder. */
+    public void handleHomeNavigation() {
+        // TODO: javi implement this button
+    }
+
+    /** Navigate to Main - Templates - Home. */
+    public void handleTemplatesNavigation() {
+        // TODO: javi implement this button
+    }
+
+    /** Navigate to Main - Applications - Home. */
+    public void handleApplicationsNavigation() {
+        // TODO: javi implement this button
+    }
+
+    /** Navigate to the My Info home placeholder screen. */
+    public void handleMyInfoNavigation() {
+        // TODO: javi implement this button
+    }
+
+    /** Navigate to the Settings placeholder screen. */
+    public void handleSettingsNavigation() {
+        // TODO: javi implement this button
+    }
 }

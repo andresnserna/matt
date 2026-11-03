@@ -7,6 +7,7 @@ module edu.stedwards.matt {
     requires com.github.weisj.jsvg.javafx;
     requires javafx.controls;
     requires transitive javafx.graphics;
+    requires java.desktop;
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.ikonli.fontawesome5;
     requires java.sql;

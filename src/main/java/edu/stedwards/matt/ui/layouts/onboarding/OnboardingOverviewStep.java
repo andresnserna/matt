@@ -58,6 +58,16 @@ public class OnboardingOverviewStep extends BorderPane {
       setBottom(new Buttons().buildNextButton());
    }
 
+   /** Gather accumulated onboarding data and populate the overview with its corresponding info cards. */
+   public void populateOverviewCards() {
+      // TODO: javi implement this button
+   }
+
+   /** Save all onboarding data to the database, then navigate to Main - Applications - Home. */
+   public void handleNext() {
+      // TODO: javi implement this button
+   }
+
    private VBox buildAllInfoContainers(
          ObservableList<Education> education,
          ObservableList<Experience> experiences,

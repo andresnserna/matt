@@ -90,4 +90,19 @@ public class OnboardingUploadStep extends BorderPane {
 
       setBottom(new Buttons().buildNextButton());
    }
+
+   /** Open the file chooser, validate the selected résumé file type, and send it to the parsing service. */
+   public void handleResumeUpload() {
+      // TODO: javi implement this button
+   }
+
+   /** Save resume-upload input in the accumulated onboarding data and navigate to the personal-info screen. */
+   public void handleNext() {
+      // TODO: javi implement this button
+   }
+
+   /** Populate the resume-upload screen fields with any previously parsed onboarding data. */
+   public void populateFromParsedData() {
+      // TODO: javi implement this button
+   }
 }

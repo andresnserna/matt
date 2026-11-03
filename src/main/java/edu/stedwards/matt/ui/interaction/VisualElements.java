@@ -9,9 +9,32 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ContentDisplay;
+import javax.swing.JLabel;
+import javax.swing.JButton;
+import javax.swing.ImageIcon;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.border.EmptyBorder;
+import javax.swing.plaf.basic.BasicButtonUI;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 import com.github.weisj.jsvg.SVGDocument;
 import com.github.weisj.jsvg.parser.SVGLoader;
 import com.github.weisj.jsvg.ui.jfx.FXSVGCanvas;
+import com.github.weisj.jsvg.view.ViewBox;
 
 import edu.stedwards.matt.ui.labels.MainScreenText;
 import edu.stedwards.matt.ui.labels.OtherScreenText;
@@ -22,7 +45,6 @@ import edu.stedwards.matt.ui.TextStyles;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Button;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.shape.Line;
@@ -32,6 +54,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.ScrollPane;
 import javafx.css.PseudoClass;
+import javafx.application.Platform;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import java.net.URL;
@@ -513,6 +536,136 @@ public class VisualElements {
       return box;
    }
 
+   public static void showSignupDialog(ActionEvent event) {
+      if (!(event.getSource() instanceof Node source) || source.getScene() == null) {
+         throw new IllegalArgumentException("The signup dialog requires a login screen source node");
+      }
+
+      Node sceneRoot = source.getScene().getRoot();
+      sceneRoot.setDisable(true);
+      SwingUtilities.invokeLater(() -> {
+         try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+
+            Color white = Color.WHITE;
+            Color orange = new Color(0xE2, 0x95, 0x78);
+            JTextField usernameField = new JTextField(20);
+            JLabel usernameLabel = new JLabel(LoginScreenText.USERNAME_PLACEHOLDER);
+            usernameLabel.setLabelFor(usernameField);
+            JPasswordField passwordField = new JPasswordField(20);
+            JLabel passwordLabel = new JLabel(LoginScreenText.PASSWORD_PLACEHOLDER);
+            passwordLabel.setLabelFor(passwordField);
+
+            for (JTextField field : new JTextField[] { usernameField, passwordField }) {
+               field.setBackground(white);
+               field.setSelectionColor(orange);
+               field.setSelectedTextColor(white);
+               field.setPreferredSize(new Dimension(320, 34));
+               field.setMaximumSize(new Dimension(320, 34));
+            }
+
+            JPanel form = new JPanel();
+            form.setLayout(new BoxLayout(form, BoxLayout.Y_AXIS));
+            form.setBackground(white);
+            form.setBorder(new EmptyBorder(12, 20, 12, 20));
+
+            JLabel logo = new JLabel(loadSignupLogo());
+            logo.setAlignmentX(Component.CENTER_ALIGNMENT);
+            form.add(logo);
+            form.add(Box.createVerticalStrut(12));
+            addSignupField(form, usernameLabel, usernameField, white);
+            form.add(Box.createVerticalStrut(12));
+            addSignupField(form, passwordLabel, passwordField, white);
+            form.setPreferredSize(new Dimension(360, 250));
+
+            JButton signupButton = new JButton(LoginScreenText.SIGNUP_BUTTON);
+            signupButton.setUI(new BasicButtonUI());
+            signupButton.setBackground(orange);
+            signupButton.setForeground(white);
+            signupButton.setOpaque(true);
+            signupButton.setContentAreaFilled(true);
+            signupButton.setFocusPainted(false);
+
+            JButton cancelButton = new JButton("Cancel");
+            JOptionPane optionPane = new JOptionPane(
+                  form,
+                  JOptionPane.PLAIN_MESSAGE,
+                  JOptionPane.DEFAULT_OPTION,
+                  null,
+                  new Object[] { signupButton, cancelButton },
+                  signupButton);
+            JDialog dialog = optionPane.createDialog(LoginScreenText.SIGNUP_BUTTON);
+            dialog.setBackground(white);
+            setDialogBackground(dialog.getContentPane(), white);
+            dialog.setModal(true);
+            dialog.setVisible(true);
+            dialog.dispose();
+         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+               | UnsupportedLookAndFeelException exception) {
+            throw new IllegalStateException("Could not initialize the system look-and-feel signup dialog",
+                  exception);
+         } finally {
+            Platform.runLater(() -> sceneRoot.setDisable(false));
+         }
+      });
+   }
+
+   /** Close the sign-up window when Cancel is pressed. */
+   public static void handleSignupCancel() {
+      // TODO: javi implement this button
+   }
+
+   /** Save the sign-up dialog's username and password as a new user account in the database. */
+   public static void handleSignupSubmit() {
+      // TODO: javi implement this button
+   }
+
+   private static void addSignupField(JPanel form, JLabel label, JTextField field, Color background) {
+      JPanel group = new JPanel();
+      group.setLayout(new BoxLayout(group, BoxLayout.Y_AXIS));
+      group.setBackground(background);
+      group.setAlignmentX(Component.CENTER_ALIGNMENT);
+      label.setAlignmentX(Component.LEFT_ALIGNMENT);
+      field.setAlignmentX(Component.LEFT_ALIGNMENT);
+      group.add(label);
+      group.add(Box.createVerticalStrut(5));
+      group.add(field);
+      form.add(group);
+   }
+
+   private static ImageIcon loadSignupLogo() {
+      URL logoResource = VisualElements.class.getResource("/images/matt-logo-1.svg");
+      if (logoResource == null) {
+         throw new IllegalStateException("Matt logo resource not found");
+      }
+
+      SVGDocument document = new SVGLoader().load(logoResource);
+      if (document == null) {
+         throw new IllegalStateException("JSVG returned no document for the Matt logo");
+      }
+
+      BufferedImage image = new BufferedImage(160, 114, BufferedImage.TYPE_INT_ARGB);
+      Graphics2D graphics = image.createGraphics();
+      try {
+         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+         document.render(null, graphics, new ViewBox(0, 0, image.getWidth(), image.getHeight()));
+      } finally {
+         graphics.dispose();
+      }
+      return new ImageIcon(image);
+   }
+
+   private static void setDialogBackground(Component component, Color background) {
+      if (!(component instanceof JButton)) {
+         component.setBackground(background);
+      }
+      if (component instanceof Container container) {
+         for (Component child : container.getComponents()) {
+            setDialogBackground(child, background);
+         }
+      }
+   }
+
    /** Builds a clickable application card with job and company details, file count, and relative start time. */
    public static Button buildApplicationListCard(String jobTitle, String companyName, int age, String timeUnit,
          int fileCount, EventHandler<ActionEvent> onOpen) {
@@ -581,7 +734,7 @@ public class VisualElements {
       fadeOverlay.setMaxHeight(90); StackPane.setAlignment(fadeOverlay, Pos.BOTTOM_CENTER);
       StackPane preview = new StackPane(scroll, fadeOverlay); preview.setPrefHeight(420); preview.setMinWidth(0); preview.setMaxWidth(Double.MAX_VALUE);
       preview.getStyleClass().add("raw-job-fade");
-      StackPane.setAlignment(scroll, Pos.TOP_CENTER);
+      StackPane.setAlignment(scroll, Pos.TOP_RIGHT);
       VBox container = new VBox(preview); container.setMinWidth(0); container.setMaxWidth(Double.MAX_VALUE); container.getStyleClass().add("raw-job-container");
       return container;
    }

@@ -40,4 +40,24 @@ public class ApplicationUploadJob extends BorderPane {
       setBottom(new Buttons().buildNextButton());
    }
 
+   /** Open the file chooser, validate the selected file type, and prepare the file for parsing. */
+   public void handleUpload() {
+      // TODO: javi implement this button
+   }
+
+   /** Retain the entered job URL and send it for parsing only when Next is pressed. */
+   public void handleJobUrlEntry() {
+      // TODO: javi implement this button
+   }
+
+   /** Retain the entered job-post text and send it for parsing only when Next is pressed. */
+   public void handleJobPostTextEntry() {
+      // TODO: javi implement this button
+   }
+
+   /** Send the selected job posting to the parser and navigate to Main - Applications - Confirm Fields with parsed data. */
+   public void handleNext() {
+      // TODO: javi implement this button
+   }
+
 }

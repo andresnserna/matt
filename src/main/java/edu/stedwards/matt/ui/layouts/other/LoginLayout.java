@@ -22,6 +22,21 @@ public class LoginLayout extends VBox {
         getStyleClass().add("login-background");
 
         //logo up 
-        getChildren().add(VisualElements.buildLoginBox(null, null, 342, 206, 246));
+        getChildren().add(VisualElements.buildLoginBox(null, VisualElements::showSignupDialog, 342, 206, 246));
+    }
+
+    /** When Remember Me is selected, save the username in user settings for the next logged-out startup. */
+    public void handleRememberMe() {
+        // TODO: javi implement this button
+    }
+
+    /** Log the user in and start an app session with that user's data from the database. */
+    public void handleLogin() {
+        // TODO: javi implement this button
+    }
+
+    /** Open the sign-up dialog. */
+    public void handleSignup() {
+        // TODO: javi implement this button
     }
 }

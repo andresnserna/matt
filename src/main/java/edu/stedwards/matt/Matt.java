@@ -78,7 +78,6 @@ public class Matt extends Application {
 
     private void startLayoutPreview(Stage stage) {
         List<PreviewScreen> screens = List.of(
-                new PreviewScreen("Start", () -> new StartLayout("application")),
                 new PreviewScreen("Login", LoginLayout::new),
                 new PreviewScreen("Onboarding - Welcome", OnboardingWelcome::new),
                 new PreviewScreen("Onboarding - Resume Upload", OnboardingUploadStep::new),
@@ -96,22 +95,17 @@ public class Matt extends Application {
                 new PreviewScreen("Onboarding - Websites", () -> onboardingStep(
                         layout -> layout.showWebsitesStep(FXCollections.observableArrayList(new Websites())))),
                 new PreviewScreen("Onboarding - Final Overview", OnboardingOverviewStep::new),
-                new PreviewScreen("Main", MainLayout::new),
-                new PreviewScreen("Main - Home", () -> mainAreaScreen("Home")),
-                new PreviewScreen("Main - Templates", () -> mainAreaScreen("Templates")),
-                new PreviewScreen("Templates Home", () -> new TemplatesHome(previewTemplates())),
+                new PreviewScreen("Templates Home", () -> mainShell(() -> new TemplatesHome(previewTemplates()))),
                 new PreviewScreen("Main - Templates - Upload or New",
                         () -> mainShell(TemplatesUploadOrNew::new)),
                 new PreviewScreen("Main - Templates - Template Creator",
                         () -> mainShell(() -> new TemplatesEditor(new TemplateEditorController()))),
-                new PreviewScreen("Main - Applications", () -> mainAreaScreen("Applications")),
-                new PreviewScreen("Main - Applications - Home", () -> mainShell(ApplicationHome::new)),
+                new PreviewScreen("Main - Applications - Home", () -> mainShell(this::previewApplicationHome)),
                 new PreviewScreen("Main - Applications - Upload", () -> mainShell(ApplicationUploadJob::new)),
                 new PreviewScreen("Main - Applications - Confirm Fields",
                         () -> mainShell(ApplicationConfirmFields::new)),
                 new PreviewScreen("Main - Applications - Final Overview / Application Page",
                         () -> mainShell(ApplicationGenerateMaterials::new)),
-                new PreviewScreen("Main - My Info", () -> mainAreaScreen("My Info")),
                 new PreviewScreen("Main - My Info - Home", () -> mainShell(() -> {
                     new MyInfoHomeStep();
                     return placeholderScreen("My Info Home");
@@ -171,31 +165,22 @@ public class Matt extends Application {
     }
 
     private TemplatesHome.TemplateCardData previewTemplate(String name) {
-        return new TemplatesHome.TemplateCardData(name, "Updated 3w ago", "This is text This\nis text This is");
+        return new TemplatesHome.TemplateCardData(name, "Updated 3w ago");
     }
 
-    private List<JobPosting> previewApplications() {
-        return List.of(
-                previewApplication("Software Engineer", "Acrisure"),
-                previewApplication("Product Analyst", "Google"),
-                previewApplication("Entry Level Developer", "Oracle"));
-    }
-
-    private JobPosting previewApplication(String title, String company) {
-        JobPosting application = new JobPosting();
-        application.setJobTitle(title);
-        application.setCompanyName(company);
-        return application;
+    private ApplicationHome previewApplicationHome() {
+        return new ApplicationHome(
+                List.of(
+                        new ApplicationHome.ApplicationSummary("Software Engineer", "Acrisure", 4, "h", 2),
+                        new ApplicationHome.ApplicationSummary("Product Analyst", "Google", 1, "d", 1)),
+                List.of(new ApplicationHome.ApplicationSummary("Entry Level Developer", "Oracle", 1, "w", 1)),
+                List.of(), null, null);
     }
 
     private Node onboardingStep(Consumer<OnboardingStepLayout> setup) {
         OnboardingStepLayout layout = new OnboardingStepLayout(new OnboardingStepController());
         setup.accept(layout);
         return layout;
-    }
-
-    private Node mainAreaScreen(String section) {
-        return mainShell(() -> placeholderScreen("Main - " + section));
     }
 
     private Node mainShell(Supplier<Node> contentFactory) {
