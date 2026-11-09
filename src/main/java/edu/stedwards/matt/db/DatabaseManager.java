@@ -16,6 +16,7 @@ public class DatabaseManager {
         Connection connection = DriverManager.getConnection(URL);
         try {
             ensureOnboardingStatusColumn(connection);
+            removeTemplateTypeColumn(connection);
             return connection;
         } catch (SQLException exception) {
             connection.close();
@@ -42,6 +43,28 @@ public class DatabaseManager {
                 statement.executeUpdate(
                         "ALTER TABLE user_profile ADD COLUMN is_onboarded INTEGER NOT NULL DEFAULT 0 " +
                         "CHECK (is_onboarded IN (0, 1))");
+            }
+        }
+    }
+
+    /** Removes the obsolete required template_type column from databases created with the old schema. */
+    private static void removeTemplateTypeColumn(Connection connection) throws SQLException {
+        boolean templateTableExists = false;
+        boolean templateTypeColumnExists = false;
+        try (var statement = connection.createStatement();
+             var result = statement.executeQuery("PRAGMA table_info(template)")) {
+            while (result.next()) {
+                templateTableExists = true;
+                if ("template_type".equalsIgnoreCase(result.getString("name"))) {
+                    templateTypeColumnExists = true;
+                }
+            }
+        }
+
+        if (templateTableExists && templateTypeColumnExists) {
+            try (var statement = connection.createStatement()) {
+                statement.executeUpdate("ALTER TABLE template DROP COLUMN template_type");
+                System.out.println("Database migration: removed obsolete template.template_type column.");
             }
         }
     }

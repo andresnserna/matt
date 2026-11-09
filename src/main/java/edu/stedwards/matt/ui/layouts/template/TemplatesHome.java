@@ -3,11 +3,16 @@ package edu.stedwards.matt.ui.layouts.template;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
+import java.io.StringReader;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.parser.ParserDelegator;
 
 import edu.stedwards.matt.controllers.TemplateEditorController;
+import edu.stedwards.matt.dao.TemplateDAO;
+import edu.stedwards.matt.models.OnboardingSession;
+import edu.stedwards.matt.models.entity.Template;
 import edu.stedwards.matt.ui.TextStyles;
 import edu.stedwards.matt.ui.interaction.VisualElements;
-import edu.stedwards.matt.ui.labels.TemplatesScreenText;
 import edu.stedwards.matt.ui.layouts.other.MainLayout;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -23,12 +28,44 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.TextFlow;
 
 public class TemplatesHome extends BorderPane {
-   public record TemplateCardData(String name, String editedLabel) { }
+   public record TemplateCardData(String name, String editedLabel, String fileLoc, int templateId) {
+      public TemplateCardData(String name, String editedLabel) {
+         this(name, editedLabel, null, 0);
+      }
+
+      public TemplateCardData(String name, String editedLabel, String fileLoc) {
+         this(name, editedLabel, fileLoc, 0);
+      }
+   }
 
    private final FlowPane cards = new FlowPane(43, 34);
 
    public TemplatesHome() {
-      this(Collections.emptyList());
+      this(loadTemplatesForCurrentUser());
+   }
+
+   private static List<TemplateCardData> loadTemplatesForCurrentUser() {
+      var profile = OnboardingSession.getInstance().getUserProfile();
+      int userId = profile != null ? profile.getUserID() : 0;
+      if (userId <= 0) return Collections.emptyList();
+
+      return new TemplateDAO().getTemplatesForUser(userId).stream()
+            .map(TemplatesHome::toCardData)
+            .toList();
+   }
+
+   private static TemplateCardData toCardData(Template template) {
+      String updated = "Saved template";
+      if (template.getFileLoc() != null) {
+         try {
+            var modified = java.nio.file.Files.getLastModifiedTime(java.nio.file.Path.of(template.getFileLoc()));
+            updated = "Updated " + modified.toInstant()
+                  .atZone(java.time.ZoneId.systemDefault()).toLocalDate().toString();
+         } catch (java.io.IOException | RuntimeException ignored) {
+            // Older or unavailable template files still appear in the library.
+         }
+      }
+      return new TemplateCardData(template.getTemplateName(), updated, template.getFileLoc(), template.getTemplateId());
    }
 
    public TemplatesHome(List<TemplateCardData> templates) {
@@ -52,6 +89,11 @@ public class TemplatesHome extends BorderPane {
       for (TemplateCardData template : templates) {
          cards.getChildren().add(buildTemplateCard(template, clickHandler));
       }
+      if (templates.isEmpty()) {
+         Label emptyState = new Label("No templates yet. Create one to get started.");
+         emptyState.getStyleClass().add("template-card-preview");
+         cards.getChildren().add(emptyState);
+      }
       setCenter(VisualElements.scrollable(cards));
 
       Button newTemplate = new Button("New Template  ⊕");
@@ -71,7 +113,7 @@ public class TemplatesHome extends BorderPane {
    public void handleTemplateCardSelected(TemplateCardData template) {
       if (getScene() != null && getScene().getRoot() instanceof MainLayout mainLayout) {
          TemplateEditorController controller = new TemplateEditorController();
-         TemplatesEditor editor = new TemplatesEditor(controller);
+         TemplatesEditor editor = new TemplatesEditor(controller, template.name(), template.fileLoc(), template.templateId());
          mainLayout.showStep(editor);
       }
    }
@@ -95,7 +137,7 @@ public class TemplatesHome extends BorderPane {
          card.setOnAction(event -> onTemplateSelected.accept(template));
       }
 
-      Label preview = new Label(TemplatesScreenText.TEMPLATE_CARD_PREVIEW_PLACEHOLDER);
+      Label preview = new Label(readPreview(template.fileLoc()));
       preview.setWrapText(true);
       preview.setMaxWidth(Double.MAX_VALUE);
       preview.setMaxHeight(118);
@@ -123,5 +165,25 @@ public class TemplatesHome extends BorderPane {
       card.setGraphic(content);
       card.setContentDisplay(javafx.scene.control.ContentDisplay.GRAPHIC_ONLY);
       return card;
+   }
+
+   private static String readPreview(String fileLoc) {
+      if (fileLoc == null || fileLoc.isBlank()) return "";
+      try {
+         String html = java.nio.file.Files.readString(java.nio.file.Path.of(fileLoc));
+         StringBuilder text = new StringBuilder();
+         new ParserDelegator().parse(new StringReader(html), new HTMLEditorKit.ParserCallback() {
+            @Override
+            public void handleText(char[] data, int position) {
+               if (text.length() > 0) text.append(' ');
+               text.append(data);
+            }
+         }, true);
+         String[] words = text.toString().trim().split("\\s+");
+         if (words.length == 0 || words[0].isBlank()) return "";
+         return String.join(" ", java.util.Arrays.copyOf(words, Math.min(8, words.length)));
+      } catch (java.io.IOException | RuntimeException e) {
+         return "";
+      }
    }
 }

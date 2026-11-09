@@ -105,7 +105,6 @@ CREATE TABLE template (
     folder_id INTEGER,
     user_id INTEGER NOT NULL,
     template_name TEXT NOT NULL,
-    template_type TEXT NOT NULL, 
     file_loc TEXT NOT NULL,
     FOREIGN KEY (folder_id) REFERENCES template_folder(folder_id) ON DELETE SET NULL,
     FOREIGN KEY (user_id) REFERENCES user_profile(user_id) ON DELETE CASCADE

@@ -103,7 +103,7 @@ public class Matt extends Application {
                 new PreviewScreen("Main - Applications - Confirm Fields",
                         () -> mainShell(ApplicationConfirmFields::new)),
                 new PreviewScreen("Main - Applications - Final Overview / Application Page",
-                        () -> mainShell(ApplicationGenerateMaterials::new)),
+                        () -> mainShell(() -> new ApplicationGenerateMaterials(0))),
                 new PreviewScreen("Main - My Info - Home", () -> mainShell(() -> {
                     new MyInfoHomeStep();
                     return placeholderScreen("My Info Home");
@@ -169,9 +169,9 @@ public class Matt extends Application {
     private ApplicationHome previewApplicationHome() {
         return new ApplicationHome(
                 List.of(
-                        new ApplicationHome.ApplicationSummary("Software Engineer", "Acrisure", 4, "h", 2),
-                        new ApplicationHome.ApplicationSummary("Product Analyst", "Google", 1, "d", 1)),
-                List.of(new ApplicationHome.ApplicationSummary("Entry Level Developer", "Oracle", 1, "w", 1)),
+                        new ApplicationHome.ApplicationSummary("Software Engineer", "Acrisure", 4, "h", 2, 0),
+                        new ApplicationHome.ApplicationSummary("Product Analyst", "Google", 1, "d", 1, 0)),
+                List.of(new ApplicationHome.ApplicationSummary("Entry Level Developer", "Oracle", 1, "w", 1, 0)),
                 List.of(), null, null);
     }
 

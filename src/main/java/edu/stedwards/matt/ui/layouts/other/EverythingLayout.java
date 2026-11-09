@@ -138,13 +138,13 @@ public class EverythingLayout extends BorderPane {
       templateCreator.setMaxWidth(Double.MAX_VALUE);
       ApplicationHome applicationHome = new ApplicationHome(
             List.of(
-                  new ApplicationHome.ApplicationSummary("Software Engineer", "Acrisure", 2, "h", 2),
-                  new ApplicationHome.ApplicationSummary("Summer Analyst", "Google", 5, "d", 2)),
+                  new ApplicationHome.ApplicationSummary("Software Engineer", "Acrisure", 2, "h", 2, 2),
+                  new ApplicationHome.ApplicationSummary("Summer Analyst", "Google", 5, "d", 2, 2)),
             List.of(
-                  new ApplicationHome.ApplicationSummary("Entry Level Engineer", "Oracle", 1, "w", 3),
-                  new ApplicationHome.ApplicationSummary("Product Designer", "Example Co.", 1, "w", 0)),
+                  new ApplicationHome.ApplicationSummary("Entry Level Engineer", "Oracle", 1, "w", 3, 3),
+                  new ApplicationHome.ApplicationSummary("Product Designer", "Example Co.", 1, "w", 0, 0)),
             List.of(
-                  new ApplicationHome.ApplicationSummary("Data Analyst", "Acme", 2, "w", 1)),
+                  new ApplicationHome.ApplicationSummary("Data Analyst", "Acme", 2, "w", 1, 1)),
             null, null);
       applicationHome.setPrefSize(1000, 680);
       applicationHome.setMaxWidth(Double.MAX_VALUE);

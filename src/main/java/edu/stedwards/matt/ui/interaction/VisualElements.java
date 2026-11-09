@@ -39,6 +39,7 @@ import com.github.weisj.jsvg.view.ViewBox;
 import edu.stedwards.matt.dao.UserDAO;
 import edu.stedwards.matt.models.entity.User;
 import edu.stedwards.matt.ui.TextStyles;
+import edu.stedwards.matt.ui.layouts.other.MainLayout;
 import edu.stedwards.matt.ui.labels.ApplicationScreenText;
 import edu.stedwards.matt.ui.labels.LoginScreenText;
 import edu.stedwards.matt.ui.labels.MainScreenText;
@@ -147,6 +148,11 @@ public class VisualElements {
 
    /** Main navigation sidebar anchored to the left of the screen. */
    public VBox mainSideBar() {
+      return mainSideBar(null);
+   }
+
+   /** Main navigation sidebar with actions delegated to its owning MainLayout. */
+   public VBox mainSideBar(MainLayout mainLayout) {
       VBox sideBar = new VBox();
       sideBar.getStyleClass().add("sidebar");
       sideBar.setMinWidth(COLLAPSED_SIDEBAR_WIDTH);
@@ -161,6 +167,14 @@ public class VisualElements {
       Button applicationsButton = Buttons.button(MainScreenText.BUTTON_APPLICATIONS_ICON, MainScreenText.BUTTON_APPLICATIONS, null, buttonWidth, "sidebar-button");
       Button myInfoButton = Buttons.button(MainScreenText.BUTTON_MY_INFO_ICON, MainScreenText.BUTTON_MY_INFO, null, buttonWidth, "sidebar-button");
       Button settingsButton = Buttons.button(MainScreenText.BUTTON_SETTINGS_ICON, MainScreenText.BUTTON_SETTINGS, null, buttonWidth, "sidebar-button");
+
+      if (mainLayout != null) {
+         homeButton.setOnAction(event -> mainLayout.handleHomeNavigation());
+         templatesButton.setOnAction(event -> mainLayout.handleTemplatesNavigation());
+         applicationsButton.setOnAction(event -> mainLayout.handleApplicationsNavigation());
+         myInfoButton.setOnAction(event -> mainLayout.handleMyInfoNavigation());
+         settingsButton.setOnAction(event -> mainLayout.handleSettingsNavigation());
+      }
 
       menuButtons.getChildren().addAll(homeButton, templatesButton, applicationsButton, myInfoButton, settingsButton);
 
@@ -337,11 +351,18 @@ public class VisualElements {
 
    /** Builds job-posting input choices: file upload, posting URL, or pasted description. */
    public static VBox buildUploadMethodGroup3(double width){
+      return buildUploadMethodGroup3(width, null, null, null);
+   }
+
+   /** Builds job-posting inputs and sends user actions back to the owning screen. */
+   public static VBox buildUploadMethodGroup3(double width, EventHandler<ActionEvent> onUpload,
+         Consumer<String> onUrlChanged, Consumer<String> onTextChanged) {
       int uploadWidth = (int) Math.round(width);
-      HBox uploadControl = new Buttons().buildUploadButton(uploadWidth, 8, null);
+      HBox uploadControl = new Buttons().buildUploadButton(uploadWidth, 8, onUpload);
       TextField jobUrl = Inputs.inputField(ApplicationScreenText.JOB_URL_PLACEHOLDER, width, width);
-      TextField jobDescription = Inputs.inputField(
-            ApplicationScreenText.JOB_DESCRIPTION_PLACEHOLDER, width, width);
+      javafx.scene.control.TextArea jobDescription = Inputs.textArea(
+            ApplicationScreenText.JOB_DESCRIPTION_PLACEHOLDER, width, width, 180, 260);
+      jobDescription.setWrapText(true);
 
       uploadControl.setPrefWidth(width);
       uploadControl.setMinWidth(0);
@@ -350,6 +371,12 @@ public class VisualElements {
       jobUrl.setMaxWidth(width);
       jobDescription.setMinWidth(0);
       jobDescription.setMaxWidth(width);
+      if (onUrlChanged != null) {
+         jobUrl.textProperty().addListener((observable, oldValue, newValue) -> onUrlChanged.accept(newValue));
+      }
+      if (onTextChanged != null) {
+         jobDescription.textProperty().addListener((observable, oldValue, newValue) -> onTextChanged.accept(newValue));
+      }
 
       VBox methods = new VBox(16, uploadControl, jobUrl, jobDescription);
       methods.setAlignment(Pos.CENTER_LEFT);
@@ -699,18 +726,45 @@ public class VisualElements {
    /** Builds a scrollable job summary with details. */
    public static VBox buildJobDetailsContainer(String title, String location, String company, String payRange,
          String requirements, String niceToHave, String benefits) {
+      return buildJobDetailsContainer(title, location, company, payRange, "", requirements, niceToHave, benefits);
+   }
+
+   /** Builds a scrollable job summary with all parsed posting details. */
+   public static VBox buildJobDetailsContainer(String title, String location, String company, String payRange,
+         String responsibilities, String requirements, String niceToHave, String benefits) {
+      System.out.println("[VisualElements] Building job details: title_present=" + hasContent(title)
+            + ", location_present=" + hasContent(location) + ", company_present=" + hasContent(company)
+            + ", pay='" + safe(payRange) + "', responsibilities_present=" + hasContent(responsibilities)
+            + ", requirements_present=" + hasContent(requirements)
+            + ", nice_to_have_present=" + hasContent(niceToHave)
+            + ", benefits_present=" + hasContent(benefits) + ".");
       VBox content = new VBox(14);
       Label heading = new Label(safe(title) + "  –  " + safe(location)); heading.getStyleClass().add("job-detail-title");
       Label companyLabel = new Label(safe(company)); companyLabel.getStyleClass().add("job-detail-company");
       Label pay = new Label(safe(payRange)); pay.getStyleClass().add("job-detail-pay");
-      content.getChildren().addAll(heading, companyLabel, pay,
-            detailSection("Requirements", requirements), detailSection("Nice to Have", niceToHave),
-            detailSection("Benefits", benefits));
+      content.getChildren().addAll(heading, companyLabel, pay);
+      addDetailSection(content, "Responsibilities", responsibilities);
+      addDetailSection(content, "Requirements", requirements);
+      addDetailSection(content, "Nice to Have", niceToHave);
+      addDetailSection(content, "Benefits", benefits);
       ScrollPane scroll = VisualElements.scrollable(content);
       VBox container = new VBox(scroll); container.setPrefSize(540, 560);
       VBox.setVgrow(scroll, Priority.ALWAYS);
       container.getStyleClass().add("job-details-container");
       return container;
+   }
+
+   private static void addDetailSection(VBox content, String title, String value) {
+      if (value != null && !value.isBlank()) {
+         System.out.println("[VisualElements] Adding '" + title + "' detail section.");
+         content.getChildren().add(detailSection(title, value));
+      } else {
+         System.out.println("[VisualElements] Skipping empty '" + title + "' detail section.");
+      }
+   }
+
+   private static boolean hasContent(String value) {
+      return value != null && !value.isBlank();
    }
 
    /** Builds a bordered template panel containing cards for template options. */

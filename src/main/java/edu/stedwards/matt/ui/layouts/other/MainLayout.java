@@ -10,6 +10,8 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import edu.stedwards.matt.ui.interaction.VisualElements;
+import edu.stedwards.matt.ui.layouts.application.ApplicationHome;
+import edu.stedwards.matt.ui.layouts.template.TemplatesHome;
 
 
 /**
@@ -42,41 +44,42 @@ public class MainLayout extends BorderPane {
     }
 
     public MainLayout(){
-        setLeft(visualElements.mainSideBar());
+        setLeft(visualElements.mainSideBar(this));
         setCenter(buildMainHomeLayout());
     }
 
-    /** Show the home screen layout, which is currently an empty placeholder. */
+    /** Navigate to the application home screen. */
     public void handleHomeNavigation() {
-        // Instantiate your Home view and set it to the center
-        showStep(new edu.stedwards.matt.ui.layouts.application.ApplicationHome());
+        showStep(new ApplicationHome());
     }
 
     /** Navigate to Main - Templates - Home. */
     public void handleTemplatesNavigation() {
-        BorderPane templatesPlaceholder = new BorderPane();
-        templatesPlaceholder.setCenter(new Label("Templates"));
-        showStep(templatesPlaceholder);
+        showStep(new TemplatesHome());
     }
 
     /** Navigate to Main - Applications - Home. */
     public void handleApplicationsNavigation() {
-        // Use the actual applications layout class if available in this package.
-        // If not, fall back to an empty placeholder so the app still compiles.
-        showStep(new BorderPane());
+        showStep(new ApplicationHome());
     }
 
-    /** Navigate to the My Info home placeholder screen. */
+    /** Navigate to the My Info screen (its full editing flow is not implemented yet). */
     public void handleMyInfoNavigation() {
         BorderPane myInfoPlaceholder = new BorderPane();
-        myInfoPlaceholder.setCenter(new Label("My Info"));
+        Label message = new Label("My Info\nThis section is coming soon.");
+        message.setWrapText(true);
+        myInfoPlaceholder.setCenter(message);
+        myInfoPlaceholder.getStyleClass().add("screen-padding");
         showStep(myInfoPlaceholder);
     }
 
-    /** Navigate to the Settings placeholder screen. */
+    /** Navigate to the Settings screen (its layout is not implemented yet). */
     public void handleSettingsNavigation() {
         BorderPane settingsPlaceholder = new BorderPane();
-        settingsPlaceholder.setCenter(new Label("Settings"));
+        Label message = new Label("Settings\nThis section is coming soon.");
+        message.setWrapText(true);
+        settingsPlaceholder.setCenter(message);
+        settingsPlaceholder.getStyleClass().add("screen-padding");
         showStep(settingsPlaceholder);
     }
 }

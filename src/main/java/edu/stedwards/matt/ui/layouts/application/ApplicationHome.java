@@ -1,8 +1,12 @@
 package edu.stedwards.matt.ui.layouts.application;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import edu.stedwards.matt.dao.JobDAO;
+import edu.stedwards.matt.models.OnboardingSession;
+import edu.stedwards.matt.models.entity.JobPosting;
 import edu.stedwards.matt.ui.TextStyles;
 import edu.stedwards.matt.ui.interaction.Buttons;
 import edu.stedwards.matt.ui.interaction.VisualElements;
@@ -25,11 +29,11 @@ import org.kordamp.ikonli.javafx.FontIcon;
 /** Displays saved applications grouped by when they were added. */
 public class ApplicationHome extends BorderPane {
    public record ApplicationSummary(String jobTitle, String companyName, int age, String timeUnit,
-         int fileCount) { }
+          int fileCount, int jobId) { }
 
-   private final List<ApplicationSummary> thisWeek;
-   private final List<ApplicationSummary> lastWeek;
-   private final List<ApplicationSummary> older;
+   private List<ApplicationSummary> thisWeek;
+   private List<ApplicationSummary> lastWeek;
+   private List<ApplicationSummary> older;
    private final Runnable onNewApplication;
    private final Consumer<ApplicationSummary> onOpenApplication;
 
@@ -85,23 +89,41 @@ public class ApplicationHome extends BorderPane {
 
    /** Load application records from the database and populate the application cards. */
    public void loadApplicationsFromDatabase() {
-      // 1. Fetch saved applications using your DAOs
-      // ApplicationDAO appDAO = new ApplicationDAO();
-      // List<Application> savedApps = appDAO.getAllApplicationsForUser(currentUserId);
-      
-      // 2. Sort them into the `thisWeek`, `lastWeek`, and `older` lists based on their timestamp
-      System.out.println("Fetching saved applications from database...");
+      // 1. Fetch saved applications using JobDAO for the current logged-in user.
+      int userId = currentUserId();
+      List<JobPosting> jobs = new JobDAO().getRecentJobsForUser(userId, 100);
+
+      // 2. Sort them into the `thisWeek`, `lastWeek`, and `older` lists based on their timestamp.
+      List<ApplicationSummary> thisWeek = new ArrayList<>();
+      List<ApplicationSummary> lastWeek = new ArrayList<>();
+      List<ApplicationSummary> older = new ArrayList<>();
+      for (JobPosting job : jobs) {
+         ApplicationSummary summary = new ApplicationSummary(
+               job.getJobTitle() != null ? job.getJobTitle() : "",
+               job.getCompanyName() != null ? job.getCompanyName() : "",
+               0, "", 0, job.getJobpostId());
+         thisWeek.add(summary);
+      }
+      this.thisWeek = thisWeek;
+      this.lastWeek = lastWeek;
+      this.older = older;
+
+      // Rebuild the UI so the fetched application cards are displayed.
+      setCenter(buildApplicationHomeLayout());
+   }
+
+   private int currentUserId() {
+      var profile = OnboardingSession.getInstance().getUserProfile();
+      return profile != null ? profile.getUserID() : 0;
    }
 
    /** Open the generate screen with the selected application's details and available templates. */
-   public void handleApplicationCardSelected(ApplicationSummary selectedApp) {
-      System.out.println("Opening application for: " + selectedApp.companyName());
+   public void handleApplicationCardSelected(ApplicationSummary selectedApp, int jobId) {
+      System.out.println("Opening application for: " + selectedApp.companyName() + " (id=" + jobId + ")");
       
       // Traverse up to the MainLayout shell and swap the center view to Generate Materials
       edu.stedwards.matt.ui.layouts.other.MainLayout shell = (edu.stedwards.matt.ui.layouts.other.MainLayout) this.getScene().getRoot();
-      
-      // In the future, you can pass the selectedApp ID into the ApplicationGenerateMaterials constructor
-      shell.showStep(new ApplicationGenerateMaterials());
+      shell.showStep(new ApplicationGenerateMaterials(jobId));
    }
 
    /** Navigate to Main - Applications - Upload. */
@@ -137,7 +159,7 @@ public class ApplicationHome extends BorderPane {
          // WIRE UP THE CARD CLICK DIRECTLY TO THE NAVIGATION METHOD
          Node card = VisualElements.buildApplicationListCard(
                application.jobTitle(), application.companyName(), application.age(), application.timeUnit(),
-               application.fileCount(), event -> handleApplicationCardSelected(application));
+               application.fileCount(), event -> handleApplicationCardSelected(application, application.jobId()));
                
          cards.getChildren().add(card);
       }

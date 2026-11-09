@@ -54,7 +54,8 @@ public class UserDAO {
     }
 
     public User findAuthenticatedUser(String username, String password) {
-        String sql = "SELECT user_id, username, password_hash, first_name, last_name, email, is_onboarded " +
+        String sql = "SELECT user_id, username, password_hash, first_name, last_name, email, is_onboarded, " +
+                "phone, address_line_1, address_line_2, city, state, zip, summary " +
                 "FROM user_profile WHERE username = ?";
 
         try (Connection conn = DatabaseManager.getConnection();
@@ -80,10 +81,48 @@ public class UserDAO {
                 user.setLastName(rs.getString("last_name"));
                 user.setEmail(rs.getString("email"));
                 user.setOnboarded(rs.getInt("is_onboarded") != 0);
+                user.setPhoneNumber(rs.getString("phone"));
+                user.setAddressLine1(rs.getString("address_line_1"));
+                user.setAddressLine2(rs.getString("address_line_2"));
+                user.setCity(rs.getString("city"));
+                user.setState(rs.getString("state"));
+                user.setZip(rs.getString("zip"));
+                user.setSummary(rs.getString("summary"));
                 return user;
             }
         } catch (SQLException e) {
             System.err.println("Error authenticating user: " + e.getMessage());
+            return null;
+        }
+    }
+
+    public User getUserById(int userId) {
+        String sql = "SELECT user_id, username, first_name, last_name, email, is_onboarded, phone, " +
+                "address_line_1, address_line_2, city, state, zip, summary " +
+                "FROM user_profile WHERE user_id = ?";
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (!rs.next()) return null;
+                User user = new User();
+                user.setUserID(rs.getInt("user_id"));
+                user.setUsername(rs.getString("username"));
+                user.setFirstName(rs.getString("first_name"));
+                user.setLastName(rs.getString("last_name"));
+                user.setEmail(rs.getString("email"));
+                user.setOnboarded(rs.getInt("is_onboarded") != 0);
+                user.setPhoneNumber(rs.getString("phone"));
+                user.setAddressLine1(rs.getString("address_line_1"));
+                user.setAddressLine2(rs.getString("address_line_2"));
+                user.setCity(rs.getString("city"));
+                user.setState(rs.getString("state"));
+                user.setZip(rs.getString("zip"));
+                user.setSummary(rs.getString("summary"));
+                return user;
+            }
+        } catch (SQLException e) {
+            System.err.println("Error loading user profile: " + e.getMessage());
             return null;
         }
     }

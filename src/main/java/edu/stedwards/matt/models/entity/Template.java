@@ -5,7 +5,6 @@ public class Template {
     private Integer folderId; // Use Integer because folder_id can be NULL
     private int userId;
     private String templateName;
-    private String templateType;
     private String fileLoc;
 
     // Getters and Setters
@@ -20,9 +19,6 @@ public class Template {
     
     public String getTemplateName() { return templateName; }
     public void setTemplateName(String templateName) { this.templateName = templateName; }
-    
-    public String getTemplateType() { return templateType; }
-    public void setTemplateType(String templateType) { this.templateType = templateType; }
     
     public String getFileLoc() { return fileLoc; }
     public void setFileLoc(String fileLoc) { this.fileLoc = fileLoc; }

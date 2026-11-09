@@ -21,6 +21,7 @@ import org.w3c.dom.Element;
 
 import edu.stedwards.matt.controllers.TemplateEditorController;
 import edu.stedwards.matt.models.entity.Template; // Added Import
+import edu.stedwards.matt.models.OnboardingSession;
 import edu.stedwards.matt.ui.layouts.other.MainLayout; // Added Import
 
 /** Template authoring screen. Bracketed text in the editor is surfaced as selectable fields. */
@@ -30,9 +31,21 @@ public class TemplatesEditor extends BorderPane {
    private final FlowPane fields = new FlowPane(10, 10);
    private final Set<String> selectedFields = new LinkedHashSet<>();
    private final TemplateEditorController controller;
+   private final int templateId;
+   private final String fileLoc;
 
    public TemplatesEditor(TemplateEditorController controller) {
+      this(controller, null, null, 0);
+   }
+
+   public TemplatesEditor(TemplateEditorController controller, String templateName, String fileLoc) {
+      this(controller, templateName, fileLoc, 0);
+   }
+
+   public TemplatesEditor(TemplateEditorController controller, String templateName, String fileLoc, int templateId) {
       this.controller = controller;
+      this.templateId = templateId;
+      this.fileLoc = fileLoc;
       getStyleClass().addAll("screen-padding");
       // setPadding(new Insets(34, 42, 30, 42));
 
@@ -48,7 +61,12 @@ public class TemplatesEditor extends BorderPane {
       HBox.setHgrow(nameField, Priority.ALWAYS);
       content.getChildren().add(title);
 
-      editor.setHtmlText("");
+      if (templateName != null) nameField.setText(templateName);
+      if (fileLoc == null || fileLoc.isBlank()) {
+         editor.setHtmlText("");
+      } else {
+         controller.loadTemplate(editor, fileLoc);
+      }
       editor.setMinHeight(300);
       editor.setPrefHeight(470);
       editor.setMaxHeight(Double.MAX_VALUE);
@@ -103,6 +121,10 @@ public class TemplatesEditor extends BorderPane {
       Template template = new Template(); 
       // Note: adjust 'setName' if your Template entity uses a different method name
       template.setTemplateName(nameField.getText());
+      template.setTemplateId(templateId);
+      template.setFileLoc(fileLoc);
+      var profile = OnboardingSession.getInstance().getUserProfile();
+      if (profile != null) template.setUserId(profile.getUserID());
       
       // Pass the HTMLEditor instance and the Template object to the controller
       controller.saveTemplate(editor, template); 

@@ -502,8 +502,8 @@ public class Sprint2Demo {
             return jobDAO.insertJob(job);
         }
 
-        public void generateMaterials(String templateType, Map<String, String> jobFields) {
-            System.out.println("Backend: Sending data to AI to generate " + templateType + " for " + jobFields.get("Job Title") + "...");
+        public void generateMaterials(String templateName, Map<String, String> jobFields) {
+            System.out.println("Backend: Sending data to AI to generate from template " + templateName + " for " + jobFields.get("Job Title") + "...");
         }
     }
 

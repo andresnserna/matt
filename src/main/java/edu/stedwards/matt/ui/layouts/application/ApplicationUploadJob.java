@@ -2,12 +2,19 @@ package edu.stedwards.matt.ui.layouts.application;
 
 import java.io.File;
 
+import edu.stedwards.matt.models.OnboardingSession;
+import edu.stedwards.matt.models.entity.JobPosting;
+import edu.stedwards.matt.services.JobIngestService;
+import edu.stedwards.matt.services.JobIngestServiceImpl;
 import edu.stedwards.matt.ui.TextStyles;
 import edu.stedwards.matt.ui.interaction.Buttons;
 import edu.stedwards.matt.ui.interaction.VisualElements;
 import edu.stedwards.matt.ui.labels.ApplicationScreenText;
 import javafx.beans.binding.Bindings;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -22,6 +29,13 @@ public class ApplicationUploadJob extends BorderPane {
    private String enteredJobUrl;
    private String enteredJobText;
    
+   // The receiving service: takes file / URL / pasted text, routes each to the
+   // Ollama-backed parser, persists the parsed JobPosting, and returns the saved record.
+   private final JobIngestService ingestService = new JobIngestServiceImpl();
+
+   // Status label shown while the (potentially slow) Ollama parse runs off the FX thread.
+   private Label statusLabel;
+
    // The clean architectural callback for navigation
    private final Runnable onNext;
 
@@ -48,7 +62,10 @@ public class ApplicationUploadJob extends BorderPane {
       instruction.setWrapText(true);
       instruction.setMaxWidth(Double.MAX_VALUE);
 
-      VBox uploadOptions = VisualElements.buildUploadMethodGroup3(800);
+      VBox uploadOptions = VisualElements.buildUploadMethodGroup3(800,
+            e -> handleUpload(),
+            url -> handleJobUrlEntry(url),
+            text -> handleJobPostTextEntry(text));
       uploadOptions.prefWidthProperty().bind(
             Bindings.min(800, Bindings.max(0, widthProperty().subtract(100))));
       uploadOptions.maxWidthProperty().bind(uploadOptions.prefWidthProperty());
@@ -61,10 +78,18 @@ public class ApplicationUploadJob extends BorderPane {
       setCenter(scrollContent);
       BorderPane.setMargin(scrollContent, new Insets(0, 0, 24, 0));
       
-      // Wire up the Next button to our handleNext method
-    HBox nextBtn = new Buttons().buildNextButton();
-    nextBtn.setOnMouseClicked(e -> handleNext());
-      setBottom(nextBtn);
+      // Wire up the Next button plus a status label for the async parse.
+      statusLabel = new Label();
+
+      HBox nextBtn = new Buttons().buildNextButton();
+      Button nextButton = extractButton(nextBtn);
+      if (nextButton != null) {
+         nextButton.setOnAction(e -> handleNext());
+      }
+
+      HBox bottom = new HBox(12, nextBtn, statusLabel);
+      bottom.setAlignment(Pos.CENTER_RIGHT);
+      setBottom(bottom);
    }
 
    /** Open the file chooser, validate the selected file type, and prepare the file for parsing. */
@@ -97,23 +122,96 @@ public class ApplicationUploadJob extends BorderPane {
       System.out.println("Text temporarily stored.");
    }
 
-   /** Send the selected job posting to the parser and navigate to Main - Applications - Confirm Fields with parsed data. */
+   /** Send the selected job posting to the parser (off the JavaFX thread) and, on success,
+    *  navigate to Main - Applications - Confirm Fields with the saved record. */
    public void handleNext() {
-      // 1. Determine which input method the user used and pass it to your parser session
+      // 1. Determine which input method the user used.
+      String source;
+      String payload;
       if (selectedJobFile != null) {
-          System.out.println("Sending file to parser...");
+          source = "file";
+          payload = selectedJobFile.getAbsolutePath();
       } else if (enteredJobUrl != null && !enteredJobUrl.isEmpty()) {
-          System.out.println("Sending URL to parser...");
+          source = "url";
+          payload = enteredJobUrl;
       } else if (enteredJobText != null && !enteredJobText.isEmpty()) {
-          System.out.println("Sending text to parser...");
+          source = "text";
+          payload = enteredJobText;
       } else {
-          System.out.println("No job data provided. Please upload or paste a job description.");
+          statusLabel.setText("No job data provided. Please upload or paste a job description.");
+          statusLabel.getStyleClass().add("error-text");
           return; // Prevent navigation if they haven't provided anything
       }
-      
-      // 2. Fire the clean navigation callback
-      if (onNext != null) {
-          onNext.run();
+
+      int userId = currentUserId();
+
+      // 2. Run the blocking Ollama parse + DB save off the JavaFX thread so the window
+      //    does not freeze while waiting on the AI.
+      statusLabel.setText("Parsing job description with Ollama... please wait.");
+      statusLabel.getStyleClass().remove("error-text");
+      setNextButtonDisabled(true);
+
+      Task<JobPosting> task = new Task<JobPosting>() {
+         @Override protected JobPosting call() throws Exception {
+            switch (source) {
+               case "file": return ingestService.parseJobFromFile(userId, payload);
+               case "url":  return ingestService.parseJobFromUrl(userId, payload);
+               default:     return ingestService.parseJobFromText(userId, payload);
+            }
+         }
+      };
+
+      task.setOnSucceeded(e -> {
+         JobPosting job = task.getValue();
+         setNextButtonDisabled(false);
+         statusLabel.setText("");
+         if (job != null) {
+            System.out.println("Parsed job (unsaved). Navigating to Confirm Fields for review.");
+            navigateToConfirmFields(job);
+         } else {
+            statusLabel.setText("Failed to parse and save the job posting.");
+            statusLabel.getStyleClass().add("error-text");
+         }
+      });
+
+      task.setOnFailed(e -> {
+         setNextButtonDisabled(false);
+         String msg = task.getException() != null ? task.getException().getMessage() : "unknown error";
+         statusLabel.setText("Parse failed: " + msg);
+         statusLabel.getStyleClass().add("error-text");
+         System.err.println("Job ingest task failed: " + msg);
+      });
+
+      new Thread(task).start();
+   }
+
+   private void navigateToConfirmFields(JobPosting job) {
+      edu.stedwards.matt.ui.layouts.other.MainLayout shell =
+          (edu.stedwards.matt.ui.layouts.other.MainLayout) this.getScene().getRoot();
+      shell.showStep(new ApplicationConfirmFields(job));
+   }
+
+   private int currentUserId() {
+      var profile = OnboardingSession.getInstance().getUserProfile();
+      return profile != null ? profile.getUserID() : 0;
+   }
+
+   private Button extractButton(HBox container) {
+      if (container == null || container.getChildren().isEmpty()) return null;
+      return container.getChildren().stream()
+            .filter(Button.class::isInstance)
+            .map(Button.class::cast)
+            .findFirst()
+            .orElse(null);
+   }
+
+   private void setNextButtonDisabled(boolean disabled) {
+      HBox bottom = (HBox) getBottom();
+      if (bottom == null) return;
+      for (var node : bottom.getChildren()) {
+         if (node instanceof Button btn) {
+            btn.setDisable(disabled);
+         }
       }
    }
 }

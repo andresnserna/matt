@@ -51,7 +51,7 @@ public class JobUploadController {
         }
 
         // Send the raw text to the AI for parsing and normalization
-        JobPosting job = parserService.parseRawText(rawJobText);
+        JobPosting job = parserService.parseJobDescription(rawJobText);
         
         // Set the remaining required fields for the DB
         job.setUserId(userId);

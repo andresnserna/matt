@@ -73,7 +73,7 @@ public class ParserService {
         return valid;
     }
 
-    public JobPosting parseRawText(String rawText) {
+    public JobPosting parseJobDescription(String rawText) {
         JobPosting job = new JobPosting();
         job.setRawText(rawText);
 

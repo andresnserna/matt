@@ -17,18 +17,28 @@ public class TemplateStorageService {
         //Ensure the directory exists
         Files.createDirectories(Paths.get(TEMPLATE_DIR));
         
-        //Clean up the filename so it's safe for Windows/Mac
-        String safeName = template.getTemplateName().replaceAll("[^a-zA-Z0-9.-]", "_");
-        
-        //Save the HTML content to a physical file
-        Path filePath = Paths.get(TEMPLATE_DIR + safeName + ".html");
+        // Keep an existing template's file when editing; give new templates unique files.
+        Path filePath;
+        if (template.getFileLoc() != null && !template.getFileLoc().isBlank()) {
+            filePath = Paths.get(template.getFileLoc());
+        } else {
+            String safeName = template.getTemplateName().replaceAll("[^a-zA-Z0-9.-]", "_");
+            filePath = Paths.get(TEMPLATE_DIR, safeName + "-" + java.util.UUID.randomUUID() + ".html");
+        }
+
+        Files.createDirectories(filePath.toAbsolutePath().getParent());
         Files.writeString(filePath, htmlContent);
         
         //Update the Template object with the absolute path and save to SQLite
         template.setFileLoc(filePath.toAbsolutePath().toString());
         
         TemplateDAO dao = new TemplateDAO();
-        dao.insertTemplate(template);
+        boolean saved = template.getTemplateId() > 0
+                ? dao.updateTemplate(template)
+                : dao.insertTemplate(template);
+        if (!saved) {
+            throw new IOException("Template metadata could not be saved to the database.");
+        }
     }
     
     public String loadTemplateFile(String fileLoc) throws IOException {
