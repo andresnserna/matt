@@ -497,7 +497,11 @@ public class Sprint2Demo {
             job.setCompanyName(jobFields.get("Company Name"));
             job.setLocation(jobFields.get("Location"));
             job.setRawText(jobFields.get("Raw Text"));
+<<<<<<< HEAD
             job.setUserId(1);
+=======
+            // job.setUserID(1); ß
+>>>>>>> 1d5c1ee1c27b979d51b8a44da95f9d10c37d895e
             
             return jobDAO.insertJob(job);
         }

@@ -4,12 +4,12 @@
  */
 package edu.stedwards.matt.ui.layouts.other;
 
+import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import edu.stedwards.matt.dao.UserDAO;
 import edu.stedwards.matt.ui.interaction.VisualElements;
-import edu.stedwards.matt.ui.layouts.onboarding.OnboardingWelcome;
 
 /**
  * Builds the login layout for user sign-in and authentication entry.
@@ -29,10 +29,10 @@ public class LoginLayout extends VBox {
 
         errorLabel.setStyle("-fx-text-fill: #d32f2f; -fx-font-weight: bold;");
 
-        // Pass our handleLogin and handleSignup methods directly into the builder
+        // Pass extracted credentials to handleLogin and pass click ActionEvent to handleSignup
         getChildren().add(VisualElements.buildLoginBox(
-            event -> handleLogin("", ""), 
-            event -> handleSignup(), 
+            (username, password) -> handleLogin(username, password), 
+            event -> handleSignup(event), 
             342, 206, 246
         ));
 
@@ -63,10 +63,8 @@ public class LoginLayout extends VBox {
         }
     }
 
-    /** Open the sign-up flow. */
-    public void handleSignup() {
-        // Route brand new users directly into the onboarding wizard!
-        OnboardingWelcome welcomeScreen = new OnboardingWelcome();
-        getScene().setRoot(welcomeScreen);
+    /** Open the sign-up popup dialog. */
+    public void handleSignup(ActionEvent event) {
+        VisualElements.showSignupDialog(event);
     }
 }
