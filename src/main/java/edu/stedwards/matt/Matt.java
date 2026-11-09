@@ -44,7 +44,7 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 public class Matt extends Application {
-    private static final boolean PREVIEW_LAYOUTS = true;
+    private static final boolean PREVIEW_LAYOUTS = false;
 
     private record PreviewScreen(String name, Supplier<Node> factory) {
     }
@@ -59,13 +59,11 @@ public class Matt extends Application {
     }
 
     private void startNormalApplication(Stage stage) {
-        OnboardingStepLayout onboardingLayout = new OnboardingStepLayout(new OnboardingStepController());
-        onboardingLayout.showStep(new OnboardingWelcome());
-        StartLayout startLayout = new StartLayout("application",
-                () -> stage.getScene().setRoot(onboardingLayout));
-
         stage.setTitle("Matt");
-        stage.setScene(new Scene(startLayout, StyleConstants.WINDOW_WIDTH, StyleConstants.WINDOW_HEIGHT));
+        stage.setScene(new Scene(
+                new LoginLayout(),
+                StyleConstants.WINDOW_WIDTH,
+                StyleConstants.WINDOW_HEIGHT));
         AppStyle.apply(stage.getScene());
 
         stage.show();
