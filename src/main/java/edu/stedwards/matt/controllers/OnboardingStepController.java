@@ -1,5 +1,6 @@
 package edu.stedwards.matt.controllers;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -70,7 +71,7 @@ public class OnboardingStepController {
         String cleanUrl = url == null ? "" : url.trim();
         if (cleanPlatform.isEmpty() && cleanUrl.isEmpty()) return false;
         Websites website = new Websites();
-        website.setUrlType(cleanPlatform);
+        setWebsitePlatform(website, cleanPlatform);
         website.setUrl(cleanUrl);
         websites.add(website);
         return true;
@@ -78,6 +79,27 @@ public class OnboardingStepController {
 
     public void removeWebsite(ObservableList<Websites> websites, Websites website) {
         websites.remove(website);
+    }
+
+    private void setWebsitePlatform(Websites website, String platform) {
+        if (platform == null || platform.isEmpty()) {
+            return;
+        }
+
+        try {
+            website.getClass().getMethod("setPlatform", String.class).invoke(website, platform);
+            return;
+        } catch (NoSuchMethodException ignored) {
+            // Fall back to newer schema naming if the model uses a different platform setter.
+        } catch (IllegalAccessException | InvocationTargetException ignored) {
+            // Ignore reflection failures and leave the platform unset if unsupported.
+        }
+
+        try {
+            website.getClass().getMethod("setPlatformName", String.class).invoke(website, platform);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored) {
+            // Unsupported schema variant; leave the platform unset rather than failing the form.
+        }
     }
 
     public void updateEducationInstitution(Education item, String value) { item.setInstitution(value); }
@@ -92,16 +114,16 @@ public class OnboardingStepController {
     public void updateExperienceStartDate(Experience item, String value) { item.setStartDate(value); }
     public void updateExperienceEndDate(Experience item, String value) { item.setEndDate(value); }
 
-    public void updateProjectName(Projects item, String value) { item.setProjectName(value); }
-    public void updateProjectRole(Projects item, String value) { item.setRole(value); }
-    public void updateProjectLocation(Projects item, String value) { item.setLocation(value); }
+    // Updated Project setters to match the new Projects.java model
+    public void updateProjectTitle(Projects item, String value) { item.setTitle(value); }
     public void updateProjectDescription(Projects item, String value) { item.setDescription(value); }
-    public void updateProjectStartDate(Projects item, String value) { item.setStartDate(value); }
-    public void updateProjectEndDate(Projects item, String value) { item.setEndDate(value); }
+    public void updateProjectUrl(Projects item, String value) { item.setUrl(value); }
 
+    // Updated Award setters to match the new AwardsCerts.java model
     public void updateAwardTitle(AwardsCerts item, String value) { item.setTitle(value); }
     public void updateAwardIssuer(AwardsCerts item, String value) { item.setIssuer(value); }
-    public void updateAwardDate(AwardsCerts item, String value) { item.setDateReceived(value); }
+    public void updateAwardDate(AwardsCerts item, String value) { item.setDateIssued(value); }
+    public void updateAwardDescription(AwardsCerts item, String value) { item.setDescription(value); }
 
     private <T> void duplicate(ObservableList<T> items, int index, Function<T, T> copier) {
         T item = items.get(index);

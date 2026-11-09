@@ -5,6 +5,7 @@ import java.util.Map;
 
 import edu.stedwards.matt.dao.SkillDAO;
 import edu.stedwards.matt.dao.UserDAO;
+import edu.stedwards.matt.models.entity.Skill; // Added import for the Skill model
 import edu.stedwards.matt.models.entity.User;
 import edu.stedwards.matt.services.DocumentExtractionService;
 import edu.stedwards.matt.services.ParserService;
@@ -62,8 +63,12 @@ public class ProfileController {
             
             if (!rawSkills.isBlank()) {
                 String[] skillArray = rawSkills.split(",");
-                for (String skill : skillArray) {
-                    skillDAO.insertSkill(newUserId, skill);
+                for (String skillName : skillArray) {
+                    // Instantiate the Skill object to match the updated SkillDAO
+                    Skill skill = new Skill();
+                    skill.setUserID(newUserId);
+                    skill.setSkillName(skillName);
+                    skillDAO.save(skill);
                 }
             }
             return true;
@@ -71,5 +76,4 @@ public class ProfileController {
         
         return false; 
     }
-    
 }

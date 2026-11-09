@@ -14,24 +14,31 @@ public class JobDAO {
 
     // 1. Create a new job posting
     public boolean insertJob(JobPosting job) {
-        String sql = "INSERT INTO job_posting (user_id, company_id, company_name, job_title, location, job_url, job_description, raw_text, normalized_text, match_score, spam_score, status, date_added) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO job_posting (user_id, company_id, company_name, job_title, location, job_url, pay_min, pay_max, pay_period, source_file_name, responsibilities, requirements, nice_to_have, benefits, raw_text, normalized_text, match_score, spam_score, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
-            pstmt.setInt(1, job.getUserID());
-            pstmt.setInt(2, job.getCompanyID());
+            pstmt.setInt(1, job.getUserId());
+            pstmt.setInt(2, job.getCompanyId());
             pstmt.setString(3, job.getCompanyName());
             pstmt.setString(4, job.getJobTitle());
             pstmt.setString(5, job.getLocation());
             pstmt.setString(6, job.getJobUrl());
-            pstmt.setString(7, job.getJobDescription());
-            pstmt.setString(8, job.getRawText());
-            pstmt.setString(9, job.getNormalizedText());
-            pstmt.setDouble(10, job.getMatchScore());
-            pstmt.setDouble(11, job.getSpamScore());
-            pstmt.setString(12, job.getStatus());
-            pstmt.setString(13, job.getDateAdded());
+            pstmt.setDouble(7, job.getPayMin());
+            pstmt.setDouble(8, job.getPayMax());
+            pstmt.setString(9, job.getPayPeriod());
+            pstmt.setString(10, job.getSourceFileName());
+            pstmt.setString(11, job.getResponsibilities());
+            pstmt.setString(12, job.getRequirements());
+            pstmt.setString(13, job.getNiceToHave());
+            pstmt.setString(14, job.getBenefits());
+            pstmt.setString(15, job.getRawText());
+            pstmt.setString(16, job.getNormalizedText());
+            pstmt.setDouble(17, job.getMatchScore());
+            pstmt.setDouble(18, job.getSpamScore());
+            pstmt.setString(19, job.getStatus());
+            // Note: date_added is omitted from the INSERT because SQLite handles DEFAULT CURRENT_TIMESTAMP automatically
             
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0;
@@ -85,23 +92,36 @@ public class JobDAO {
         return jobs;
     }
 
-    // Helper method to keep code clean and avoid repeating the mapping logic
+    // Helper method to keep code clean and map the entire new schema
     private JobPosting mapResultSetToJobPosting(ResultSet rs) throws SQLException {
         JobPosting job = new JobPosting();
-        job.setJobpostID(rs.getInt("jobpost_id"));
-        job.setUserID(rs.getInt("user_id"));
-        job.setCompanyID(rs.getInt("company_id"));
+        job.setJobpostId(rs.getInt("jobpost_id"));
+        job.setUserId(rs.getInt("user_id"));
+        job.setCompanyId(rs.getInt("company_id"));
         job.setCompanyName(rs.getString("company_name"));
         job.setJobTitle(rs.getString("job_title"));
         job.setLocation(rs.getString("location"));
         job.setJobUrl(rs.getString("job_url"));
-        job.setJobDescription(rs.getString("job_description"));
+        
+        // New Pay Fields
+        job.setPayMin(rs.getDouble("pay_min"));
+        job.setPayMax(rs.getDouble("pay_max"));
+        job.setPayPeriod(rs.getString("pay_period"));
+        job.setSourceFileName(rs.getString("source_file_name"));
+        
+        // New Breakdown Fields
+        job.setResponsibilities(rs.getString("responsibilities"));
+        job.setRequirements(rs.getString("requirements"));
+        job.setNiceToHave(rs.getString("nice_to_have"));
+        job.setBenefits(rs.getString("benefits"));
+        
         job.setRawText(rs.getString("raw_text"));
         job.setNormalizedText(rs.getString("normalized_text"));
         job.setMatchScore(rs.getDouble("match_score"));
         job.setSpamScore(rs.getDouble("spam_score"));
         job.setStatus(rs.getString("status"));
         job.setDateAdded(rs.getString("date_added"));
+        
         return job;
     }
 }

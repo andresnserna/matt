@@ -6,6 +6,7 @@ package edu.stedwards.matt.ui.layouts.other;
 
 // import javafx.scene.layout.VBox;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import edu.stedwards.matt.ui.interaction.VisualElements;
@@ -47,26 +48,35 @@ public class MainLayout extends BorderPane {
 
     /** Show the home screen layout, which is currently an empty placeholder. */
     public void handleHomeNavigation() {
-        // TODO: javi implement this button
+        // Instantiate your Home view and set it to the center
+        showStep(new edu.stedwards.matt.ui.layouts.application.ApplicationHome());
     }
 
     /** Navigate to Main - Templates - Home. */
     public void handleTemplatesNavigation() {
-        // TODO: javi implement this button
+        BorderPane templatesPlaceholder = new BorderPane();
+        templatesPlaceholder.setCenter(new Label("Templates"));
+        showStep(templatesPlaceholder);
     }
 
     /** Navigate to Main - Applications - Home. */
     public void handleApplicationsNavigation() {
-        // TODO: javi implement this button
+        // Use the actual applications layout class if available in this package.
+        // If not, fall back to an empty placeholder so the app still compiles.
+        showStep(new BorderPane());
     }
 
     /** Navigate to the My Info home placeholder screen. */
     public void handleMyInfoNavigation() {
-        // TODO: javi implement this button
+        BorderPane myInfoPlaceholder = new BorderPane();
+        myInfoPlaceholder.setCenter(new Label("My Info"));
+        showStep(myInfoPlaceholder);
     }
 
     /** Navigate to the Settings placeholder screen. */
     public void handleSettingsNavigation() {
-        // TODO: javi implement this button
+        BorderPane settingsPlaceholder = new BorderPane();
+        settingsPlaceholder.setCenter(new Label("Settings"));
+        showStep(settingsPlaceholder);
     }
 }

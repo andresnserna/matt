@@ -1,8 +1,14 @@
 package edu.stedwards.matt.ui.layouts.template;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Consumer;
+
+import edu.stedwards.matt.controllers.TemplateEditorController;
 import edu.stedwards.matt.ui.TextStyles;
 import edu.stedwards.matt.ui.interaction.VisualElements;
 import edu.stedwards.matt.ui.labels.TemplatesScreenText;
+import edu.stedwards.matt.ui.layouts.other.MainLayout;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -15,12 +21,11 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextFlow;
-import java.util.List;
-import java.util.Collections;
-import java.util.function.Consumer;
 
 public class TemplatesHome extends BorderPane {
    public record TemplateCardData(String name, String editedLabel) { }
+
+   private final FlowPane cards = new FlowPane(43, 34);
 
    public TemplatesHome() {
       this(Collections.emptyList());
@@ -32,41 +37,51 @@ public class TemplatesHome extends BorderPane {
 
    public TemplatesHome(List<TemplateCardData> templates, Consumer<TemplateCardData> onTemplateSelected) {
       getStyleClass().addAll("screen-padding");
-      // setPadding(new Insets(46, 48, 43, 48));
 
       TextFlow title = TextStyles.buildTitle("My Templates", "screen-title");
       setTop(title);
 
-      FlowPane cards = new FlowPane(43, 34);
       cards.getStyleClass().add("template-card-grid");
       cards.setPadding(new Insets(42, 5, 0, 5));
       cards.setMaxWidth(Double.MAX_VALUE);
+      
+      Consumer<TemplateCardData> clickHandler = (onTemplateSelected != null) 
+            ? onTemplateSelected 
+            : this::handleTemplateCardSelected;
+
       for (TemplateCardData template : templates) {
-         cards.getChildren().add(buildTemplateCard(template, onTemplateSelected));
+         cards.getChildren().add(buildTemplateCard(template, clickHandler));
       }
       setCenter(VisualElements.scrollable(cards));
 
       Button newTemplate = new Button("New Template  ⊕");
       newTemplate.getStyleClass().add("new-template-button");
+      
+      // Connect new template button listener
+      newTemplate.setOnAction(event -> handleNewTemplate());
+
       HBox footer = new HBox(newTemplate);
       footer.setAlignment(Pos.BOTTOM_RIGHT);
       footer.setPadding(new Insets(21, 0, 0, 0));
       setBottom(footer);
-   }
 
-   /** Load template records from the database and populate the template cards. */
-   public void loadTemplatesFromDatabase() {
-      // TODO: javi implement this button
    }
 
    /** Open the template editor with the selected template's content preloaded. */
-   public void handleTemplateCardSelected() {
-      // TODO: javi implement this button
+   public void handleTemplateCardSelected(TemplateCardData template) {
+      if (getScene() != null && getScene().getRoot() instanceof MainLayout mainLayout) {
+         TemplateEditorController controller = new TemplateEditorController();
+         TemplatesEditor editor = new TemplatesEditor(controller);
+         mainLayout.showStep(editor);
+      }
    }
 
    /** Open a blank template editor for creating a new template. */
    public void handleNewTemplate() {
-      // TODO: javi implement this button
+      if (getScene() != null && getScene().getRoot() instanceof MainLayout mainLayout) {
+         TemplateEditorController controller = new TemplateEditorController();
+         mainLayout.showStep(new TemplatesEditor(controller));
+      }
    }
 
    private Button buildTemplateCard(TemplateCardData template, Consumer<TemplateCardData> onTemplateSelected) {

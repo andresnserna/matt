@@ -5,68 +5,68 @@ public class AwardsCerts {
     private int userId;
     private String title;
     private String issuer;
-    private String dateReceived;
+    private String dateIssued; // Renamed to match schema
     private String description;
 
     // getters
-    public int getAwardID(){
+    public int getAwardID() {
         return awardId;
     }
 
-    public int getUserID(){
+    public int getUserID() {
         return userId;
     }
 
-    public String getTitle(){
+    public String getTitle() {
         return title;
     }
 
-    public String getIssuer(){
+    public String getIssuer() {
         return issuer;
     }
 
-    public String getDateReceived(){
-        return dateReceived;
+    public String getDateIssued() { // Renamed to match DAO
+        return dateIssued;
     }
 
-    public String getDescription(){
+    public String getDescription() {
         return description;
     }
 
     // setters
-    public void setAwardID(int awardId){
+    public void setAwardID(int awardId) {
         this.awardId = awardId;
     }
 
-    public void setUserID(int userId){
+    public void setUserID(int userId) {
         this.userId = userId;
     }
 
-    public void setTitle(String title){
+    public void setTitle(String title) {
         this.title = title;
     }
 
-    public void setIssuer(String issuer){
+    public void setIssuer(String issuer) {
         this.issuer = issuer;
     }
 
-    public void setDateReceived(String dateReceived){
-        this.dateReceived = dateReceived;
+    public void setDateIssued(String dateIssued) { // Renamed to match DAO
+        this.dateIssued = dateIssued;
     }
 
-    public void setDescription(String description){
+    public void setDescription(String description) {
         this.description = description;
     }
 
     /**
      * Copies the award data into a new unsaved entity, preserving its owner but not its ID.
      */
-    public AwardsCerts copy(){
+    public AwardsCerts copy() {
         AwardsCerts copy = new AwardsCerts();
         copy.setUserID(userId);
         copy.setTitle(title);
         copy.setIssuer(issuer);
-        copy.setDateReceived(dateReceived);
+        copy.setDateIssued(dateIssued);
         copy.setDescription(description);
         return copy;
     }

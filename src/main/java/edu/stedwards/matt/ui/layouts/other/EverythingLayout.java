@@ -167,15 +167,12 @@ public class EverythingLayout extends BorderPane {
                         new VisualElements.TemplateOption("Cover Letter Template 2", null, "template-card-orange")), 520, 440)),
             example("VisualElements.buildJobDetailsRawTextContainer(String)",
                   VisualElements.buildJobDetailsRawTextContainer((sampleCopy + " ").repeat(12))),
-            example("VisualElements.buildSidebarListItem_App(int, String, String, String, EventHandler)",
-                  VisualElements.buildSidebarListItem_App(4, "h", "Acrisure, Software Inc.", "Software Engineer", null)),
-            example("VisualElements.buildSidebarListItem_Mat(int, String, String, EventHandler)",
-                  VisualElements.buildSidebarListItem_Mat(4, "h", "resume - john whitmore.pdf", null)),
-            example("VisualElements.buildFileCountBadge(int)", VisualElements.buildFileCountBadge(2)),
-            example("VisualElements.buildRelativeTimeLabel(int, String, boolean)",
-                  VisualElements.buildRelativeTimeLabel(5, "d", true)),
-            example("VisualElements.buildAttachedFileLabel(String)",
-                  VisualElements.buildAttachedFileLabel("JiuhhiJKHgkjhG_download_9_00_12.pdf")),
+            example("VisualElements.buildApplicationListCard(String, String, int, String, int, EventHandler)",
+                  VisualElements.buildApplicationListCard("Acrisure, Software Inc.", "Software Engineer", 4, "h", 2, null)),
+            // buildSidebarListItem_Mat(...) is not available in the current VisualElements API.
+            example("File count badge", new Label("2")),
+            example("Relative time label", new Label("5 days ago")),
+            example("Attached file label", new Label("JiuhhiJKHgkjhG_download_9_00_12.pdf")),
             example("Buttons.buildTemplatePickerCard(String, EventHandler, double, double, String...)",
                   Buttons.buildTemplatePickerCard("Resume Template", null, 225, 185, "template-card-teal")));
       return examples;

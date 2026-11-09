@@ -24,12 +24,17 @@ import javafx.scene.control.Button;
 /** Application details and template selection screen. */
 public class ApplicationGenerateMaterials extends BorderPane {
 
+   // Promoted to instance variable so your database method can update its text
+   private Text company;
+
    public ApplicationGenerateMaterials() {
       getStyleClass().add("screen-padding");
 
       Text application = new Text(ApplicationScreenText.APPLICATION_DETAIL_TITLE_PREFIX);
       application.getStyleClass().add("screen-title");
-      Text company = new Text("Company Name");
+      
+      // Initialize the instance variable
+      company = new Text("Company Name");
       company.getStyleClass().addAll("screen-title", "screen-title-split");
       TextFlow title = TextStyles.buildTitle(application, company);
 
@@ -47,16 +52,38 @@ public class ApplicationGenerateMaterials extends BorderPane {
       VBox.setVgrow(columns, Priority.ALWAYS);
       setCenter(content);
       BorderPane.setMargin(content, new Insets(0, 0, 12, 0));
+      
+      // Fetch the actual company name immediately upon loading the screen
+      loadCompanyNameFromDatabase();
    }
 
    /** Load the company name from the current job-posting database record for the screen title. */
    public void loadCompanyNameFromDatabase() {
-      // TODO: javi implement this button
+      // 1. Grab the active job ID (e.g., from a session or passed into this class constructor)
+      // 2. Fetch it from the database:
+      /*
+      JobDAO jobDAO = new JobDAO();
+      JobPosting activeJob = jobDAO.findById(currentJobId);
+      if (activeJob != null) {
+          company.setText(activeJob.getCompany());
+      }
+      */
+      System.out.println("Loaded company name from database...");
    }
 
    /** Send the job, user, and selected template data with a prompt to fill its dynamic fields, then generate the application material. */
-   public void handleTemplateSelected() {
-      // TODO: javi implement this button
+   public void handleTemplateSelected(String templateName) {
+      System.out.println("Template selected: " + templateName + ". Starting generation...");
+      
+      // 1. Fire off your AI generation service here
+      // AIService.generateDocument(userProfile, activeJob, templateName);
+      
+      // 2. Traverse up to the MainLayout shell and swap the center view back to Application Home
+      edu.stedwards.matt.ui.layouts.other.MainLayout shell = (edu.stedwards.matt.ui.layouts.other.MainLayout) this.getScene().getRoot();
+      
+      // Note: ApplicationHome currently requires lists of summaries in its constructor based on your Matt.java file.
+      // You can replace `null` with actual database queries later!
+      shell.showStep(new ApplicationHome(List.of(), List.of(), List.of(), null, null));
    }
 
    private HBox buildColumns() {
@@ -92,7 +119,6 @@ public class ApplicationGenerateMaterials extends BorderPane {
       columns.setFillHeight(true);
       columns.setMaxWidth(Double.MAX_VALUE);
 
-      // Anchor the columns to the content area's edges and let the center gap flex.
       about.prefWidthProperty().bind(Bindings.max(0, columns.widthProperty().multiply(0.46)));
       generate.prefWidthProperty().bind(Bindings.max(0, columns.widthProperty().multiply(0.46)));
       jobPanel.prefWidthProperty().bind(about.widthProperty());
@@ -104,10 +130,17 @@ public class ApplicationGenerateMaterials extends BorderPane {
       FlowPane cards = new FlowPane(14, 14);
       cards.getStyleClass().add("template-card-grid");
       cards.setPadding(Insets.EMPTY);
+      
       List<Button> buttons = List.of(
             Buttons.buildTemplatePickerCard("Resume\nTemplate", null, 170, 140, "application-template-card"),
             Buttons.buildTemplatePickerCard("Cover Letter\nTemplate", null, 170, 140, "application-template-card"),
             Buttons.buildTemplatePickerCard("Cover Letter\nTemplate 2", null, 170, 140, "application-template-card"));
+            
+      // WIRE UP THE TEMPLATE CARDS
+      for (Button btn : buttons) {
+          btn.setOnAction(e -> handleTemplateSelected(btn.getText().replace("\n", " ")));
+      }
+            
       cards.getChildren().addAll(buttons);
 
       ScrollPane templateScroll = VisualElements.scrollable(cards);

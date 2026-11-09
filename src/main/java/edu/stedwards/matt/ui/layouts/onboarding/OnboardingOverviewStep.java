@@ -8,6 +8,7 @@ import edu.stedwards.matt.models.entity.Experience;
 import edu.stedwards.matt.models.entity.Projects;
 import edu.stedwards.matt.models.entity.Skill;
 import edu.stedwards.matt.models.entity.Websites;
+import edu.stedwards.matt.services.OnboardingService;
 import edu.stedwards.matt.ui.TextStyles;
 import edu.stedwards.matt.ui.interaction.Buttons;
 import edu.stedwards.matt.ui.interaction.Inputs;
@@ -29,6 +30,24 @@ import javafx.scene.text.TextFlow;
 
 /** Read-only overview of the data collected in the editable onboarding steps. */
 public class OnboardingOverviewStep extends BorderPane {
+
+   // Data lists
+   private final ObservableList<Education> education;
+   private final ObservableList<Experience> experiences;
+   private final ObservableList<Projects> projects;
+   private final ObservableList<Skill> skills;
+   private final ObservableList<AwardsCerts> awards;
+   private final ObservableList<Websites> websites;
+   public static final String PROJ_LABEL_URL = "Project URL";
+
+   // Edit actions
+   private final Runnable editEducation;
+   private final Runnable editExperiences;
+   private final Runnable editProjects;
+   private final Runnable editSkills;
+   private final Runnable editAwards;
+   private final Runnable editWebsites;
+
    public OnboardingOverviewStep() {
       this(null, null, null, null, null, null, null, null, null, null, null, null);
    }
@@ -46,26 +65,63 @@ public class OnboardingOverviewStep extends BorderPane {
          Runnable editSkills,
          Runnable editAwards,
          Runnable editWebsites) {
+             
+      this.education = education;
+      this.experiences = experiences;
+      this.projects = projects;
+      this.skills = skills;
+      this.awards = awards;
+      this.websites = websites;
+
+      this.editEducation = editEducation;
+      this.editExperiences = editExperiences;
+      this.editProjects = editProjects;
+      this.editSkills = editSkills;
+      this.editAwards = editAwards;
+      this.editWebsites = editWebsites;
+
       getStyleClass().addAll("wizard-background", "screen-padding");
       TextFlow title = TextStyles.buildTitle(OnboardingScreenText.FIN_TITLE, "onboarding-wizard-title");
       setTop(title);
 
+      // Wire the "Next" / "Submit" button to handleNext()
+      HBox bottomBar = new Buttons().buildNextButton();
+      if (!bottomBar.getChildren().isEmpty() && bottomBar.getChildren().get(0) instanceof Button) {
+          Button nextButton = (Button) bottomBar.getChildren().get(0);
+          nextButton.setOnAction(event -> handleNext());
+      }
+      setBottom(bottomBar);
+
+      // Build the UI for the first time
+      populateOverviewCards();
+   }
+
+   /** Clears and rebuilds the overview UI to ensure any recent edits are displayed. */
+   public void populateOverviewCards() {
       Node scrollContent = VisualElements.wizardScrollable(buildAllInfoContainers(
             education, experiences, projects, skills, awards, websites,
             editEducation, editExperiences, editProjects, editSkills, editAwards, editWebsites));
+            
       setCenter(scrollContent);
       BorderPane.setMargin(scrollContent, new Insets(0, 0, 24, 0));
-      setBottom(new Buttons().buildNextButton());
    }
 
-   /** Gather accumulated onboarding data and populate the overview with its corresponding info cards. */
-   public void populateOverviewCards() {
-      // TODO: javi implement this button
-   }
-
-   /** Save all onboarding data to the database, then navigate to Main - Applications - Home. */
+   /** Pass data to the backend service, then navigate to Main - Applications - Home. */
    public void handleNext() {
-      // TODO: javi implement this button
+      OnboardingService saveService = new OnboardingService();
+      
+      boolean saveSuccessful = saveService.saveCompleteOnboarding(
+          education, experiences, projects, skills, awards, websites
+      );
+
+      if (saveSuccessful) {
+          // Navigate to the main app dashboard
+          edu.stedwards.matt.ui.layouts.other.MainLayout mainLayout = new edu.stedwards.matt.ui.layouts.other.MainLayout();
+          mainLayout.showStep(new edu.stedwards.matt.ui.layouts.application.ApplicationHome());
+          getScene().setRoot(mainLayout);
+      } else {
+          System.err.println("Database save failed. Cannot proceed to dashboard.");
+      }
    }
 
    private VBox buildAllInfoContainers(
@@ -146,19 +202,13 @@ public class OnboardingOverviewStep extends BorderPane {
    }
 
    public static VBox buildProjectsCardViewOnly(Projects project, int sectionNumber, Runnable onEdit) {
-      Region firstSpacer = new Region();
-      HBox dates = new HBox(8,
-            value(project.getStartDate()), new Label("–"), value(project.getEndDate()));
+      Region spacer = new Region();
       HBox firstRow = new HBox(16,
-            value(project.getProjectName()), value(project.getRole()), firstSpacer, dates);
+            value(project.getTitle()), spacer, value(project.getUrl()));
       firstRow.setAlignment(Pos.CENTER_LEFT);
-      HBox.setHgrow(firstSpacer, Priority.ALWAYS);
+      HBox.setHgrow(spacer, Priority.ALWAYS);
 
-      Region secondSpacer = new Region();
-      HBox secondRow = new HBox(16, secondSpacer, value(project.getLocation()));
-      secondRow.setAlignment(Pos.CENTER_LEFT);
-      HBox.setHgrow(secondSpacer, Priority.ALWAYS);
-      VBox content = new VBox(16, firstRow, secondRow, value(project.getDescription()));
+      VBox content = new VBox(16, firstRow, value(project.getDescription()));
       return buildViewOnlySectionCard(OnboardingScreenText.PROJ_CARD_PREFIX + sectionNumber, content, onEdit);
    }
 
@@ -193,10 +243,11 @@ public class OnboardingOverviewStep extends BorderPane {
       Region spacer = new Region();
       HBox row = new HBox(16,
             value(award.getTitle()), value(award.getIssuer()), spacer,
-            value(formatMonthYear(award.getDateReceived())));
+            value(formatMonthYear(award.getDateIssued())));
       row.setAlignment(Pos.CENTER_LEFT);
       HBox.setHgrow(spacer, Priority.ALWAYS);
-      return buildViewOnlySectionCard(OnboardingScreenText.AWDCT_CARD_PREFIX + sectionNumber, row, onEdit);
+      VBox content = new VBox(16, row, value(award.getDescription()));
+      return buildViewOnlySectionCard(OnboardingScreenText.AWDCT_CARD_PREFIX + sectionNumber, content, onEdit);
    }
 
    public static VBox buildWebsitesCardViewOnly(ObservableList<Websites> websites, Runnable onEdit) {

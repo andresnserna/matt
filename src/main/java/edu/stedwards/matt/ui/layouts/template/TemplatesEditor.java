@@ -18,7 +18,10 @@ import javafx.scene.web.HTMLEditor;
 import javafx.scene.web.WebView;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
 import edu.stedwards.matt.controllers.TemplateEditorController;
+import edu.stedwards.matt.models.entity.Template; // Added Import
+import edu.stedwards.matt.ui.layouts.other.MainLayout; // Added Import
 
 /** Template authoring screen. Bracketed text in the editor is surfaced as selectable fields. */
 public class TemplatesEditor extends BorderPane {
@@ -75,6 +78,11 @@ public class TemplatesEditor extends BorderPane {
       save.getStyleClass().add("template-save-button");
       Button finish = new Button("Finish  ›");
       finish.getStyleClass().add("template-finish-button");
+      
+      // FIX: Added event handlers so the buttons actually call the methods below
+      save.setOnAction(event -> handleSave());
+      finish.setOnAction(event -> handleFinish());
+
       footer.getChildren().addAll(save, finish);
 
       VBox fieldSection = new VBox(12, heading, fieldScroll, footer);
@@ -91,12 +99,25 @@ public class TemplatesEditor extends BorderPane {
 
    /** Save the current template content and dynamic fields to the database without leaving the editor. */
    public void handleSave() {
-      // TODO: javi implement this button
+      // Create and populate the Template model with the inputted name
+      Template template = new Template(); 
+      // Note: adjust 'setName' if your Template entity uses a different method name
+      template.setTemplateName(nameField.getText());
+      
+      // Pass the HTMLEditor instance and the Template object to the controller
+      controller.saveTemplate(editor, template); 
    }
 
    /** Save the current template content and dynamic fields, then navigate to Main - Templates - Home. */
    public void handleFinish() {
-      // TODO: javi implement this button
+      // 1. Save the template first
+      handleSave();
+      
+      // 2. Navigate back to the Templates Home screen
+      if (getScene() != null && getScene().getRoot() instanceof MainLayout) {
+          MainLayout mainLayout = (MainLayout) getScene().getRoot();
+          mainLayout.showStep(new TemplatesHome()); 
+      }
    }
 
    private void installEditorSelectionStyle() {

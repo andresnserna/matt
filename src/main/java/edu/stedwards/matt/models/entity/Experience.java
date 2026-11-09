@@ -8,6 +8,7 @@ public class Experience {
     private String startDate;
     private String endDate;
     private String description;
+    private int displayOrder; // Added for the new schema
 
     // getters
     public int getExperienceID(){
@@ -36,6 +37,10 @@ public class Experience {
 
     public String getDescription(){
         return description;
+    }
+    
+    public int getDisplayOrder() {
+        return displayOrder;
     }
 
     // setters
@@ -66,6 +71,10 @@ public class Experience {
     public void setDescription(String description){
         this.description = description;
     }
+    
+    public void setDisplayOrder(int displayOrder) {
+        this.displayOrder = displayOrder;
+    }
 
     /**
      * Copies the experience data into a new unsaved entity, preserving its owner but not its ID.
@@ -78,6 +87,7 @@ public class Experience {
         copy.setStartDate(startDate);
         copy.setEndDate(endDate);
         copy.setDescription(description);
+        copy.setDisplayOrder(displayOrder);
         return copy;
     }
 }

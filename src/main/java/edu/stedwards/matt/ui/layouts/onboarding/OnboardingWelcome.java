@@ -11,12 +11,18 @@ import edu.stedwards.matt.ui.labels.OnboardingScreenText;
 import javafx.geometry.Pos;
 import javafx.geometry.Insets;
 import javafx.scene.Cursor;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
+/**
+ * Architecture layer: view
+ * JavaFX layout for the onboarding welcome screen.
+ */
 public class OnboardingWelcome extends BorderPane {
 
    private TextFlow buildScreenTitle() {
@@ -62,12 +68,22 @@ public class OnboardingWelcome extends BorderPane {
       var scrollContent = VisualElements.wizardScrollable(buildWelcomeMessage());
       setCenter(scrollContent);
       BorderPane.setMargin(scrollContent, new Insets(0, 0, 24, 0));
-      setBottom(new Buttons().buildNextButton());
+      
+      // Wire the "Next" button to transition to the Upload Screen
+      HBox bottomBar = new Buttons().buildNextButton();
+      if (!bottomBar.getChildren().isEmpty() && bottomBar.getChildren().get(0) instanceof Button) {
+          Button nextButton = (Button) bottomBar.getChildren().get(0);
+          nextButton.setOnAction(event -> handleNext());
+      }
+      setBottom(bottomBar);
+      
       BorderPane.setAlignment(getCenter(), Pos.CENTER_LEFT);
    }
 
    /** Save any welcome-screen input and navigate to the onboarding resume upload screen. */
    public void handleNext() {
-      // TODO: javi implement this button
+      // Transition to the upload screen where the AI parsing kicks off
+      OnboardingUploadStep uploadStep = new OnboardingUploadStep();
+      getScene().setRoot(uploadStep);
    }
 }

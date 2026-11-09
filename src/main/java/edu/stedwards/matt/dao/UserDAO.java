@@ -1,175 +1,82 @@
-/**
- * Architecture layer: model
- * Data-access component that persists and retrieves User records.
- */
 package edu.stedwards.matt.dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import edu.stedwards.matt.db.DatabaseManager;
 import edu.stedwards.matt.models.entity.User;
 
-/**
- * Handles raw database access for User records.
- * This class is called by the service layer when app logic needs to read or write user data,
- * and it should expose narrow repository methods such as find, save, update, and delete.
- * It is not responsible for UI work, validation rules, or orchestration of user flows.
- */
-
-
 public class UserDAO {
 
-    public void printAllUsers() {
-        String sql = "SELECT * FROM user_profile";
-        
-        // The try-with-resources block automatically closes the connection when finished
+    public int saveAndGetId(User user) {
+        String sql = "INSERT INTO user_profile (username, password_hash, first_name, last_name, email, phone, address_line_1, address_line_2, city, state, zip, summary, ollama_api_key) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        int generatedId = -1;
+
         try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
+             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             
-            while (rs.next()) {
-                System.out.println("Found user: " + rs.getString("first_name"));
+            pstmt.setString(1, user.getUsername() != null ? user.getUsername() : "user_" + System.currentTimeMillis()); 
+            pstmt.setString(2, user.getPasswordHash() != null ? user.getPasswordHash() : "default_hash");
+            pstmt.setString(3, user.getFirstName());
+            pstmt.setString(4, user.getLastName());
+            pstmt.setString(5, user.getEmail());
+            pstmt.setString(6, user.getPhoneNumber());
+            pstmt.setString(7, user.getAddressLine1());
+            pstmt.setString(8, user.getAddressLine2());
+            pstmt.setString(9, user.getCity());
+            pstmt.setString(10, user.getState());
+            pstmt.setString(11, user.getZip());
+            pstmt.setString(12, user.getSummary());
+            pstmt.setString(13, user.getOllamaApiKey());
+
+            int affectedRows = pstmt.executeUpdate();
+
+            if (affectedRows > 0) {
+                try (ResultSet rs = pstmt.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        generatedId = rs.getInt(1);
+                    }
+                }
             }
-            
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            System.err.println("Error saving user: " + e.getMessage());
         }
+        
+        return generatedId;
     }
 
-    // 1. Find user by ID 
-    public User findById(int userId) {
-        String sql = "SELECT * FROM user_profile WHERE user_id = ?";
-        User user = null;
-
+    public boolean authenticateUser(String username, String password) {
+        String sql = "SELECT password_hash FROM user_profile WHERE username = ?";
+        
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
-            pstmt.setInt(1, userId);
+            pstmt.setString(1, username);
+            
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    user = new User();
-                    user.setUserID(rs.getInt("user_id"));
-                    user.setFirstName(rs.getString("first_name"));
-                    user.setLastName(rs.getString("last_name"));
-                    user.setEmail(rs.getString("email"));
-                    user.setPhoneNumber(rs.getString("phone_number"));
-                    user.setSummary(rs.getString("summary"));
+                    String storedHash = rs.getString("password_hash");
+                    
+                    // TODO: Replace with your actual hashing utility (e.g., BCrypt.checkpw(password, storedHash))
+                    String hashedInput = hashPassword(password); 
+                    
+                    return storedHash != null && storedHash.equals(hashedInput);
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Error authenticating user: " + e.getMessage());
         }
-        return user;
-    }
-
-    public boolean authenticate(String email, String passwordHash) {
-        String sql = "SELECT * FROM user_profile WHERE email = ? AND password_hash = ?";
-        try (Connection conn = DatabaseManager.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            pstmt.setString(1, email);
-            pstmt.setString(2, passwordHash);
-            ResultSet rs = pstmt.executeQuery();
-            
-            return rs.next(); // Returns true if a match is found
-            
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-            return false;
-        }
-    }
-
-    // Creates a new user 
-    public boolean save(User user) {
-        String sql = "INSERT INTO user_profile (first_name, last_name, email, phone_number, summary) VALUES (?, ?, ?, ?, ?)";
-
-        try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            pstmt.setString(1, user.getFirstName());
-            pstmt.setString(2, user.getLastName());
-            pstmt.setString(3, user.getEmail());
-            pstmt.setString(4, user.getPhoneNumber());
-            pstmt.setString(5, user.getSummary());
-
-            int affectedRows = pstmt.executeUpdate();
-            return affectedRows > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public int saveAndGetId(User user) {
-        // MATCHES EXACT SCHEMA: 'phone' and 'password_hash' included
-        String sql = "INSERT INTO user_profile (first_name, last_name, email, phone, summary, password_hash) VALUES (?, ?, ?, ?, ?, ?)";
         
-        try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
-            
-            pstmt.setString(1, user.getFirstName());
-            pstmt.setString(2, user.getLastName());
-            pstmt.setString(3, user.getEmail());
-            pstmt.setString(4, user.getPhoneNumber()); 
-            pstmt.setString(5, user.getSummary());
-            pstmt.setString(6, ""); // Empty string satisfies NOT NULL
-
-            pstmt.executeUpdate();
-            
-            try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    return generatedKeys.getInt(1);
-                }
-            }
-        } catch (SQLException e) {
-            System.err.println("SQL ERROR IN saveAndGetId: " + e.getMessage());
-            e.printStackTrace();
-        }
-        return -1; 
+        return false;
     }
 
-    // Update an existing user 
-    public boolean update(User user) {
-        String sql = "UPDATE user_profile SET first_name = ?, last_name = ?, email = ?, phone_number = ?, summary = ? WHERE user_id = ?";
-
-        try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            pstmt.setString(1, user.getFirstName());
-            pstmt.setString(2, user.getLastName());
-            pstmt.setString(3, user.getEmail());
-            pstmt.setString(4, user.getPhoneNumber());
-            pstmt.setString(5, user.getSummary());
-            pstmt.setInt(6, user.getUserID());
-
-            int affectedRows = pstmt.executeUpdate();
-            return affectedRows > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
+    // Temporary utility method until you bring in a real hashing library
+    private String hashPassword(String plainTextPassword) {
+        // For now, returning the plain text so your app doesn't break, 
+        // but this is where you'll apply BCrypt or SHA-256!
+        return plainTextPassword; 
     }
-
-    //Delete a user record
-    public boolean delete(int userId) {
-        String sql = "DELETE FROM user_profile WHERE user_id = ?";
-
-        try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            pstmt.setInt(1, userId);
-            int affectedRows = pstmt.executeUpdate();
-            return affectedRows > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-
-
-    
 }

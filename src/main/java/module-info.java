@@ -16,7 +16,11 @@ module edu.stedwards.matt {
     requires java.net.http;
     requires fr.brouillard.oss.cssfx;
     requires javafx.web;
+    requires javafx.fxml;
+    requires java.prefs;
     exports edu.stedwards.matt;
+
+
 
     
 

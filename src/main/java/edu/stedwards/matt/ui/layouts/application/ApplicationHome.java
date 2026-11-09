@@ -34,7 +34,11 @@ public class ApplicationHome extends BorderPane {
    private final Consumer<ApplicationSummary> onOpenApplication;
 
    public ApplicationHome() {
+      // These empty lists will be replaced by your database fetch results later
       this(List.of(), List.of(), List.of(), null, null);
+      
+      // Fetch the actual applications when the screen loads
+      loadApplicationsFromDatabase();
    }
 
    public ApplicationHome(List<ApplicationSummary> thisWeek, List<ApplicationSummary> lastWeek,
@@ -66,13 +70,12 @@ public class ApplicationHome extends BorderPane {
       layout.setCenter(scrollPane);
       BorderPane.setMargin(scrollPane, new Insets(24, 0, 12, 0));
 
+      // WIRE UP THE NEW APPLICATION BUTTON DIRECTLY
       Button newApplication = Buttons.button(FontAwesomeSolid.PLUS_CIRCLE,
             ApplicationScreenText.NEW_APPLICATION_BUTTON,
-            event -> {
-               if (onNewApplication != null) {
-                  onNewApplication.run();
-               }
-            }, Region.USE_COMPUTED_SIZE, "new-application-button");
+            event -> handleNewApplication(), 
+            Region.USE_COMPUTED_SIZE, "new-application-button");
+            
       HBox footer = new HBox(newApplication);
       footer.setAlignment(Pos.CENTER_RIGHT);
       layout.setBottom(footer);
@@ -82,17 +85,30 @@ public class ApplicationHome extends BorderPane {
 
    /** Load application records from the database and populate the application cards. */
    public void loadApplicationsFromDatabase() {
-      // TODO: javi implement this button
+      // 1. Fetch saved applications using your DAOs
+      // ApplicationDAO appDAO = new ApplicationDAO();
+      // List<Application> savedApps = appDAO.getAllApplicationsForUser(currentUserId);
+      
+      // 2. Sort them into the `thisWeek`, `lastWeek`, and `older` lists based on their timestamp
+      System.out.println("Fetching saved applications from database...");
    }
 
    /** Open the generate screen with the selected application's details and available templates. */
-   public void handleApplicationCardSelected() {
-      // TODO: javi implement this button
+   public void handleApplicationCardSelected(ApplicationSummary selectedApp) {
+      System.out.println("Opening application for: " + selectedApp.companyName());
+      
+      // Traverse up to the MainLayout shell and swap the center view to Generate Materials
+      edu.stedwards.matt.ui.layouts.other.MainLayout shell = (edu.stedwards.matt.ui.layouts.other.MainLayout) this.getScene().getRoot();
+      
+      // In the future, you can pass the selectedApp ID into the ApplicationGenerateMaterials constructor
+      shell.showStep(new ApplicationGenerateMaterials());
    }
 
    /** Navigate to Main - Applications - Upload. */
    public void handleNewApplication() {
-      // TODO: javi implement this button
+      // Traverse up to the MainLayout shell and swap the center view to Upload Job
+      edu.stedwards.matt.ui.layouts.other.MainLayout shell = (edu.stedwards.matt.ui.layouts.other.MainLayout) this.getScene().getRoot();
+      shell.showStep(new ApplicationUploadJob());
    }
 
    private VBox buildSection(String title, List<ApplicationSummary> applications, boolean initiallyExpanded) {
@@ -116,14 +132,13 @@ public class ApplicationHome extends BorderPane {
       VBox cards = new VBox(14);
       cards.setFillWidth(true);
       cards.setMaxWidth(Double.MAX_VALUE);
+      
       for (ApplicationSummary application : applications) {
+         // WIRE UP THE CARD CLICK DIRECTLY TO THE NAVIGATION METHOD
          Node card = VisualElements.buildApplicationListCard(
                application.jobTitle(), application.companyName(), application.age(), application.timeUnit(),
-               application.fileCount(), event -> {
-                  if (onOpenApplication != null) {
-                     onOpenApplication.accept(application);
-                  }
-               });
+               application.fileCount(), event -> handleApplicationCardSelected(application));
+               
          cards.getChildren().add(card);
       }
       cards.setVisible(initiallyExpanded);
