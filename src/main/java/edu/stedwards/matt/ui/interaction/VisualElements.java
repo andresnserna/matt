@@ -10,6 +10,7 @@ import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import javax.swing.Box;
@@ -55,6 +56,7 @@ import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
@@ -464,18 +466,21 @@ public class VisualElements {
    }
 
    /** Builds the login form with icon fields, a remember option, a primary login action, and a sign-up link. */
-   public static VBox buildLoginBox(EventHandler<ActionEvent> onLogin, EventHandler<ActionEvent> onSignup,
+   public static VBox buildLoginBox(BiConsumer<String, String> onLogin, EventHandler<ActionEvent> onSignup,
          double boxWidth, double fieldWidth, double buttonWidth) {
       VBox box = new VBox(18);
       box.setAlignment(Pos.CENTER);
       box.setPrefWidth(boxWidth);
       box.setMaxWidth(boxWidth);
       box.getStyleClass().add("login-box");
+      TextField usernameField = Inputs.inputField(LoginScreenText.USERNAME_PLACEHOLDER, fieldWidth, fieldWidth, "login-field-text");
+      PasswordField passwordField = Inputs.passwordField(LoginScreenText.PASSWORD_PLACEHOLDER, fieldWidth, fieldWidth, "login-field-text");
       box.getChildren().addAll(
-            Inputs.buildInputFieldWIcon(LoginScreenText.USERNAME_PLACEHOLDER, LoginScreenText.USERNAME_ICON, fieldWidth, fieldWidth, "login-field"),
-            Inputs.buildPasswordFieldWIcon(LoginScreenText.PASSWORD_PLACEHOLDER, LoginScreenText.PASSWORD_ICON, fieldWidth, fieldWidth, "login-field"),
+            Inputs.wrapInputFieldWithIcon(usernameField, LoginScreenText.USERNAME_ICON, "login-field"),
+            Inputs.wrapInputFieldWithIcon(passwordField, LoginScreenText.PASSWORD_ICON, "login-field"),
             buildCheckBoxWLabel());
-      Button login = Buttons.button(LoginScreenText.LOGIN_BUTTON, onLogin, buttonWidth, "login-submit");
+      Button login = Buttons.button(LoginScreenText.LOGIN_BUTTON, null, buttonWidth, "login-submit");
+      login.setOnAction(event -> onLogin.accept(usernameField.getText(), passwordField.getText()));
       Button signup = Buttons.button(LoginScreenText.SIGNUP_BUTTON, onSignup, 180, "signup-link-button");
       box.getChildren().addAll(login, signup);
       return box;
@@ -497,6 +502,15 @@ public class VisualElements {
             JTextField usernameField = new JTextField(20);
             JLabel usernameLabel = new JLabel(LoginScreenText.USERNAME_PLACEHOLDER);
             usernameLabel.setLabelFor(usernameField);
+            JTextField firstNameField = new JTextField(20);
+            JLabel firstNameLabel = new JLabel("First name");
+            firstNameLabel.setLabelFor(firstNameField);
+            JTextField lastNameField = new JTextField(20);
+            JLabel lastNameLabel = new JLabel("Last name");
+            lastNameLabel.setLabelFor(lastNameField);
+            JTextField emailField = new JTextField(20);
+            JLabel emailLabel = new JLabel("Email");
+            emailLabel.setLabelFor(emailField);
             JPasswordField passwordField = new JPasswordField(20);
             JLabel passwordLabel = new JLabel(LoginScreenText.PASSWORD_PLACEHOLDER);
             passwordLabel.setLabelFor(passwordField);
@@ -520,8 +534,14 @@ public class VisualElements {
             form.add(Box.createVerticalStrut(12));
             addSignupField(form, usernameLabel, usernameField, white);
             form.add(Box.createVerticalStrut(12));
+            addSignupField(form, firstNameLabel, firstNameField, white);
+            form.add(Box.createVerticalStrut(12));
+            addSignupField(form, lastNameLabel, lastNameField, white);
+            form.add(Box.createVerticalStrut(12));
+            addSignupField(form, emailLabel, emailField, white);
+            form.add(Box.createVerticalStrut(12));
             addSignupField(form, passwordLabel, passwordField, white);
-            form.setPreferredSize(new Dimension(360, 250));
+            form.setPreferredSize(new Dimension(360, 470));
 
             JButton signupButton = new JButton(LoginScreenText.SIGNUP_BUTTON);
             signupButton.setUI(new BasicButtonUI());
@@ -545,8 +565,11 @@ public class VisualElements {
 
             // Connect button actions to the handler methods
             signupButton.addActionListener(e -> handleSignupSubmit(
-               usernameField.getText(), 
-               new String(passwordField.getPassword()), 
+               usernameField.getText(),
+               new String(passwordField.getPassword()),
+               firstNameField.getText(),
+               lastNameField.getText(),
+               emailField.getText(),
                dialog
             ));
             cancelButton.addActionListener(e -> handleSignupCancel(dialog));
@@ -574,15 +597,23 @@ public class VisualElements {
    }
 
    /** Save the sign-up dialog's username and password as a new user account in the database. */
-   public static void handleSignupSubmit(String username, String password, JDialog dialog) {
-      if (username == null || username.isBlank() || password == null || password.isBlank()) {
-         JOptionPane.showMessageDialog(dialog, "Username and password cannot be empty.", "Sign-Up Error", JOptionPane.ERROR_MESSAGE);
+   public static void handleSignupSubmit(String username, String password, String firstName,
+         String lastName, String email, JDialog dialog) {
+      if (username == null || username.isBlank() || password == null || password.isBlank()
+            || firstName == null || firstName.isBlank() || lastName == null || lastName.isBlank()
+            || email == null || email.isBlank()) {
+         JOptionPane.showMessageDialog(dialog,
+               "Username, password, first name, last name, and email are required.",
+               "Sign-Up Error", JOptionPane.ERROR_MESSAGE);
          return;
       }
 
       User user = new User();
       user.setUsername(username.trim());
       user.setPasswordHash(password);
+      user.setFirstName(firstName.trim());
+      user.setLastName(lastName.trim());
+      user.setEmail(email.trim());
 
       int generatedUserId = new UserDAO().saveAndGetId(user);
       boolean created = generatedUserId > 0;
@@ -590,7 +621,9 @@ public class VisualElements {
          JOptionPane.showMessageDialog(dialog, "Account created successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
          dialog.dispose();
       } else {
-         JOptionPane.showMessageDialog(dialog, "Failed to create account. Username may already exist.", "Sign-Up Error", JOptionPane.ERROR_MESSAGE);
+         JOptionPane.showMessageDialog(dialog,
+               "Failed to create account. Username or email may already exist.",
+               "Sign-Up Error", JOptionPane.ERROR_MESSAGE);
       }
    }
 

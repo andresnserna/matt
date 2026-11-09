@@ -49,12 +49,12 @@ public class OnboardingStepLayout extends BorderPane {
     private ListChangeListener<?> shownItemsListener;
 
     // Data lists that follow the user through the wizard
-    private final ObservableList<Education> education = FXCollections.observableArrayList();
-    private final ObservableList<Experience> experiences = FXCollections.observableArrayList();
-    private final ObservableList<Projects> projects = FXCollections.observableArrayList();
-    private final ObservableList<Skill> skills = FXCollections.observableArrayList();
-    private final ObservableList<AwardsCerts> awards = FXCollections.observableArrayList();
-    private final ObservableList<Websites> websites = FXCollections.observableArrayList();
+    private ObservableList<Education> education = FXCollections.observableArrayList();
+    private ObservableList<Experience> experiences = FXCollections.observableArrayList();
+    private ObservableList<Projects> projects = FXCollections.observableArrayList();
+    private ObservableList<Skill> skills = FXCollections.observableArrayList();
+    private ObservableList<AwardsCerts> awards = FXCollections.observableArrayList();
+    private ObservableList<Websites> websites = FXCollections.observableArrayList();
 
     private Button nextButton;
 
@@ -80,7 +80,7 @@ public class OnboardingStepLayout extends BorderPane {
         setBottom(bottomBar);
 
         // Start wizard
-        showEducationStep();
+        showEducationStep(education);
     }
 
     private static VBox buildEditableSectionCard(String heading, Node fields, Runnable onDuplicate, Runnable onDelete) {
@@ -206,12 +206,13 @@ public class OnboardingStepLayout extends BorderPane {
         return buildEditableSectionCard(OnboardingScreenText.EDU_CARD_PREFIX + sectionNumber, fields, onDuplicate, onDelete);
     }
 
-    public void showEducationStep() {
+    public void showEducationStep(ObservableList<Education> dataItems) {
+        education = Objects.requireNonNull(dataItems, "education items");
         showEditableSections(education, OnboardingScreenText.EDU_TITLE, Education::new,
                 (items, index) -> controller.duplicateEducation(items, index),
                 (items, item) -> controller.removeEducation(items, item),
                 this::buildEducationSectionEditable);
-        if (nextButton != null) nextButton.setOnAction(e -> handleEducationNext());
+        if (nextButton != null) nextButton.setOnAction(e -> handleEducationNext(experiences));
     }
 
     // --- EXP ---
@@ -263,12 +264,13 @@ public class OnboardingStepLayout extends BorderPane {
                 List.of(inputGroups), List.of(duplicate, delete), "experience-editable-card");
     }
 
-    public void showExperienceStep() {
+    public void showExperienceStep(ObservableList<Experience> dataItems) {
+        experiences = Objects.requireNonNull(dataItems, "experience items");
         showEditableSections(experiences, OnboardingScreenText.EXP_TITLE, Experience::new,
                 (items, index) -> controller.duplicateExperience(items, index),
                 (items, item) -> controller.removeExperience(items, item),
                 this::buildExperienceSectionEditable);
-        if (nextButton != null) nextButton.setOnAction(e -> handleExperienceNext());
+        if (nextButton != null) nextButton.setOnAction(e -> handleExperienceNext(projects));
     }
 
     // --- PROJ ---
@@ -307,12 +309,13 @@ public class OnboardingStepLayout extends BorderPane {
                 fields, onDuplicate, onDelete);
     }
 
-    public void showProjectsStep(){
+    public void showProjectsStep(ObservableList<Projects> dataItems){
+        projects = Objects.requireNonNull(dataItems, "project items");
         showEditableSections(projects, OnboardingScreenText.PROJ_TITLE, Projects::new,
                 (items, index) -> controller.duplicateProject(items, index),
                 (items, item) -> controller.removeProject(items, item),
                 this::buildProjectsSectionEditable);
-        if (nextButton != null) nextButton.setOnAction(e -> handleProjectsNext());
+        if (nextButton != null) nextButton.setOnAction(e -> handleProjectsNext(skills));
     }
 
     // --- SKILLS ---
@@ -342,11 +345,12 @@ public class OnboardingStepLayout extends BorderPane {
         return inputRow;
     }
 
-    public void showSkillsStep(){
+    public void showSkillsStep(ObservableList<Skill> dataItems){
+        skills = Objects.requireNonNull(dataItems, "skill items");
         showEditableChipletSection(skills, OnboardingScreenText.SKL_TITLE, OnboardingScreenText.SKL_CONFIRM_MESSAGE,
                 buildSkillsSectionEditable(skills), (items, item) -> controller.removeSkill(items, item),
                 OnboardingStepLayout::buildSkillsSectionEditable);
-        if (nextButton != null) nextButton.setOnAction(e -> handleSkillsNext());
+        if (nextButton != null) nextButton.setOnAction(e -> handleSkillsNext(awards));
     }
 
     /**
@@ -412,12 +416,13 @@ public class OnboardingStepLayout extends BorderPane {
         return buildEditableSectionCard(OnboardingScreenText.AWDCT_CARD_PREFIX + sectionNumber, awardRow, onDuplicate, onDelete);
     }
 
-    public void showAwardsStep() {
+    public void showAwardsStep(ObservableList<AwardsCerts> dataItems) {
+        awards = Objects.requireNonNull(dataItems, "award items");
         showEditableSections(awards, OnboardingScreenText.AWDCT_TITLE, AwardsCerts::new,
                 (items, index) -> controller.duplicateAward(items, index),
                 (items, item) -> controller.removeAward(items, item),
                 this::buildAwardsCertsSectionEditable);
-        if (nextButton != null) nextButton.setOnAction(e -> handleAwardsNext());
+        if (nextButton != null) nextButton.setOnAction(e -> handleAwardsNext(websites));
     }
 
     // --- WEBSITES ---
@@ -438,15 +443,17 @@ public class OnboardingStepLayout extends BorderPane {
         return inputRow;
     }
 
-    public void showWebsitesStep() {
+    public void showWebsitesStep(ObservableList<Websites> dataItems) {
+        websites = Objects.requireNonNull(dataItems, "website items");
         showEditableChipletSection(websites, OnboardingScreenText.WEB_TITLE, OnboardingScreenText.WEB_CONFIRM_MESSAGE,
                 buildWebsitesSectionEditable(websites), (items, item) -> controller.removeWebsite(items, item),
                 OnboardingStepLayout::buildWebsiteChipEditable);
-        if (nextButton != null) nextButton.setOnAction(e -> handleWebsitesNext());
+        if (nextButton != null) nextButton.setOnAction(e ->
+                handleWebsitesNext(education, experiences, projects, skills, awards, websites));
     }
 
     private static Button buildWebsiteChipEditable(Websites website, Runnable onDelete) {
-        String platform = Inputs.nullToEmpty(website.getUrlType());
+        String platform = Inputs.nullToEmpty(website.getPlatform());
         String url = Inputs.nullToEmpty(website.getUrl());
         String chipText = platform.isBlank() ? url : url.isBlank() ? platform : platform + " · " + url;
         Button chip = Buttons.button(chipText, event -> onDelete.run(), Region.USE_COMPUTED_SIZE, "onboarding-chiplet-button");
@@ -458,36 +465,42 @@ public class OnboardingStepLayout extends BorderPane {
     // --- STATE ROUTING (NAVIGATION METHODS) ---
     // ==========================================
     
-    public void handleEducationNext() {
-        showExperienceStep();
+    public void handleEducationNext(ObservableList<Experience> dataItems) {
+        showExperienceStep(dataItems);
     }
 
-    public void handleExperienceNext() {
-        showProjectsStep();
+    public void handleExperienceNext(ObservableList<Projects> dataItems) {
+        showProjectsStep(dataItems);
     }
 
-    public void handleProjectsNext() {
-        showSkillsStep();
+    public void handleProjectsNext(ObservableList<Skill> dataItems) {
+        showSkillsStep(dataItems);
     }
 
-    public void handleSkillsNext() {
-        showAwardsStep();
+    public void handleSkillsNext(ObservableList<AwardsCerts> dataItems) {
+        showAwardsStep(dataItems);
     }
 
-    public void handleAwardsNext() {
-        showWebsitesStep();
+    public void handleAwardsNext(ObservableList<Websites> dataItems) {
+        showWebsitesStep(dataItems);
     }
 
-    public void handleWebsitesNext() {
+    public void handleWebsitesNext(
+            ObservableList<Education> educationItems,
+            ObservableList<Experience> experienceItems,
+            ObservableList<Projects> projectItems,
+            ObservableList<Skill> skillItems,
+            ObservableList<AwardsCerts> awardItems,
+            ObservableList<Websites> websiteItems) {
         // Build the final overview step and pass all collected lists and back-navigation runnables
         OnboardingOverviewStep overview = new OnboardingOverviewStep(
-            education, experiences, projects, skills, awards, websites,
-            this::showEducationStep,
-            this::showExperienceStep,
-            this::showProjectsStep,
-            this::showSkillsStep,
-            this::showAwardsStep,
-            this::showWebsitesStep
+            educationItems, experienceItems, projectItems, skillItems, awardItems, websiteItems,
+            () -> showEducationStep(educationItems),
+            () -> showExperienceStep(experienceItems),
+            () -> showProjectsStep(projectItems),
+            () -> showSkillsStep(skillItems),
+            () -> showAwardsStep(awardItems),
+            () -> showWebsitesStep(websiteItems)
         );
         getScene().setRoot(overview); // Move to final review screen
     }

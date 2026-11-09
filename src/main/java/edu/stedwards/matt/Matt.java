@@ -36,7 +36,7 @@ import edu.stedwards.matt.ui.layouts.onboarding.OnboardingUploadStep;
 import edu.stedwards.matt.ui.layouts.onboarding.OnboardingWelcome;
 import edu.stedwards.matt.ui.layouts.other.LoginLayout;
 import edu.stedwards.matt.ui.layouts.other.MainLayout;
-import edu.stedwards.matt.ui.layouts.other.StartLayout;
+// import edu.stedwards.matt.ui.layouts.other.StartLayout;
 import edu.stedwards.matt.ui.layouts.myinfo.MyInfoEditingStep;
 import edu.stedwards.matt.ui.layouts.myinfo.MyInfoHomeStep;
 import edu.stedwards.matt.ui.layouts.other.SettingsLayout;

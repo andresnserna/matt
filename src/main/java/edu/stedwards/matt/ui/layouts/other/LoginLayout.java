@@ -8,7 +8,10 @@ import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-import edu.stedwards.matt.dao.UserDAO;
+import edu.stedwards.matt.models.OnboardingSession;
+import edu.stedwards.matt.models.entity.User;
+import edu.stedwards.matt.services.UserService;
+import edu.stedwards.matt.ui.layouts.onboarding.OnboardingWelcome;
 import edu.stedwards.matt.ui.interaction.VisualElements;
 
 /**
@@ -49,11 +52,16 @@ public class LoginLayout extends VBox {
     public void handleLogin(String username, String password) {
         errorLabel.setText("");
         
-        // 1. Check the database
-        boolean isAuthenticated = new UserDAO().authenticateUser(username, password);
-        
-        if (isAuthenticated) {
-            // 2. Success: route the user straight to the main app dashboard
+        UserService userService = new UserService();
+        User user = userService.authenticate(username, password);
+
+        if (user != null) {
+            OnboardingSession.getInstance().setUserProfile(user);
+            if (!userService.isOnboarded(user.getUserID())) {
+                getScene().setRoot(new OnboardingWelcome());
+                return;
+            }
+
             MainLayout mainLayout = new MainLayout();
             mainLayout.showStep(new edu.stedwards.matt.ui.layouts.application.ApplicationHome());
             getScene().setRoot(mainLayout);

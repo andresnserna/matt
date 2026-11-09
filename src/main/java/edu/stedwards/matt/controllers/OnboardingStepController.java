@@ -1,6 +1,5 @@
 package edu.stedwards.matt.controllers;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -71,7 +70,7 @@ public class OnboardingStepController {
         String cleanUrl = url == null ? "" : url.trim();
         if (cleanPlatform.isEmpty() && cleanUrl.isEmpty()) return false;
         Websites website = new Websites();
-        setWebsitePlatform(website, cleanPlatform);
+        website.setPlatform(cleanPlatform);
         website.setUrl(cleanUrl);
         websites.add(website);
         return true;
@@ -79,27 +78,6 @@ public class OnboardingStepController {
 
     public void removeWebsite(ObservableList<Websites> websites, Websites website) {
         websites.remove(website);
-    }
-
-    private void setWebsitePlatform(Websites website, String platform) {
-        if (platform == null || platform.isEmpty()) {
-            return;
-        }
-
-        try {
-            website.getClass().getMethod("setPlatform", String.class).invoke(website, platform);
-            return;
-        } catch (NoSuchMethodException ignored) {
-            // Fall back to newer schema naming if the model uses a different platform setter.
-        } catch (IllegalAccessException | InvocationTargetException ignored) {
-            // Ignore reflection failures and leave the platform unset if unsupported.
-        }
-
-        try {
-            website.getClass().getMethod("setPlatformName", String.class).invoke(website, platform);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ignored) {
-            // Unsupported schema variant; leave the platform unset rather than failing the form.
-        }
     }
 
     public void updateEducationInstitution(Education item, String value) { item.setInstitution(value); }

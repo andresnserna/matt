@@ -17,6 +17,7 @@ module edu.stedwards.matt {
     requires fr.brouillard.oss.cssfx;
     requires javafx.web;
     requires javafx.fxml;
+    requires jdk.jsobject;
     requires java.prefs;
     exports edu.stedwards.matt;
 

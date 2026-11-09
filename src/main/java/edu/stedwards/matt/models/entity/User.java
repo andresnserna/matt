@@ -4,6 +4,7 @@ public class User {
     private int userId;
     private String username;
     private String passwordHash;
+    private boolean onboarded;
     private String firstName;
     private String lastName;
     private String email;
@@ -20,6 +21,7 @@ public class User {
     public int getUserID() { return userId; }
     public String getUsername() { return username; }
     public String getPasswordHash() { return passwordHash; }
+    public boolean isOnboarded() { return onboarded; }
     public String getFirstName() { return firstName; }
     public String getLastName() { return lastName; }
     public String getEmail() { return email; }
@@ -36,6 +38,7 @@ public class User {
     public void setUserID(int userId) { this.userId = userId; }
     public void setUsername(String username) { this.username = username; }
     public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
+    public void setOnboarded(boolean onboarded) { this.onboarded = onboarded; }
     public void setFirstName(String firstName) { this.firstName = firstName; }
     public void setLastName(String lastName) { this.lastName = lastName; }
     public void setEmail(String email) { this.email = email; }

@@ -3,7 +3,7 @@ package edu.stedwards.matt.models.entity;
 public class Websites {
     private int websiteId;
     private int userId;
-    private String urlType;
+    private String platform;
     private String url;
 
     // getters
@@ -15,8 +15,8 @@ public class Websites {
         return userId;
     }
 
-    public String getUrlType(){
-        return urlType;
+    public String getPlatform(){
+        return platform;
     }
 
     public String getUrl(){
@@ -32,8 +32,8 @@ public class Websites {
         this.userId = userId;
     }
 
-    public void setUrlType(String urlType){
-        this.urlType = urlType;
+    public void setPlatform(String platform){
+        this.platform = platform;
     }
 
     public void setUrl(String url){

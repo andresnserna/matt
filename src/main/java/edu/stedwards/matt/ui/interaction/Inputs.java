@@ -7,6 +7,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputControl;
 import javafx.scene.Node;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -38,16 +39,16 @@ public final class Inputs {
 	/**
 	 * 
 	 */
-	private static HBox wrapInputFieldWithIcon(TextField textField, FontAwesomeSolid iconType, String... styleClasses) {
+	static HBox wrapInputFieldWithIcon(TextInputControl control, FontAwesomeSolid iconType, String... styleClasses) {
 		FontIcon icon = new FontIcon(iconType);
 		icon.getStyleClass().add("input-field-icon");
-		HBox.setHgrow(textField, Priority.ALWAYS);
+		HBox.setHgrow(control, Priority.ALWAYS);
 
-		HBox input = new HBox(12, icon, textField);
-		input.setAlignment(Pos.CENTER_LEFT);
+		HBox field = new HBox(12, icon, control);
+		field.setAlignment(Pos.CENTER_LEFT);
 		// input.getStyleClass().add("input-field-with-icon");
-		input.getStyleClass().addAll(styleClasses);
-		return input;
+		field.getStyleClass().addAll(styleClasses);
+		return field;
 	}
 
 	/**
@@ -93,6 +94,19 @@ public final class Inputs {
 		textField.getStyleClass().addAll(styleClasses);
       
 		return textField;
+	}
+
+	/**
+	 * Builds a password field that masks typed characters.
+	 */
+	public static PasswordField passwordField(String promptText, double width, double maxWidth, String... styleClasses) {
+		PasswordField passwordField = new PasswordField();
+		passwordField.setPromptText(promptText);
+		passwordField.setPrefWidth(width);
+		passwordField.setMaxWidth(maxWidth);
+		passwordField.getStyleClass().add("input-field-text");
+		passwordField.getStyleClass().addAll(styleClasses);
+		return passwordField;
 	}
 
 	/**

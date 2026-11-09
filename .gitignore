@@ -48,6 +48,7 @@ target/
 
 # Logs
 *.log
+matt.db-journal
 
 # Temporary files
 *.tmp

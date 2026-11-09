@@ -8,7 +8,6 @@ public class Education {
     private String startDate;
     private String endDate;
     private String gpa;
-    private int displayOrder; // Added for the new schema
 
     // getters
     public int getEducationID(){
@@ -39,10 +38,6 @@ public class Education {
         return gpa;
     }
     
-    public int getDisplayOrder() {
-        return displayOrder;
-    }
-
     // setters
     public void setEducationID(int educationId){
         this.educationId = educationId;
@@ -72,10 +67,6 @@ public class Education {
         this.gpa = gpa;
     }
     
-    public void setDisplayOrder(int displayOrder) {
-        this.displayOrder = displayOrder;
-    }
-
     /**
      * Copies the education data into a new unsaved entity, preserving its owner but not its ID.
      */
@@ -87,7 +78,6 @@ public class Education {
         copy.setStartDate(startDate);
         copy.setEndDate(endDate);
         copy.setGpa(gpa);
-        copy.setDisplayOrder(displayOrder);
         return copy;
     }
 }

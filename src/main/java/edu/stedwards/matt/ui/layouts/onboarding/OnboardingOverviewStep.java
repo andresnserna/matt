@@ -9,6 +9,8 @@ import edu.stedwards.matt.models.entity.Projects;
 import edu.stedwards.matt.models.entity.Skill;
 import edu.stedwards.matt.models.entity.Websites;
 import edu.stedwards.matt.services.OnboardingService;
+import edu.stedwards.matt.services.UserService;
+import edu.stedwards.matt.models.OnboardingSession;
 import edu.stedwards.matt.ui.TextStyles;
 import edu.stedwards.matt.ui.interaction.Buttons;
 import edu.stedwards.matt.ui.interaction.Inputs;
@@ -109,12 +111,12 @@ public class OnboardingOverviewStep extends BorderPane {
    /** Pass data to the backend service, then navigate to Main - Applications - Home. */
    public void handleNext() {
       OnboardingService saveService = new OnboardingService();
+      int userId = OnboardingSession.getInstance().getUserProfile().getUserID();
       
-      boolean saveSuccessful = saveService.saveCompleteOnboarding(
-          education, experiences, projects, skills, awards, websites
-      );
+      saveService.saveCompleteOnboarding(
+          userId, education, experiences, projects, skills, awards, websites);
 
-      if (saveSuccessful) {
+      if (new UserService().isOnboarded(userId)) {
           // Navigate to the main app dashboard
           edu.stedwards.matt.ui.layouts.other.MainLayout mainLayout = new edu.stedwards.matt.ui.layouts.other.MainLayout();
           mainLayout.showStep(new edu.stedwards.matt.ui.layouts.application.ApplicationHome());
@@ -255,7 +257,7 @@ public class OnboardingOverviewStep extends BorderPane {
       chips.setHgap(16);
       chips.setVgap(12);
       for (Websites website : websites) {
-         String platform = Inputs.nullToEmpty(website.getUrlType());
+         String platform = Inputs.nullToEmpty(website.getPlatform());
          String url = Inputs.nullToEmpty(website.getUrl());
          Label chip = value(platform.isBlank() ? url : url.isBlank() ? platform : platform + " · " + url);
          chip.getStyleClass().add("onboarding-chiplet-button");

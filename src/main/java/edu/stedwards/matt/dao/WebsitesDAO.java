@@ -8,11 +8,11 @@ import edu.stedwards.matt.models.entity.Websites;
 
 public class WebsitesDAO {
     public boolean save(Websites website) {
-        String sql = "INSERT INTO websites (user_id, url_type, url) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO websites (user_id, platform, url) VALUES (?, ?, ?)";
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, website.getUserID());
-            pstmt.setString(2, website.getUrlType());
+            pstmt.setString(2, website.getPlatform());
             pstmt.setString(3, website.getUrl());
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {

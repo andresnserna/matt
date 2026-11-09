@@ -1,6 +1,9 @@
 package edu.stedwards.matt.controllers;
 
-import edu.stedwards.matt.dao.UserDAO;
+import edu.stedwards.matt.models.OnboardingSession;
+import edu.stedwards.matt.models.entity.User;
+import edu.stedwards.matt.services.UserService;
+import edu.stedwards.matt.ui.layouts.onboarding.OnboardingWelcome;
 import java.util.prefs.Preferences;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -34,8 +37,9 @@ public class LoginController {
         String username = usernameField.getText().trim();
         String password = passwordField.getText();
 
-        UserDAO userDAO = new UserDAO();
-        if (userDAO.authenticateUser(username, password)) {
+        UserService userService = new UserService();
+        User user = userService.authenticate(username, password);
+        if (user != null) {
             
             // Save or clear the username in OS Preferences based on the checkbox
             if (rememberMeCheckBox.isSelected()) {
@@ -44,8 +48,12 @@ public class LoginController {
                 prefs.remove(PREF_USERNAME);
             }
             
-            // Navigate to main application home
-            navigateToMainApp(event);
+            OnboardingSession.getInstance().setUserProfile(user);
+            if (userService.isOnboarded(user.getUserID())) {
+                navigateToMainApp(event);
+            } else {
+                ((Node) event.getSource()).getScene().setRoot(new OnboardingWelcome());
+            }
         } else {
             System.err.println("Invalid login credentials.");
         }

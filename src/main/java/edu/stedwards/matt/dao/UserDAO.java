@@ -12,7 +12,7 @@ import edu.stedwards.matt.models.entity.User;
 public class UserDAO {
 
     public int saveAndGetId(User user) {
-        String sql = "INSERT INTO user_profile (username, password_hash, first_name, last_name, email, phone, address_line_1, address_line_2, city, state, zip, summary, ollama_api_key) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO user_profile (username, password_hash, first_name, last_name, email, is_onboarded, phone, address_line_1, address_line_2, city, state, zip, summary, ollama_api_key) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         int generatedId = -1;
 
         try (Connection conn = DatabaseManager.getConnection();
@@ -23,14 +23,15 @@ public class UserDAO {
             pstmt.setString(3, user.getFirstName());
             pstmt.setString(4, user.getLastName());
             pstmt.setString(5, user.getEmail());
-            pstmt.setString(6, user.getPhoneNumber());
-            pstmt.setString(7, user.getAddressLine1());
-            pstmt.setString(8, user.getAddressLine2());
-            pstmt.setString(9, user.getCity());
-            pstmt.setString(10, user.getState());
-            pstmt.setString(11, user.getZip());
-            pstmt.setString(12, user.getSummary());
-            pstmt.setString(13, user.getOllamaApiKey());
+            pstmt.setInt(6, user.isOnboarded() ? 1 : 0);
+            pstmt.setString(7, user.getPhoneNumber());
+            pstmt.setString(8, user.getAddressLine1());
+            pstmt.setString(9, user.getAddressLine2());
+            pstmt.setString(10, user.getCity());
+            pstmt.setString(11, user.getState());
+            pstmt.setString(12, user.getZip());
+            pstmt.setString(13, user.getSummary());
+            pstmt.setString(14, user.getOllamaApiKey());
 
             int affectedRows = pstmt.executeUpdate();
 
@@ -49,28 +50,70 @@ public class UserDAO {
     }
 
     public boolean authenticateUser(String username, String password) {
-        String sql = "SELECT password_hash FROM user_profile WHERE username = ?";
-        
+        return findAuthenticatedUser(username, password) != null;
+    }
+
+    public User findAuthenticatedUser(String username, String password) {
+        String sql = "SELECT user_id, username, password_hash, first_name, last_name, email, is_onboarded " +
+                "FROM user_profile WHERE username = ?";
+
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
             pstmt.setString(1, username);
-            
+
             try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    String storedHash = rs.getString("password_hash");
-                    
-                    // TODO: Replace with your actual hashing utility (e.g., BCrypt.checkpw(password, storedHash))
-                    String hashedInput = hashPassword(password); 
-                    
-                    return storedHash != null && storedHash.equals(hashedInput);
+                if (!rs.next()) {
+                    return null;
                 }
+
+                String storedHash = rs.getString("password_hash");
+                String hashedInput = hashPassword(password);
+                if (storedHash == null || !storedHash.equals(hashedInput)) {
+                    return null;
+                }
+
+                User user = new User();
+                user.setUserID(rs.getInt("user_id"));
+                user.setUsername(rs.getString("username"));
+                user.setPasswordHash(storedHash);
+                user.setFirstName(rs.getString("first_name"));
+                user.setLastName(rs.getString("last_name"));
+                user.setEmail(rs.getString("email"));
+                user.setOnboarded(rs.getInt("is_onboarded") != 0);
+                return user;
             }
         } catch (SQLException e) {
             System.err.println("Error authenticating user: " + e.getMessage());
+            return null;
         }
-        
-        return false;
+    }
+
+    public boolean isOnboarded(int userId) {
+        String sql = "SELECT is_onboarded FROM user_profile WHERE user_id = ?";
+
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                return rs.next() && rs.getInt("is_onboarded") != 0;
+            }
+        } catch (SQLException e) {
+            System.err.println("Error checking onboarding status: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean markOnboarded(int userId) {
+        String sql = "UPDATE user_profile SET is_onboarded = 1 WHERE user_id = ?";
+
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            return pstmt.executeUpdate() == 1;
+        } catch (SQLException e) {
+            System.err.println("Error updating onboarding status: " + e.getMessage());
+            return false;
+        }
     }
 
     // Temporary utility method until you bring in a real hashing library

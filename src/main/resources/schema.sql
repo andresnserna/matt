@@ -22,6 +22,7 @@ CREATE TABLE user_profile (
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
+    is_onboarded INTEGER NOT NULL DEFAULT 0 CHECK (is_onboarded IN (0, 1)),
     phone TEXT,
     address_line_1 TEXT,
     address_line_2 TEXT,

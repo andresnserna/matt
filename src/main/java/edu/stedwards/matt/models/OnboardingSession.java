@@ -36,6 +36,12 @@ public class OnboardingSession {
 
     // Getters for the UI to bind to
     public User getUserProfile() { return userProfile; }
+    public void setUserProfile(User userProfile) {
+        if (userProfile == null) {
+            throw new IllegalArgumentException("userProfile cannot be null");
+        }
+        this.userProfile = userProfile;
+    }
     public ObservableList<Education> getEducationList() { return educationList; }
     public ObservableList<Experience> getExperienceList() { return experienceList; }
     public ObservableList<Projects> getProjectsList() { return projectsList; }

@@ -8,8 +8,7 @@ import edu.stedwards.matt.models.entity.Education;
 
 public class EducationDAO {
     public boolean save(Education edu) {
-        // Updated to include display_order
-        String sql = "INSERT INTO education (user_id, institution, degree, gpa, start_date, end_date, display_order) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO education (user_id, institution, degree, gpa, start_date, end_date) VALUES (?, ?, ?, ?, ?, ?)";
         
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -20,8 +19,6 @@ public class EducationDAO {
             pstmt.setString(4, edu.getGpa());
             pstmt.setString(5, edu.getStartDate());
             pstmt.setString(6, edu.getEndDate());
-            pstmt.setInt(7, edu.getDisplayOrder());
-
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();

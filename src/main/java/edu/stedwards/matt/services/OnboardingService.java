@@ -7,23 +7,19 @@ import edu.stedwards.matt.dao.EducationDAO;
 import edu.stedwards.matt.dao.ExperienceDAO;
 import edu.stedwards.matt.dao.ProjectsDAO;
 import edu.stedwards.matt.dao.SkillDAO;
-import edu.stedwards.matt.dao.UserDAO;
 import edu.stedwards.matt.dao.WebsitesDAO;
 import edu.stedwards.matt.models.entity.AwardsCerts;
 import edu.stedwards.matt.models.entity.Education;
 import edu.stedwards.matt.models.entity.Experience;
 import edu.stedwards.matt.models.entity.Projects;
 import edu.stedwards.matt.models.entity.Skill;
-import edu.stedwards.matt.models.entity.User;
 import edu.stedwards.matt.models.entity.Websites;
 
 public class OnboardingService {
 
-    /**
-     * Orchestrates saving all onboarding data to the database.
-     * Returns true if successful, false if the User ID could not be generated.
-     */
+    /** Saves onboarding data for an existing account and marks it complete. */
     public boolean saveCompleteOnboarding(
+            int userId,
             List<Education> education,
             List<Experience> experiences,
             List<Projects> projects,
@@ -31,68 +27,92 @@ public class OnboardingService {
             List<AwardsCerts> awards,
             List<Websites> websites) {
 
-        UserDAO userDAO = new UserDAO();
-        User placeholderUser = new User();
-        
-        // Temporary placeholder generation until auth is fully hooked up to the wizard
-        placeholderUser.setUsername("user_" + System.currentTimeMillis());
-        placeholderUser.setFirstName("New");
-        placeholderUser.setLastName("User");
-        
-        int userId = userDAO.saveAndGetId(placeholderUser);
-        if (userId == -1) {
-            System.err.println("Failed to create User ID! Aborting saves.");
+        if (userId <= 0) {
+            System.err.println("Cannot save onboarding data without a logged-in user.");
             return false;
         }
+
+        boolean allSaved = true;
 
         if (education != null) {
             EducationDAO eduDAO = new EducationDAO();
             for (Education edu : education) {
+                if (!hasAny(edu.getInstitution(), edu.getDegree(), edu.getGpa(), edu.getStartDate(), edu.getEndDate())) {
+                    continue;
+                }
                 edu.setUserID(userId);
-                eduDAO.save(edu);
+                allSaved &= eduDAO.save(edu);
             }
         }
         
         if (experiences != null) {
             ExperienceDAO expDAO = new ExperienceDAO();
             for (Experience exp : experiences) {
+                if (!hasAny(exp.getJobTitle(), exp.getCompanyName(), exp.getDescription(), exp.getStartDate(), exp.getEndDate())) {
+                    continue;
+                }
                 exp.setUserID(userId);
-                expDAO.save(exp);
+                allSaved &= expDAO.save(exp);
             }
         }
 
         if (projects != null) {
             ProjectsDAO projDAO = new ProjectsDAO();
             for (Projects proj : projects) {
+                if (!hasAny(proj.getTitle(), proj.getDescription(), proj.getUrl())) {
+                    continue;
+                }
                 proj.setUserID(userId);
-                projDAO.save(proj);
+                allSaved &= projDAO.save(proj);
             }
         }
 
         if (skills != null) {
             SkillDAO skillDAO = new SkillDAO();
             for (Skill skill : skills) {
+                if (!hasAny(skill.getSkillName())) {
+                    continue;
+                }
                 skill.setUserID(userId);
-                skillDAO.save(skill);
+                allSaved &= skillDAO.save(skill);
             }
         }
 
         if (awards != null) {
             AwardsCertsDAO awardDAO = new AwardsCertsDAO();
             for (AwardsCerts award : awards) {
+                if (!hasAny(award.getTitle(), award.getIssuer(), award.getDateIssued(), award.getDescription())) {
+                    continue;
+                }
                 award.setUserID(userId);
-                awardDAO.save(award);
+                allSaved &= awardDAO.save(award);
             }
         }
 
         if (websites != null) {
             WebsitesDAO webDAO = new WebsitesDAO();
             for (Websites web : websites) {
+                if (!hasAny(web.getPlatform(), web.getUrl())) {
+                    continue;
+                }
                 web.setUserID(userId);
-                webDAO.save(web);
+                allSaved &= webDAO.save(web);
             }
         }
 
-        return true;
+        if (!allSaved) {
+            System.err.println("Onboarding data was not fully saved. Account remains incomplete.");
+            return false;
+        }
+        return new UserService().markOnboarded(userId);
+    }
+
+    private static boolean hasAny(String... values) {
+        for (String value : values) {
+            if (value != null && !value.isBlank()) {
+                return true;
+            }
+        }
+        return false;
     }
 }
