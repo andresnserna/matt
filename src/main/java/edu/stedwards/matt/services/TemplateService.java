@@ -5,8 +5,11 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import edu.stedwards.matt.dao.AwardsCertsDAO;
@@ -24,6 +27,7 @@ import edu.stedwards.matt.models.entity.Projects;
 import edu.stedwards.matt.models.entity.Skill;
 import edu.stedwards.matt.models.entity.Template;
 import edu.stedwards.matt.models.entity.User;
+import org.jsoup.Jsoup;
 
 /** Builds application-specific prompts and sends them to the local Ollama instance. */
 public class TemplateService {
@@ -56,17 +60,28 @@ public class TemplateService {
         User user = new UserDAO().getUserById(signedInUser.getUserID());
         if (user == null) throw new IllegalStateException("The user's profile could not be loaded.");
         String fields = extractTemplateFields(htmlTemplate);
-        String prompt = "You are helping prepare a truthful job application document. Return the complete HTML template.\n"
-                + "Only replace the text of the bracketed placeholders [like this]. Preserve every other character and all HTML tags. "
+        String userContext = buildUserContext(user);
+        String jobContext = buildJobContext(job);
+        List<String> openingWords = templateOpeningWords(htmlTemplate, 6);
+        System.out.println("===== Applicant context sent to Ollama =====\n" + userContext);
+        System.out.println("===== Job context sent to Ollama =====\n" + jobContext);
+        System.out.println("===== Opening Words of Template =====\n" + openingWords);
+
+        String prompt = "You are filling the user's supplied application template. Return ONLY that template, filled in. "
+                + "Do not write a resume, a second document, a heading, an introduction, a summary, or commentary.\n"
+                + "The first words of your response must be the template's opening words: \""
+                + String.join(" ", openingWords) + "\". Do not put anything before them.\n"
+                + "Only replace text inside bracketed placeholders [like this]. Preserve every other character and all HTML tags. "
                 + "Do not add or remove sections, tags, formatting, or commentary. Do not return markdown fences.\n"
                 + "Use relevant job-posting keywords naturally and emphasize the applicant's strongest matching skills and experience. "
-                + "Never invent employers, dates, credentials, skills, achievements, or experience. If a requested detail is unavailable, "
-                + "use a truthful transferable skill or leave the placeholder concise and neutral.\n"
+                + "The APPLICANT PROFILE is the only source for the applicant's employers, schools, dates, credentials, skills, projects, and achievements. "
+                + "Never use employer, school, project, or achievement examples from the job posting or your general knowledge. "
+                + "Never invent facts. If a requested detail is unavailable, use a truthful transferable skill or leave that placeholder concise and neutral.\n"
                 + "Known placeholders: " + fields + "\n\n"
-                + "APPLICANT PROFILE (trusted facts; do not infer facts not present):\n" + buildUserContext(user) + "\n\n"
-                + "JOB POSTING:\n" + buildJobContext(job) + "\n\n"
+                + "APPLICANT PROFILE (trusted facts; do not infer facts not present):\n" + userContext + "\n\n"
+                + "JOB POSTING (describes the employer and role, not the applicant's history):\n" + jobContext + "\n\n"
                 + "HTML TEMPLATE (preserve its structure):\n" + htmlTemplate;
-        return sendToOllama(prompt);
+        return trimBeforeTemplateStart(sendToOllama(prompt), htmlTemplate);
     }
 
     /** Format stored profile fields and related records as labeled, readable facts for the model. */
@@ -76,49 +91,67 @@ public class TemplateService {
         append(context, "Name", join(user.getFirstName(), user.getLastName()));
         append(context, "Email", user.getEmail());
         append(context, "Phone", user.getPhoneNumber());
+        append(context, "Address", join(user.getAddressLine1(), user.getAddressLine2(), user.getCity(), user.getState(), user.getZip()));
         append(context, "Location", join(user.getCity(), user.getState(), user.getZip()));
         append(context, "Summary", user.getSummary());
 
         List<Education> education = new EducationDAO().getForUser(userId);
-        context.append("Education:\n");
-        if (education.isEmpty()) context.append("- None provided\n");
-        for (Education item : education) {
-            String details = join(item.getDegree(), item.getInstitution());
-            details = join(details, item.getStartDate(), item.getEndDate());
-            if (item.getGpa() != null && !item.getGpa().isBlank()) details = join(details, "GPA " + item.getGpa());
-            context.append("- ").append(orUnknown(details)).append('\n');
+        context.append("Education records:\n");
+        if (education.isEmpty()) context.append("Education: None provided\n");
+        for (int i = 0; i < education.size(); i++) {
+            Education item = education.get(i);
+            context.append("Education ").append(i + 1).append(":\n");
+            append(context, "Institution", item.getInstitution());
+            append(context, "Degree", item.getDegree());
+            append(context, "GPA", item.getGpa());
+            append(context, "Start date", item.getStartDate());
+            append(context, "End date", item.getEndDate());
         }
 
         List<Experience> experience = new ExperienceDAO().getForUser(userId);
-        context.append("Experience:\n");
-        if (experience.isEmpty()) context.append("- None provided\n");
-        for (Experience item : experience) {
-            context.append("- ").append(orUnknown(join(item.getJobTitle(), item.getCompanyName(), item.getStartDate(), item.getEndDate())))
-                    .append(appendDetail(item.getDescription())).append('\n');
+        context.append("Experience records:\n");
+        if (experience.isEmpty()) context.append("Experience: None provided\n");
+        for (int i = 0; i < experience.size(); i++) {
+            Experience item = experience.get(i);
+            context.append("Experience ").append(i + 1).append(":\n");
+            append(context, "Job title", item.getJobTitle());
+            append(context, "Company", item.getCompanyName());
+            append(context, "Start date", item.getStartDate());
+            append(context, "End date", item.getEndDate());
+            append(context, "Description", item.getDescription());
         }
 
         List<Skill> skills = new SkillDAO().getForUser(userId);
-        context.append("Skills:\n");
-        if (skills.isEmpty()) context.append("- None provided\n");
-        for (Skill skill : skills) {
-            context.append("- ").append(orUnknown(join(skill.getSkillName(), skill.getProficiencyLevel()))).append('\n');
+        context.append("Skill records:\n");
+        if (skills.isEmpty()) context.append("Skills: None provided\n");
+        for (int i = 0; i < skills.size(); i++) {
+            Skill skill = skills.get(i);
+            context.append("Skill ").append(i + 1).append(":\n");
+            append(context, "Skill name", skill.getSkillName());
+            append(context, "Proficiency", skill.getProficiencyLevel());
         }
 
         List<AwardsCerts> awards = new AwardsCertsDAO().getForUser(userId);
-        context.append("Awards and certifications:\n");
-        if (awards.isEmpty()) context.append("- None provided\n");
-        for (AwardsCerts award : awards) {
-            context.append("- ").append(orUnknown(join(award.getTitle(), award.getIssuer(), award.getDateIssued())))
-                    .append(appendDetail(award.getDescription())).append('\n');
+        context.append("Award and certification records:\n");
+        if (awards.isEmpty()) context.append("Awards and certifications: None provided\n");
+        for (int i = 0; i < awards.size(); i++) {
+            AwardsCerts award = awards.get(i);
+            context.append("Award/certification ").append(i + 1).append(":\n");
+            append(context, "Title", award.getTitle());
+            append(context, "Issuer", award.getIssuer());
+            append(context, "Date issued", award.getDateIssued());
+            append(context, "Description", award.getDescription());
         }
 
         List<Projects> projects = new ProjectsDAO().getForUser(userId);
-        context.append("Projects:\n");
-        if (projects.isEmpty()) context.append("- None provided\n");
-        for (Projects project : projects) {
-            context.append("- ").append(orUnknown(project.getTitle())).append(appendDetail(project.getDescription()));
-            if (project.getUrl() != null && !project.getUrl().isBlank()) context.append(" [URL: ").append(project.getUrl()).append(']');
-            context.append('\n');
+        context.append("Project records:\n");
+        if (projects.isEmpty()) context.append("Projects: None provided\n");
+        for (int i = 0; i < projects.size(); i++) {
+            Projects project = projects.get(i);
+            context.append("Project ").append(i + 1).append(":\n");
+            append(context, "Title", project.getTitle());
+            append(context, "Description", project.getDescription());
+            append(context, "URL", project.getUrl());
         }
         return context.toString();
     }
@@ -130,7 +163,10 @@ public class TemplateService {
         append(context, "Company", job.getCompanyName());
         append(context, "Location", job.getLocation());
         if (job.getPayMin() > 0 || job.getPayMax() > 0) {
-            append(context, "Pay range", job.getPayMin() + "–" + job.getPayMax() + " " + orUnknown(job.getPayPeriod()));
+            String minimum = job.getPayMin() > 0 ? String.valueOf(job.getPayMin()) : "not specified";
+            String maximum = job.getPayMax() > 0 ? String.valueOf(job.getPayMax()) : "not specified";
+            String period = job.getPayPeriod() == null || job.getPayPeriod().isBlank() ? "" : " / " + job.getPayPeriod();
+            append(context, "Pay range", minimum + " to " + maximum + period);
         }
         append(context, "Responsibilities", job.getResponsibilities());
         append(context, "Requirements", job.getRequirements());
@@ -142,6 +178,49 @@ public class TemplateService {
 
     public String extractTemplateFields(String templateHtml) {
         return fieldParser.extractFields(templateHtml).stream().collect(Collectors.joining(", "));
+    }
+
+    /** Remove any model-written preamble by anchoring on the template's first six visible words. */
+    public String trimBeforeTemplateStart(String generatedOutput, String originalTemplate) {
+        if (generatedOutput == null || generatedOutput.isBlank()) {
+            throw new IllegalStateException("The model returned an empty document.");
+        }
+        List<String> openingWords = templateOpeningWords(originalTemplate, 6);
+        if (openingWords.isEmpty()) throw new IllegalArgumentException("The template has no opening text to match.");
+
+        StringBuilder expression = new StringBuilder("(?is)");
+        for (int i = 0; i < openingWords.size(); i++) {
+            if (i > 0) expression.append("(?:\\s|<[^>]*>|\\*|_)+");
+            expression.append("\\Q").append(openingWords.get(i)).append("\\E");
+        }
+        Matcher match = Pattern.compile(expression.toString()).matcher(generatedOutput);
+        if (!match.find()) {
+            throw new IllegalStateException("The model output did not contain the template's opening text; no PDF was saved." + generatedOutput);
+        }
+        int start = match.start();
+        // Preserve opening tags directly around the matched text (for example, <p><strong>Dear...).
+        int boundary = start;
+        while (true) {
+            int tagEnd = generatedOutput.lastIndexOf('>', boundary - 1);
+            int tagStart = tagEnd >= 0 ? generatedOutput.lastIndexOf('<', tagEnd) : -1;
+            if (tagStart < 0 || generatedOutput.charAt(tagStart + 1) == '/') break;
+            String tag = generatedOutput.substring(tagStart, tagEnd + 1);
+            if (tag.startsWith("<!--") || tag.startsWith("<!")) break;
+            start = tagStart;
+            boundary = tagStart;
+        }
+        return generatedOutput.substring(start).strip();
+    }
+
+    private static List<String> templateOpeningWords(String html, int wordLimit) {
+        String visibleText = Jsoup.parse(html == null ? "" : html).body().text()
+                .replaceAll("\\[[^\\]]*]", " ").trim();
+        if (visibleText.isEmpty()) return List.of();
+        return Arrays.stream(visibleText.split("\\s+"))
+                .limit(wordLimit)
+                .map(word -> word.replaceAll("^[^\\p{L}\\p{N}]+|[^\\p{L}\\p{N}.,!?;:'’\\u2019-]+$", ""))
+                .filter(word -> !word.isBlank())
+                .toList();
     }
 
     /** Compatibility entry point for callers that already have flattened contexts. */
@@ -157,7 +236,7 @@ public class TemplateService {
                 + "naturally, emphasize truthful matching skills, and return no markdown fences or commentary.\n"
                 + "Placeholders: " + fields + "\nApplicant facts:\n" + userContext
                 + "\nJob facts:\n" + jobFields + "\nHTML template:\n" + htmlTemplate;
-        return sendToOllama(prompt);
+        return trimBeforeTemplateStart(sendToOllama(prompt), htmlTemplate);
     }
 
     private String sendToOllama(String prompt) {
@@ -246,11 +325,4 @@ public class TemplateService {
                 .map(String::trim).collect(Collectors.joining(" | "));
     }
 
-    private static String orUnknown(String value) {
-        return value == null || value.isBlank() ? "Details not provided" : value;
-    }
-
-    private static String appendDetail(String detail) {
-        return detail == null || detail.isBlank() ? "" : " — " + detail.trim();
-    }
 }
