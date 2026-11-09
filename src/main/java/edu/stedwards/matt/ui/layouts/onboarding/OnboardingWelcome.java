@@ -23,6 +23,8 @@ import javafx.scene.text.TextFlow;
  * Architecture layer: view
  * JavaFX layout for the onboarding welcome screen.
  */
+
+
 public class OnboardingWelcome extends BorderPane {
 
    private TextFlow buildScreenTitle() {

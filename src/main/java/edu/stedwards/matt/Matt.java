@@ -4,33 +4,6 @@
  */
 package edu.stedwards.matt;
 
-
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
-import edu.stedwards.matt.controllers.OnboardingStepController;
-import edu.stedwards.matt.controllers.TemplateEditorController;
-import edu.stedwards.matt.ui.layouts.application.ApplicationConfirmFields;
-import edu.stedwards.matt.ui.layouts.application.ApplicationGenerateMaterials;
-import edu.stedwards.matt.ui.layouts.application.ApplicationHome;
-import edu.stedwards.matt.ui.layouts.application.ApplicationUploadJob;
-import edu.stedwards.matt.ui.layouts.myinfo.MyInfoEditingStep;
-import edu.stedwards.matt.ui.layouts.myinfo.MyInfoHomeStep;
-import edu.stedwards.matt.ui.layouts.onboarding.OnboardingEnterInfo;
-import edu.stedwards.matt.ui.layouts.onboarding.OnboardingOverviewStep;
-import edu.stedwards.matt.ui.layouts.onboarding.OnboardingStepLayout;
-import edu.stedwards.matt.ui.layouts.onboarding.OnboardingUploadStep;
-import edu.stedwards.matt.ui.layouts.onboarding.OnboardingWelcome;
-import edu.stedwards.matt.ui.layouts.other.LoginLayout;
-import edu.stedwards.matt.ui.layouts.other.MainLayout;
-
-import edu.stedwards.matt.ui.layouts.other.SettingsLayout;
-import edu.stedwards.matt.ui.layouts.other.StartLayout;
-import edu.stedwards.matt.ui.layouts.template.TemplatesEditor;
-import edu.stedwards.matt.ui.layouts.template.TemplatesHome;
-import edu.stedwards.matt.ui.layouts.template.TemplatesUploadOrNew;
-import fr.brouillard.oss.cssfx.CSSFX;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -42,6 +15,37 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import javafx.collections.FXCollections;
+import edu.stedwards.matt.models.entity.AwardsCerts;
+import edu.stedwards.matt.models.entity.Education;
+import edu.stedwards.matt.models.entity.Experience;
+import edu.stedwards.matt.models.entity.Projects;
+import edu.stedwards.matt.models.entity.Skill;
+import edu.stedwards.matt.models.entity.Websites;
+import edu.stedwards.matt.ui.layouts.application.ApplicationConfirmFields;
+import edu.stedwards.matt.ui.layouts.application.ApplicationGenerateMaterials;
+import edu.stedwards.matt.ui.layouts.application.ApplicationHome;
+import edu.stedwards.matt.ui.layouts.application.ApplicationUploadJob;
+import edu.stedwards.matt.ui.layouts.onboarding.OnboardingEnterInfo;
+import edu.stedwards.matt.ui.layouts.onboarding.OnboardingOverviewStep;
+import edu.stedwards.matt.ui.layouts.onboarding.OnboardingStepLayout;
+import edu.stedwards.matt.ui.layouts.onboarding.OnboardingUploadStep;
+import edu.stedwards.matt.ui.layouts.onboarding.OnboardingWelcome;
+import edu.stedwards.matt.ui.layouts.other.LoginLayout;
+import edu.stedwards.matt.ui.layouts.other.MainLayout;
+import edu.stedwards.matt.ui.layouts.other.StartLayout;
+import edu.stedwards.matt.ui.layouts.myinfo.MyInfoEditingStep;
+import edu.stedwards.matt.ui.layouts.myinfo.MyInfoHomeStep;
+import edu.stedwards.matt.ui.layouts.other.SettingsLayout;
+import edu.stedwards.matt.ui.layouts.template.TemplatesHome;
+import edu.stedwards.matt.ui.layouts.template.TemplatesEditor;
+import edu.stedwards.matt.controllers.TemplateEditorController;
+import edu.stedwards.matt.controllers.OnboardingStepController;
+import edu.stedwards.matt.ui.layouts.template.TemplatesUploadOrNew;
+import fr.brouillard.oss.cssfx.CSSFX;
 
 public class Matt extends Application {
     private static final boolean PREVIEW_LAYOUTS = false;
@@ -76,12 +80,18 @@ public class Matt extends Application {
                 new PreviewScreen("Onboarding - Welcome", OnboardingWelcome::new),
                 new PreviewScreen("Onboarding - Resume Upload", OnboardingUploadStep::new),
                 new PreviewScreen("Onboarding - Personal Info", OnboardingEnterInfo::new),
-                new PreviewScreen("Onboarding - Education", () -> onboardingStep(OnboardingStepLayout::showEducationStep)),
-                new PreviewScreen("Onboarding - Experience", () -> onboardingStep(OnboardingStepLayout::showExperienceStep)),
-                new PreviewScreen("Onboarding - Projects", () -> onboardingStep(OnboardingStepLayout::showProjectsStep)),
-                new PreviewScreen("Onboarding - Skills", () -> onboardingStep(OnboardingStepLayout::showSkillsStep)),
-                new PreviewScreen("Onboarding - Awards/Certs", () -> onboardingStep(OnboardingStepLayout::showAwardsStep)),
-                new PreviewScreen("Onboarding - Websites", () -> onboardingStep(OnboardingStepLayout::showWebsitesStep)),
+                new PreviewScreen("Onboarding - Education", () -> onboardingStep(
+                        layout -> layout.showEducationStep(FXCollections.observableArrayList(new Education())))),
+                new PreviewScreen("Onboarding - Experience", () -> onboardingStep(
+                        layout -> layout.showExperienceStep(FXCollections.observableArrayList(new Experience())))),
+                new PreviewScreen("Onboarding - Projects", () -> onboardingStep(
+                        layout -> layout.showProjectsStep(FXCollections.observableArrayList(new Projects())))),
+                new PreviewScreen("Onboarding - Skills", () -> onboardingStep(
+                        layout -> layout.showSkillsStep(FXCollections.observableArrayList(new Skill())))),
+                new PreviewScreen("Onboarding - Awards/Certs", () -> onboardingStep(
+                        layout -> layout.showAwardsStep(FXCollections.observableArrayList(new AwardsCerts())))),
+                new PreviewScreen("Onboarding - Websites", () -> onboardingStep(
+                        layout -> layout.showWebsitesStep(FXCollections.observableArrayList(new Websites())))),
                 new PreviewScreen("Onboarding - Final Overview", OnboardingOverviewStep::new),
                 new PreviewScreen("Templates Home", () -> mainShell(() -> new TemplatesHome(previewTemplates()))),
                 new PreviewScreen("Main - Templates - Upload or New",
