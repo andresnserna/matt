@@ -65,6 +65,7 @@
     -fx-background-radius: 16px;
     -fx-background-color: white;
 }
+.raw-job-container { -fx-padding: 22px 0 22px 2px; }
 .job-detail-title { -fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #668A8C; }
 .job-detail-company, .job-detail-section-title { -fx-font-size: 20px; -fx-text-fill: #668A8C; }
 .job-detail-pay, .job-detail-copy { -fx-font-size: 18px; -fx-text-fill: #888888; }
@@ -83,8 +84,8 @@
 .template-card-teal { -fx-border-color: #83C5BE; -fx-text-fill: #668A8C; -fx-background-color: linear-gradient(to bottom, white 38%, #83C5BE 100%); }
 .template-card-orange { -fx-border-color: #E29578; -fx-text-fill: #E29578; -fx-background-color: linear-gradient(to bottom, white 38%, #FFDDD2 100%); }
 .raw-job-text { -fx-font-size: 18px; -fx-text-fill: #888888; -fx-line-spacing: 5px; }
-.raw-job-fade { -fx-padding: 18px; }
-.raw-job-fade .region { -fx-background-color: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.92)); }
+.raw-job-fade { -fx-padding: 4px 2px 4px 2px; }
+.raw-job-fade > .region { -fx-background-color: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.92)); }
 .sidebar-list-item { -fx-alignment: center-left; -fx-text-fill: #999999; -fx-font-size: 15px; }
 .attached-file-label { -fx-text-fill: #006D77; -fx-font-size: 16px; }
 .attached-file-label .ikonli-font-icon { -fx-icon-color: #006D77; -fx-icon-size: 20px; }

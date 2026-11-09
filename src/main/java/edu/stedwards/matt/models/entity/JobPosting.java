@@ -8,7 +8,20 @@ public class JobPosting {
     private String jobTitle;
     private String location;
     private String jobUrl;
-    private String jobDescription;
+    
+    // New Pay Fields
+    private double payMin;
+    private double payMax;
+    private String payPeriod;
+    
+    private String sourceFileName;
+    
+    // New Description Breakdown Fields
+    private String responsibilities;
+    private String requirements;
+    private String niceToHave;
+    private String benefits;
+    
     private String rawText;
     private String normalizedText;
     private double matchScore;
@@ -16,120 +29,72 @@ public class JobPosting {
     private String status;
     private String dateAdded;
 
-    // default constructor
-    public JobPosting() {}
-
-    // getters
-    public int getJobpostID() {
-        return jobpostId;
+    public JobPosting() {
+        this.status = "Saved"; // Default status based on your DB schema
+        this.spamScore = 0.0;
     }
 
-    public int getUserID() {
-        return userId;
-    }
+    // Getters and Setters
+    public int getJobpostId() { return jobpostId; }
+    public void setJobpostId(int jobpostId) { this.jobpostId = jobpostId; }
 
-    public int getCompanyID() {
-        return companyId;
-    }
+    public int getUserId() { return userId; }
+    public void setUserId(int userId) { this.userId = userId; }
 
-    public String getCompanyName() {
-        return companyName;
-    }
+    public int getCompanyId() { return companyId; }
+    public void setCompanyId(int companyId) { this.companyId = companyId; }
 
-    public String getJobTitle() {
-        return jobTitle;
-    }
+    public String getCompanyName() { return companyName; }
+    public void setCompanyName(String companyName) { this.companyName = companyName; }
 
-    public String getLocation() {
-        return location;
-    }
+    public String getJobTitle() { return jobTitle; }
+    public void setJobTitle(String jobTitle) { this.jobTitle = jobTitle; }
 
-    public String getJobUrl() {
-        return jobUrl;
-    }
+    public String getLocation() { return location; }
+    public void setLocation(String location) { this.location = location; }
 
-    public String getJobDescription() {
-        return jobDescription;
-    }
+    public String getJobUrl() { return jobUrl; }
+    public void setJobUrl(String jobUrl) { this.jobUrl = jobUrl; }
 
-    public String getRawText() {
-        return rawText;
-    }
+    public double getPayMin() { return payMin; }
+    public void setPayMin(double payMin) { this.payMin = payMin; }
 
-    public String getNormalizedText() {
-        return normalizedText;
-    }
+    public double getPayMax() { return payMax; }
+    public void setPayMax(double payMax) { this.payMax = payMax; }
 
-    public double getMatchScore() {
-        return matchScore;
-    }
+    public String getPayPeriod() { return payPeriod; }
+    public void setPayPeriod(String payPeriod) { this.payPeriod = payPeriod; }
 
-    public double getSpamScore() {
-        return spamScore;
-    }
+    public String getSourceFileName() { return sourceFileName; }
+    public void setSourceFileName(String sourceFileName) { this.sourceFileName = sourceFileName; }
 
-    public String getStatus() {
-        return status;
-    }
+    public String getResponsibilities() { return responsibilities; }
+    public void setResponsibilities(String responsibilities) { this.responsibilities = responsibilities; }
 
-    public String getDateAdded() {
-        return dateAdded;
-    }
+    public String getRequirements() { return requirements; }
+    public void setRequirements(String requirements) { this.requirements = requirements; }
 
-    // setters
-    public void setJobpostID(int jobpostId) {
-        this.jobpostId = jobpostId;
-    }
+    public String getNiceToHave() { return niceToHave; }
+    public void setNiceToHave(String niceToHave) { this.niceToHave = niceToHave; }
 
-    public void setUserID(int userId) {
-        this.userId = userId;
-    }
+    public String getBenefits() { return benefits; }
+    public void setBenefits(String benefits) { this.benefits = benefits; }
 
-    public void setCompanyID(int companyId) {
-        this.companyId = companyId;
-    }
+    public String getRawText() { return rawText; }
+    public void setRawText(String rawText) { this.rawText = rawText; }
 
-    public void setCompanyName(String companyName) {
-        this.companyName = companyName;
-    }
+    public String getNormalizedText() { return normalizedText; }
+    public void setNormalizedText(String normalizedText) { this.normalizedText = normalizedText; }
 
-    public void setJobTitle(String jobTitle) {
-        this.jobTitle = jobTitle;
-    }
+    public double getMatchScore() { return matchScore; }
+    public void setMatchScore(double matchScore) { this.matchScore = matchScore; }
 
-    public void setLocation(String location) {
-        this.location = location;
-    }
+    public double getSpamScore() { return spamScore; }
+    public void setSpamScore(double spamScore) { this.spamScore = spamScore; }
 
-    public void setJobUrl(String jobUrl) {
-        this.jobUrl = jobUrl;
-    }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 
-    public void setJobDescription(String jobDescription) {
-        this.jobDescription = jobDescription;
-    }
-
-    public void setRawText(String rawText) {
-        this.rawText = rawText;
-    }
-
-    public void setNormalizedText(String normalizedText) {
-        this.normalizedText = normalizedText;
-    }
-
-    public void setMatchScore(double matchScore) {
-        this.matchScore = matchScore;
-    }
-
-    public void setSpamScore(double spamScore) {
-        this.spamScore = spamScore;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public void setDateAdded(String dateAdded) {
-        this.dateAdded = dateAdded;
-    }
+    public String getDateAdded() { return dateAdded; }
+    public void setDateAdded(String dateAdded) { this.dateAdded = dateAdded; }
 }

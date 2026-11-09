@@ -54,8 +54,8 @@ public class JobUploadController {
         JobPosting job = parserService.parseRawText(rawJobText);
         
         // Set the remaining required fields for the DB
-        job.setUserID(userId);
-        job.setCompanyID(1); // Placeholder until company lookup logic is built
+        job.setUserId(userId);
+        job.setCompanyId(1); // Placeholder until company lookup logic is built
         
         // Save the job to the database
         boolean isSaved = jobDAO.insertJob(job);

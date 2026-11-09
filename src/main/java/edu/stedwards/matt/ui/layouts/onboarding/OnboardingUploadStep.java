@@ -2,8 +2,11 @@ package edu.stedwards.matt.ui.layouts.onboarding;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Optional;
 
+import edu.stedwards.matt.controllers.OnboardingStepController;
+import edu.stedwards.matt.controllers.ProfileController;
 import edu.stedwards.matt.ui.TextStyles;
 import edu.stedwards.matt.ui.interaction.Buttons;
 import edu.stedwards.matt.ui.interaction.Inputs;
@@ -88,6 +91,46 @@ public class OnboardingUploadStep extends BorderPane {
       setCenter(scrollContent);
       BorderPane.setMargin(scrollContent, new Insets(0, 0, 24, 0));
 
-      setBottom(new Buttons().buildNextButton());
+      // Wire the "Next" button to trigger parsing and navigation
+      HBox bottomBar = new Buttons().buildNextButton();
+      if (!bottomBar.getChildren().isEmpty() && bottomBar.getChildren().get(0) instanceof Button) {
+         Button nextButton = (Button) bottomBar.getChildren().get(0);
+         nextButton.setOnAction(event -> handleNext());
+      }
+      setBottom(bottomBar);
+   }
+
+   public void handleResumeUpload() {
+      // Replaced by chooseResume() functionality
+   }
+
+   /** Parse the resume (if selected) and pass the data to the next wizard screen. */
+   public void handleNext() {
+      Map<String, String> parsedData = null;
+
+      // If they uploaded a file, send it to the AI parser
+      if (selectedResume != null) {
+         System.out.println("Extracting and parsing resume via AI. This may take a few seconds...");
+         ProfileController profileController = new ProfileController();
+         parsedData = profileController.uploadResumeFile(selectedResume.toString());
+      } else {
+         System.out.println("No resume selected. Proceeding to manual entry.");
+      }
+
+      // Initialize the next screen and its controller
+      OnboardingStepController stepController = new OnboardingStepController();
+      OnboardingStepLayout wizardLayout = new OnboardingStepLayout(stepController);
+
+      // If we got parsed data back, hand it off to the wizard hooks
+      if (parsedData != null && !parsedData.isEmpty()) {
+         wizardLayout.populateAllFromParsedData(parsedData);
+      }
+
+      // Navigate to the new wizard screen
+      getScene().setRoot(wizardLayout);
+   }
+
+   public void populateFromParsedData() {
+      // Not needed on this screen since this is where the parsing originates
    }
 }

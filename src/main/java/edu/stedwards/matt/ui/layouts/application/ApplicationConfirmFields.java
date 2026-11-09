@@ -13,6 +13,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -37,19 +38,43 @@ public class ApplicationConfirmFields extends BorderPane {
       
       var finish = Buttons.button(ApplicationScreenText.BUTTON_FINISH_ICON,
             ApplicationScreenText.FINISH_BUTTON, null, Region.USE_COMPUTED_SIZE, "application-finish-button");
+            
+      // WIRE UP THE FINISH BUTTON
+      finish.setOnAction(e -> handleFinish());
+
       HBox footer = new HBox(finish);
       footer.setAlignment(Pos.CENTER_RIGHT);
       setBottom(footer);
+   }
+
+   /** Clear stored job-posting and parsed data, then return to Main - Applications - Upload. */
+   public void handleTryAgain() {
+      // Traverse up to the MainLayout shell and swap the center view to Upload
+      edu.stedwards.matt.ui.layouts.other.MainLayout shell = (edu.stedwards.matt.ui.layouts.other.MainLayout) this.getScene().getRoot();
+      shell.showStep(new ApplicationUploadJob());
+   }
+
+   /** Save the confirmed job-posting data, then open its generate screen using the saved record ID. */
+   public void handleFinish() {
+      // Traverse up to the MainLayout shell and swap the center view to Generate Materials
+      edu.stedwards.matt.ui.layouts.other.MainLayout shell = (edu.stedwards.matt.ui.layouts.other.MainLayout) this.getScene().getRoot();
+      shell.showStep(new ApplicationGenerateMaterials());
    }
 
    private HBox buildOverviewColumns() {
       VBox posting = new VBox(12,
             VisualElements.buildJobDetailsRawTextContainer(
                   ("This is a preview of the text parsed by the parser. ").repeat(20)),
-            VisualElements.buildAttachedFileLabel("JiuhhiJKhgkjhG_download_9_00_12.pdf"));
-      HBox retryRow = new HBox(Buttons.button(FontAwesomeSolid.SYNC,
+         new Label("JiuhhiJKhgkjhG_download_9_00_12.pdf"));
+            
+      var retryBtn = Buttons.button(FontAwesomeSolid.SYNC,
             ApplicationScreenText.TRY_AGAIN_BUTTON, null, Region.USE_COMPUTED_SIZE,
-            "application-retry-button"));
+            "application-retry-button");
+            
+      // WIRE UP THE TRY AGAIN BUTTON
+      retryBtn.setOnAction(e -> handleTryAgain());
+
+      HBox retryRow = new HBox(retryBtn);
       retryRow.setAlignment(Pos.CENTER);
       posting.getChildren().add(retryRow);
       posting.setMinWidth(0);
@@ -57,10 +82,8 @@ public class ApplicationConfirmFields extends BorderPane {
 
       VBox parsedFields = new VBox(14);
       Label heading = new Label(ApplicationScreenText.PARSED_INFO_TITLE);
-      // heading.getStyleClass().add("about-job-heading");
       heading.getStyleClass().add("onboarding-wizard-subtitle");
       Label subtitle = new Label(ApplicationScreenText.PARSED_INFO_MESSAGE);
-      // subtitle.getStyleClass().add("onboarding-wizard-subtitle");
       subtitle.getStyleClass().add("about-job-heading");
       subtitle.setWrapText(true);
       parsedFields.getChildren().addAll(heading, subtitle,
@@ -79,8 +102,6 @@ public class ApplicationConfirmFields extends BorderPane {
       columns.setAlignment(Pos.TOP_LEFT);
       columns.setFillHeight(true);
       columns.setMaxWidth(Double.MAX_VALUE);
-      // Keep the parsed form at half of the app's content area. Center the pair
-      // inside this screen region, which is already laid out to the sidebar's right.
       posting.prefWidthProperty().bind(Bindings.max(0, columns.widthProperty().subtract(28).multiply(0.40)));
       parsedFields.prefWidthProperty().bind(Bindings.max(0, columns.widthProperty().subtract(28).multiply(0.50)));
       columns.setAlignment(Pos.TOP_CENTER);
@@ -131,5 +152,4 @@ public class ApplicationConfirmFields extends BorderPane {
       HBox.setHgrow(field, Priority.ALWAYS);
       return group;
    }
-
 }

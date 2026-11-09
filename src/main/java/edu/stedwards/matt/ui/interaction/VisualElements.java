@@ -1,45 +1,68 @@
 package edu.stedwards.matt.ui.interaction;
 
-import javafx.scene.layout.VBox;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ContentDisplay;
-import com.github.weisj.jsvg.SVGDocument;
-import com.github.weisj.jsvg.parser.SVGLoader;
-import com.github.weisj.jsvg.ui.jfx.FXSVGCanvas;
-
-import edu.stedwards.matt.ui.labels.MainScreenText;
-import edu.stedwards.matt.ui.labels.OtherScreenText;
-import edu.stedwards.matt.ui.labels.LoginScreenText;
-import edu.stedwards.matt.ui.labels.ApplicationScreenText;
-import edu.stedwards.matt.ui.labels.OnboardingScreenText;
-import edu.stedwards.matt.ui.TextStyles;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Button;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.shape.Line;
-import javafx.scene.control.Label;
-import javafx.scene.control.OverrunStyle;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.control.ScrollPane;
-import javafx.css.PseudoClass;
-import org.kordamp.ikonli.javafx.FontIcon;
-import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
-import edu.stedwards.matt.ui.interaction.Buttons;
 
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.border.EmptyBorder;
+import javax.swing.plaf.basic.BasicButtonUI;
+
+import org.kordamp.ikonli.javafx.FontIcon;
+
+import com.github.weisj.jsvg.SVGDocument;
+import com.github.weisj.jsvg.parser.SVGLoader;
+import com.github.weisj.jsvg.ui.jfx.FXSVGCanvas;
+import com.github.weisj.jsvg.view.ViewBox;
+
+import edu.stedwards.matt.dao.UserDAO;
+import edu.stedwards.matt.models.entity.User;
+import edu.stedwards.matt.ui.TextStyles;
+import edu.stedwards.matt.ui.labels.ApplicationScreenText;
+import edu.stedwards.matt.ui.labels.LoginScreenText;
+import edu.stedwards.matt.ui.labels.MainScreenText;
+import edu.stedwards.matt.ui.labels.OnboardingScreenText;
+import edu.stedwards.matt.ui.labels.OtherScreenText;
+import javafx.application.Platform;
+import javafx.css.PseudoClass;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.shape.Line;
 
 public class VisualElements {
    private static final PseudoClass SCROLLABLE_PSEUDO_CLASS = PseudoClass.getPseudoClass("scrollable");
@@ -47,16 +70,10 @@ public class VisualElements {
    private static final double DRAWER_SIDE_INSET = 8;
    private double sidebarWidth = 240;
 
-   /**
-    * ?
-    */
    public double getSidebarWidth() {
       return sidebarWidth;
    }
 
-   /**
-    * ?
-    */
    public void setSidebarWidth(double sidebarWidth) {
       if (!Double.isFinite(sidebarWidth) || sidebarWidth <= 2 * DRAWER_SIDE_INSET) {
          throw new IllegalArgumentException("Sidebar width must be greater than 16 pixels");
@@ -64,20 +81,16 @@ public class VisualElements {
       this.sidebarWidth = sidebarWidth;
    }
    
-   /**
-    * a reusable scroll pane that can be used anywhere in the app, with a styled scrollbar and resizable content.
-    */
+   /** A reusable scroll pane with a styled scrollbar and resizable content. */
    public static ScrollPane scrollable(Node content) {
       ScrollPane scrollPane = new ScrollPane(content);
-      scrollPane.setFitToWidth(true); // Keep resizable content, like a VBox, the viewport's width
+      scrollPane.setFitToWidth(true);
       scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-      scrollPane.getStyleClass().add("content-scroll"); //a styled scrollbar reused across the app
+      scrollPane.getStyleClass().add("content-scroll");
       return scrollPane;
    }
 
-   /** 
-    * Scrollable wizard content with an inset shadow only while content overflows.
-    */
+   /** Scrollable wizard content with an inset shadow only while content overflows. */
    public static StackPane wizardScrollable(Node content) {
       ScrollPane scrollPane = new ScrollPane(content);
       scrollPane.setFitToWidth(true);
@@ -118,11 +131,7 @@ public class VisualElements {
       return container;
    }
 
-   /**
-    * a container box that has information printed in it, not editable, just
-    * presented in a concise and uniform way, but a button in the heading bar can
-    * take you back to the screen that has this container's information came from
-    */   
+   /** Container box displaying uniform un-editable information. */
    public VBox infoContainer(double width, double height, String headingTitle, int headingTitleNum, Node content) {
       Label heading = new Label(headingTitleNum + ". " + headingTitle);
       HBox headingBar = new HBox(heading);
@@ -134,9 +143,7 @@ public class VisualElements {
       return container;
    }
 
-   /**
-    * this sidebar sticks to the left side of the app at all times and is the main navigation interface for the app.
-    */
+   /** Main navigation sidebar anchored to the left of the screen. */
    public VBox mainSideBar() {
       VBox sideBar = new VBox();
       sideBar.getStyleClass().add("sidebar");
@@ -146,18 +153,16 @@ public class VisualElements {
 
       VBox menuButtons = new VBox();
       menuButtons.setSpacing(8);
-      // make the buttons + add the unpressed style class
+
       Button homeButton = Buttons.button(MainScreenText.BUTTON_HOME_ICON, MainScreenText.BUTTON_HOME, null, buttonWidth, "sidebar-button");
       Button templatesButton = Buttons.button(MainScreenText.BUTTON_TEMPLATES_ICON, MainScreenText.BUTTON_TEMPLATES, null, buttonWidth, "sidebar-button");
       Button applicationsButton = Buttons.button(MainScreenText.BUTTON_APPLICATIONS_ICON, MainScreenText.BUTTON_APPLICATIONS, null, buttonWidth, "sidebar-button");
       Button myInfoButton = Buttons.button(MainScreenText.BUTTON_MY_INFO_ICON, MainScreenText.BUTTON_MY_INFO, null, buttonWidth, "sidebar-button");
       Button settingsButton = Buttons.button(MainScreenText.BUTTON_SETTINGS_ICON, MainScreenText.BUTTON_SETTINGS, null, buttonWidth, "sidebar-button");
 
-      // ok now add em all to the vbox
       menuButtons.getChildren().addAll(homeButton, templatesButton, applicationsButton, myInfoButton, settingsButton);
 
       VBox recentApplicationsContent = new VBox();
-         //add the recent items from db
       VBox recentApplicationsDrawer = collapsableDrawer(
             OtherScreenText.PLACEHOLDER_TITLE,
             recentApplicationsContent,
@@ -165,7 +170,6 @@ public class VisualElements {
             getSidebarWidth());
 
       VBox recentMaterialsContent = new VBox();
-         // add the recent materials from db
       VBox recentMaterialsDrawer = collapsableDrawer(
             OtherScreenText.PLACEHOLDER_TITLE,
             recentMaterialsContent,
@@ -190,14 +194,13 @@ public class VisualElements {
       footer.getChildren().addAll(versionLabel, footerSpacer, toggle);
       VBox.setVgrow(footer, Priority.NEVER);
 
-      //build the side bar
       sideBar.getChildren().addAll(
          menuButtons, 
          recentMaterialsDrawer, recentApplicationsDrawer, 
          spacer, 
          footer
       );
-      // Keep the toggle visible so the collapsed sidebar can be expanded again.
+
       List<Node> sideBarItems = List.of(menuButtons, recentMaterialsDrawer, recentApplicationsDrawer, versionLabel);
 
       toggle.setOnAction(event -> {
@@ -220,9 +223,6 @@ public class VisualElements {
       return sideBar;
    }
 
-   /**
-    * ?
-    */
    private void setMenuBarItems(boolean visible, List<Node> items) {
       for (Node item : items) {
          item.setVisible(visible);
@@ -230,10 +230,7 @@ public class VisualElements {
       }
    }
 
-   /**
-    * Creates an expanded-by-default drawer that collapses vertically.
-    * Place it in a VBox to have following content move when the drawer collapses.
-    */
+   /** Creates an expanded-by-default drawer that collapses vertically. */
    public VBox collapsableDrawer(String title, Node content, String styleClass, double parentContainerWidth){
       Objects.requireNonNull(title, "title");
       Objects.requireNonNull(content, "content");
@@ -262,7 +259,6 @@ public class VisualElements {
 
       toggle.setAccessibleText("Collapse " + title);
 
-      // the line that goes below the drawer
       Line drawerBar = new Line(0, 0, width - 8, 0);
       drawerBar.getStyleClass().add("drawer-bar");
 
@@ -280,9 +276,6 @@ public class VisualElements {
       return drawer;
    }
 
-   /**
-    * ?
-    */
    public static FXSVGCanvas startScreenMattLogo() {
       URL logoResource = VisualElements.class.getResource("/images/matt-logo-1.svg");
       if (logoResource == null) {
@@ -311,15 +304,10 @@ public class VisualElements {
       logo.setMinSize(220, 157);
       logo.setPrefSize(220, 157);
       logo.setMaxSize(220, 157);
-      // System.out.println("[StartLayout] JSVG parsed the Matt logo and attached it to the AWT renderer.");
-      // reportLogoRender(logo);
 
       return logo;
    }
    
-   /**
-    * ?
-    */
    public static HBox buildLoadingBar(ProgressBar loadingProgress, Label loadingPercentage) {
       HBox row = new HBox(10);
       row.setAlignment(Pos.CENTER);
@@ -336,9 +324,6 @@ public class VisualElements {
       return row;
    }
 
-   /**
-    * ?
-    */
    public static HBox buildCheckBoxWLabel() {
       CheckBox rememberMe = new CheckBox(LoginScreenText.REMEMBER_ME_CHECKBOX);
       rememberMe.getStyleClass().add("remember-me-checkbox");
@@ -348,9 +333,7 @@ public class VisualElements {
       return row;
    }
 
-   /**
-    * Builds the three job-posting input choices: file upload, posting URL, or pasted description.
-    */
+   /** Builds job-posting input choices: file upload, posting URL, or pasted description. */
    public static VBox buildUploadMethodGroup3(double width){
       int uploadWidth = (int) Math.round(width);
       HBox uploadControl = new Buttons().buildUploadButton(uploadWidth, 8, null);
@@ -375,10 +358,7 @@ public class VisualElements {
       return methods;
    }
 
-   /**
-    * Builds a labeled month/day/year input group and sends edits to the provided value handler.
-    * Existing ISO dates and slash or dash separated dates are displayed as MM/DD/YYYY.
-    */
+   /** Builds a labeled month/day/year input group and sends edits to the provided value handler. */
    public static VBox dateGroup(String labelText, String value, Consumer<String> onDateChanged) {
       String[] parts = dateParts(value);
       TextField month = Inputs.inputField(OnboardingScreenText.DATE_MONTH_PLACEHOLDER, 54, 70);
@@ -402,9 +382,6 @@ public class VisualElements {
       return Inputs.buildInputGroup(fieldLabel, dateFields);
    }
 
-   /**
-    * Splits an entered date into month, day, and year parts for the segmented date control.
-    */
    private static String[] dateParts(String value) {
       String[] empty = {"", "", ""};
       if (value == null || value.isBlank()) {
@@ -421,9 +398,7 @@ public class VisualElements {
       return parts;
    }
 
-   /**
-    * Builds an editable parsed-information card with caller-provided fields, actions, and styles.
-    */
+   /** Builds an editable parsed-information card with caller-provided fields and actions. */
    public static VBox buildParsedInfoCard(String headingText, List<? extends Node> inputGroups, List<Button> buttons, String... styleClasses) {
       Objects.requireNonNull(headingText, "headingText");
       Objects.requireNonNull(inputGroups, "inputGroups");
@@ -454,10 +429,7 @@ public class VisualElements {
       return card;
    }
 
-   /**
-    * overloaded function for one button cards.
-    * Builds an editable parsed-information card with caller-provided fields, actions, and styles.
-    */
+   /** Overloaded method for single-button cards. */
    public static VBox buildParsedInfoCard(String headingText, List<? extends Node> inputGroups, Button button, String... styleClasses) {
       Objects.requireNonNull(headingText, "headingText");
       Objects.requireNonNull(inputGroups, "inputGroups");
@@ -488,11 +460,7 @@ public class VisualElements {
       return card;
    }
 
-   /**
-    * builds together the upload button and a text area. this is for resume uploading
-    */
    public static void buildUploadMethodGroup2() {
-
    }
 
    /** Builds the login form with icon fields, a remember option, a primary login action, and a sign-up link. */
@@ -513,7 +481,166 @@ public class VisualElements {
       return box;
    }
 
-   /** Builds a clickable application card with job and company details, file count, and relative start time. */
+   public static void showSignupDialog(ActionEvent event) {
+      if (!(event.getSource() instanceof Node source) || source.getScene() == null) {
+         throw new IllegalArgumentException("The signup dialog requires a login screen source node");
+      }
+
+      Node sceneRoot = source.getScene().getRoot();
+      sceneRoot.setDisable(true);
+      SwingUtilities.invokeLater(() -> {
+         try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+
+            Color white = Color.WHITE;
+            Color orange = new Color(0xE2, 0x95, 0x78);
+            JTextField usernameField = new JTextField(20);
+            JLabel usernameLabel = new JLabel(LoginScreenText.USERNAME_PLACEHOLDER);
+            usernameLabel.setLabelFor(usernameField);
+            JPasswordField passwordField = new JPasswordField(20);
+            JLabel passwordLabel = new JLabel(LoginScreenText.PASSWORD_PLACEHOLDER);
+            passwordLabel.setLabelFor(passwordField);
+
+            for (JTextField field : new JTextField[] { usernameField, passwordField }) {
+               field.setBackground(white);
+               field.setSelectionColor(orange);
+               field.setSelectedTextColor(white);
+               field.setPreferredSize(new Dimension(320, 34));
+               field.setMaximumSize(new Dimension(320, 34));
+            }
+
+            JPanel form = new JPanel();
+            form.setLayout(new BoxLayout(form, BoxLayout.Y_AXIS));
+            form.setBackground(white);
+            form.setBorder(new EmptyBorder(12, 20, 12, 20));
+
+            JLabel logo = new JLabel(loadSignupLogo());
+            logo.setAlignmentX(Component.CENTER_ALIGNMENT);
+            form.add(logo);
+            form.add(Box.createVerticalStrut(12));
+            addSignupField(form, usernameLabel, usernameField, white);
+            form.add(Box.createVerticalStrut(12));
+            addSignupField(form, passwordLabel, passwordField, white);
+            form.setPreferredSize(new Dimension(360, 250));
+
+            JButton signupButton = new JButton(LoginScreenText.SIGNUP_BUTTON);
+            signupButton.setUI(new BasicButtonUI());
+            signupButton.setBackground(orange);
+            signupButton.setForeground(white);
+            signupButton.setOpaque(true);
+            signupButton.setContentAreaFilled(true);
+            signupButton.setFocusPainted(false);
+
+            JButton cancelButton = new JButton("Cancel");
+
+            JOptionPane optionPane = new JOptionPane(
+                  form,
+                  JOptionPane.PLAIN_MESSAGE,
+                  JOptionPane.DEFAULT_OPTION,
+                  null,
+                  new Object[] { signupButton, cancelButton },
+                  signupButton);
+
+            JDialog dialog = optionPane.createDialog(LoginScreenText.SIGNUP_BUTTON);
+
+            // Connect button actions to the handler methods
+            signupButton.addActionListener(e -> handleSignupSubmit(
+               usernameField.getText(), 
+               new String(passwordField.getPassword()), 
+               dialog
+            ));
+            cancelButton.addActionListener(e -> handleSignupCancel(dialog));
+
+            dialog.setBackground(white);
+            setDialogBackground(dialog.getContentPane(), white);
+            dialog.setModal(true);
+            dialog.setVisible(true);
+            dialog.dispose();
+         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+               | UnsupportedLookAndFeelException exception) {
+            throw new IllegalStateException("Could not initialize the system look-and-feel signup dialog",
+                  exception);
+         } finally {
+            Platform.runLater(() -> sceneRoot.setDisable(false));
+         }
+      });
+   }
+
+   /** Close the sign-up window when Cancel is pressed. */
+   public static void handleSignupCancel(JDialog dialog) {
+      if (dialog != null) {
+         dialog.dispose();
+      }
+   }
+
+   /** Save the sign-up dialog's username and password as a new user account in the database. */
+   public static void handleSignupSubmit(String username, String password, JDialog dialog) {
+      if (username == null || username.isBlank() || password == null || password.isBlank()) {
+         JOptionPane.showMessageDialog(dialog, "Username and password cannot be empty.", "Sign-Up Error", JOptionPane.ERROR_MESSAGE);
+         return;
+      }
+
+      User user = new User();
+      user.setUsername(username.trim());
+      user.setPasswordHash(password);
+
+      int generatedUserId = new UserDAO().saveAndGetId(user);
+      boolean created = generatedUserId > 0;
+      if (created) {
+         JOptionPane.showMessageDialog(dialog, "Account created successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+         dialog.dispose();
+      } else {
+         JOptionPane.showMessageDialog(dialog, "Failed to create account. Username may already exist.", "Sign-Up Error", JOptionPane.ERROR_MESSAGE);
+      }
+   }
+
+   private static void addSignupField(JPanel form, JLabel label, JTextField field, Color background) {
+      JPanel group = new JPanel();
+      group.setLayout(new BoxLayout(group, BoxLayout.Y_AXIS));
+      group.setBackground(background);
+      group.setAlignmentX(Component.CENTER_ALIGNMENT);
+      label.setAlignmentX(Component.LEFT_ALIGNMENT);
+      field.setAlignmentX(Component.LEFT_ALIGNMENT);
+      group.add(label);
+      group.add(Box.createVerticalStrut(5));
+      group.add(field);
+      form.add(group);
+   }
+
+   private static ImageIcon loadSignupLogo() {
+      URL logoResource = VisualElements.class.getResource("/images/matt-logo-1.svg");
+      if (logoResource == null) {
+         throw new IllegalStateException("Matt logo resource not found");
+      }
+
+      SVGDocument document = new SVGLoader().load(logoResource);
+      if (document == null) {
+         throw new IllegalStateException("JSVG returned no document for the Matt logo");
+      }
+
+      BufferedImage image = new BufferedImage(160, 114, BufferedImage.TYPE_INT_ARGB);
+      Graphics2D graphics = image.createGraphics();
+      try {
+         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+         document.render(null, graphics, new ViewBox(0, 0, image.getWidth(), image.getHeight()));
+      } finally {
+         graphics.dispose();
+      }
+      return new ImageIcon(image);
+   }
+
+   private static void setDialogBackground(Component component, Color background) {
+      if (!(component instanceof JButton)) {
+         component.setBackground(background);
+      }
+      if (component instanceof Container container) {
+         for (Component child : container.getComponents()) {
+            setDialogBackground(child, background);
+         }
+      }
+   }
+
+   /** Builds a clickable application card with job and company details. */
    public static Button buildApplicationListCard(String jobTitle, String companyName, int age, String timeUnit,
          int fileCount, EventHandler<ActionEvent> onOpen) {
       Label title = new Label(safe(jobTitle)); title.getStyleClass().add("application-card-title");
@@ -536,7 +663,7 @@ public class VisualElements {
       return card;
    }
 
-   /** Builds a scrollable job summary with title, location, compensation, requirements, preferences, and benefits. */
+   /** Builds a scrollable job summary with details. */
    public static VBox buildJobDetailsContainer(String title, String location, String company, String payRange,
          String requirements, String niceToHave, String benefits) {
       VBox content = new VBox(14);
@@ -553,7 +680,7 @@ public class VisualElements {
       return container;
    }
 
-   /** Builds a bordered template panel containing one clickable card per supplied template option. */
+   /** Builds a bordered template panel containing cards for template options. */
    public static VBox buildTemplatePickerContainer(List<TemplateOption> templates, double width, double height) {
       Objects.requireNonNull(templates, "templates");
       FlowPane cards = new FlowPane(16, 16); cards.getStyleClass().add("template-card-grid");
@@ -567,96 +694,45 @@ public class VisualElements {
       return picker;
    }
 
-   /** Holds the display text, click action, and visual variant for one template choice. */
    public record TemplateOption(String name, EventHandler<ActionEvent> onSelect, String styleClass) {
       public TemplateOption(String name, EventHandler<ActionEvent> onSelect) { this(name, onSelect, "template-card-teal"); }
    }
 
-   /** Shows the original job posting text in a bordered, scrollable preview with a soft fade at its lower edge. */
+   /** Shows job posting text in a bordered preview with a bottom fade. */
    public static VBox buildJobDetailsRawTextContainer(String rawText) {
-
       Label text = new Label(safe(rawText)); text.setWrapText(true); text.setMaxWidth(Double.MAX_VALUE); text.getStyleClass().add("raw-job-text");
       ScrollPane scroll = VisualElements.scrollable(text); scroll.setPrefViewportHeight(420); scroll.setMinWidth(0); scroll.setMaxWidth(Double.MAX_VALUE);
       Region fadeOverlay = new Region(); fadeOverlay.setMouseTransparent(true); fadeOverlay.setMinHeight(90);
       fadeOverlay.setMaxHeight(90); StackPane.setAlignment(fadeOverlay, Pos.BOTTOM_CENTER);
       StackPane preview = new StackPane(scroll, fadeOverlay); preview.setPrefHeight(420); preview.setMinWidth(0); preview.setMaxWidth(Double.MAX_VALUE);
       preview.getStyleClass().add("raw-job-fade");
-      StackPane.setAlignment(scroll, Pos.TOP_CENTER);
+      StackPane.setAlignment(scroll, Pos.TOP_RIGHT);
       VBox container = new VBox(preview); container.setMinWidth(0); container.setMaxWidth(Double.MAX_VALUE); container.getStyleClass().add("raw-job-container");
       return container;
    }
 
-   /** Builds a recent-application sidebar row with compact age text, company and role, and an open action. */
-   public static HBox buildSidebarListItem_App(int age, String unit, String companyName, String jobTitle,
-         EventHandler<ActionEvent> onOpen) {
-
-      Label text = new Label(formatRelativeTime(age, unit, false) + " - " + safe(companyName) + ", " + safe(jobTitle));
-      text.setMaxWidth(Double.MAX_VALUE); HBox.setHgrow(text, Priority.ALWAYS); text.setTextOverrun(OverrunStyle.ELLIPSIS);
-      HBox row = new HBox(8, text, Buttons.button(FontAwesomeSolid.EXTERNAL_LINK_ALT, onOpen, "sidebar-item-open"));
-      row.setAlignment(Pos.CENTER_LEFT); row.getStyleClass().add("sidebar-list-item");
-      return row;
+   private static String safe(String input) {
+      return input == null ? "" : input;
    }
 
-   /** Builds a recent-material sidebar row with compact age text, the file name, and an open action. */
-   public static HBox buildSidebarListItem_Mat(int age, String unit, String materialFileName,
-         EventHandler<ActionEvent> onOpen) {
-
-      Label text = new Label(formatRelativeTime(age, unit, false) + " - " + safe(materialFileName));
-      text.setMaxWidth(Double.MAX_VALUE); HBox.setHgrow(text, Priority.ALWAYS); text.setTextOverrun(OverrunStyle.ELLIPSIS);
-      HBox row = new HBox(8, text, Buttons.button(FontAwesomeSolid.EXTERNAL_LINK_ALT, onOpen, "sidebar-item-open"));
-      row.setAlignment(Pos.CENTER_LEFT); row.getStyleClass().add("sidebar-list-item");
-      return row;
-   }
-
-   /** Builds the document icon and nonnegative generated-file count shown on an application. */
-   public static HBox buildFileCountBadge(int count) {
-
-      HBox badge = new HBox(8, new FontIcon(ApplicationScreenText.APPLICATION_DOCUMENT_COUNT_ICON),
-            new Label(Integer.toString(Math.max(0, count))));
-      badge.setAlignment(Pos.CENTER_LEFT); badge.getStyleClass().add("file-count-badge");
+   private static Label buildFileCountBadge(int count) {
+      Label badge = new Label(count + " files");
+      badge.getStyleClass().add("file-count-badge");
       return badge;
    }
 
-   /** Builds an italic relative-time label using the configured compact time suffixes. */
-   public static Label buildRelativeTimeLabel(int amount, String unit, boolean includeStarted) {
-
-      Label label = new Label(formatRelativeTime(amount, unit, includeStarted));
-      label.getStyleClass().add("relative-time-label");
-      return label;
+   private static Label buildRelativeTimeLabel(int age, String unit, boolean compact) {
+      Label timeLabel = new Label(age + " " + safe(unit) + (age == 1 ? "" : "s") + " ago");
+      timeLabel.getStyleClass().add("relative-time-label");
+      return timeLabel;
    }
 
-   /** Builds a paperclip label for the name of an attached file. */
-   public static HBox buildAttachedFileLabel(String fileName) {
-
-      FontIcon clip = new FontIcon(FontAwesomeSolid.PAPERCLIP); clip.setRotate(30);
-      Label name = new Label(safe(fileName)); name.getStyleClass().add("attached-file-name");
-      HBox label = new HBox(10, clip, name); label.setAlignment(Pos.CENTER_LEFT);
-      label.getStyleClass().add("attached-file-label");
-      return label;
+   private static VBox detailSection(String title, String content) {
+      Label heading = new Label(title);
+      heading.getStyleClass().add("job-detail-section-heading");
+      Label body = new Label(safe(content));
+      body.setWrapText(true);
+      body.getStyleClass().add("job-detail-section-body");
+      return new VBox(4, heading, body);
    }
-
-   /** Builds a heading and wrapped copy for one section of parsed job details. */
-   private static VBox detailSection(String headingText, String copy) {
-      Label heading = new Label(headingText); heading.getStyleClass().add("job-detail-section-title");
-      Label body = new Label(safe(copy)); body.setWrapText(true); body.getStyleClass().add("job-detail-copy");
-      return new VBox(8, heading, body);
-   }
-
-   /** Normalizes nullable display values to an empty string. */
-   private static String safe(String value) { return value == null ? "" : value; }
-
-   /** Formats the approved compact time suffixes used in recent application and material lists. */
-   private static String formatRelativeTime(int amount, String unit, boolean includeStarted) {
-      String suffix = safe(unit).trim();
-      if (!List.of(ApplicationScreenText.STARTED_TIME_MINUTES, ApplicationScreenText.STARTED_TIME_HOURS,
-            ApplicationScreenText.STARTED_TIME_DAYS, ApplicationScreenText.STARTED_TIME_WEEKS,
-            ApplicationScreenText.STARTED_TIME_YEARS).contains(suffix)) {
-         throw new IllegalArgumentException("Unsupported relative-time unit: " + unit);
-      }
-      return (includeStarted ? ApplicationScreenText.STARTED_TEXT + " " : "") + Math.max(0, amount)
-            + suffix + " " + ApplicationScreenText.STARTED_AGO;
-   }
-
-
-
 }

@@ -4,6 +4,33 @@
  */
 package edu.stedwards.matt;
 
+
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+import edu.stedwards.matt.controllers.OnboardingStepController;
+import edu.stedwards.matt.controllers.TemplateEditorController;
+import edu.stedwards.matt.ui.layouts.application.ApplicationConfirmFields;
+import edu.stedwards.matt.ui.layouts.application.ApplicationGenerateMaterials;
+import edu.stedwards.matt.ui.layouts.application.ApplicationHome;
+import edu.stedwards.matt.ui.layouts.application.ApplicationUploadJob;
+import edu.stedwards.matt.ui.layouts.myinfo.MyInfoEditingStep;
+import edu.stedwards.matt.ui.layouts.myinfo.MyInfoHomeStep;
+import edu.stedwards.matt.ui.layouts.onboarding.OnboardingEnterInfo;
+import edu.stedwards.matt.ui.layouts.onboarding.OnboardingOverviewStep;
+import edu.stedwards.matt.ui.layouts.onboarding.OnboardingStepLayout;
+import edu.stedwards.matt.ui.layouts.onboarding.OnboardingUploadStep;
+import edu.stedwards.matt.ui.layouts.onboarding.OnboardingWelcome;
+import edu.stedwards.matt.ui.layouts.other.LoginLayout;
+import edu.stedwards.matt.ui.layouts.other.MainLayout;
+
+import edu.stedwards.matt.ui.layouts.other.SettingsLayout;
+import edu.stedwards.matt.ui.layouts.other.StartLayout;
+import edu.stedwards.matt.ui.layouts.template.TemplatesEditor;
+import edu.stedwards.matt.ui.layouts.template.TemplatesHome;
+import edu.stedwards.matt.ui.layouts.template.TemplatesUploadOrNew;
+import fr.brouillard.oss.cssfx.CSSFX;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -15,37 +42,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-import javafx.collections.FXCollections;
-import edu.stedwards.matt.models.entity.AwardsCerts;
-import edu.stedwards.matt.models.entity.Education;
-import edu.stedwards.matt.models.entity.Experience;
-import edu.stedwards.matt.models.entity.Projects;
-import edu.stedwards.matt.models.entity.Skill;
-import edu.stedwards.matt.models.entity.Websites;
-import edu.stedwards.matt.ui.layouts.application.ApplicationConfirmFields;
-import edu.stedwards.matt.ui.layouts.application.ApplicationGenerateMaterials;
-import edu.stedwards.matt.ui.layouts.application.ApplicationHome;
-import edu.stedwards.matt.ui.layouts.application.ApplicationUploadJob;
-import edu.stedwards.matt.ui.layouts.onboarding.OnboardingEnterInfo;
-import edu.stedwards.matt.ui.layouts.onboarding.OnboardingOverviewStep;
-import edu.stedwards.matt.ui.layouts.onboarding.OnboardingStepLayout;
-import edu.stedwards.matt.ui.layouts.onboarding.OnboardingUploadStep;
-import edu.stedwards.matt.ui.layouts.onboarding.OnboardingWelcome;
-import edu.stedwards.matt.ui.layouts.other.LoginLayout;
-import edu.stedwards.matt.ui.layouts.other.MainLayout;
-import edu.stedwards.matt.ui.layouts.other.StartLayout;
-import edu.stedwards.matt.ui.layouts.myinfo.MyInfoEditingStep;
-import edu.stedwards.matt.ui.layouts.myinfo.MyInfoHomeStep;
-import edu.stedwards.matt.ui.layouts.other.SettingsLayout;
-import edu.stedwards.matt.ui.layouts.template.TemplatesHome;
-import edu.stedwards.matt.ui.layouts.template.TemplatesEditor;
-import edu.stedwards.matt.controllers.TemplateEditorController;
-import edu.stedwards.matt.controllers.OnboardingStepController;
-import edu.stedwards.matt.ui.layouts.template.TemplatesUploadOrNew;
-import fr.brouillard.oss.cssfx.CSSFX;
 
 public class Matt extends Application {
     private static final boolean PREVIEW_LAYOUTS = true;
@@ -78,40 +74,28 @@ public class Matt extends Application {
 
     private void startLayoutPreview(Stage stage) {
         List<PreviewScreen> screens = List.of(
-                new PreviewScreen("Start", () -> new StartLayout("application")),
                 new PreviewScreen("Login", LoginLayout::new),
                 new PreviewScreen("Onboarding - Welcome", OnboardingWelcome::new),
                 new PreviewScreen("Onboarding - Resume Upload", OnboardingUploadStep::new),
                 new PreviewScreen("Onboarding - Personal Info", OnboardingEnterInfo::new),
-                new PreviewScreen("Onboarding - Education", () -> onboardingStep(
-                        layout -> layout.showEducationStep(FXCollections.observableArrayList(new Education())))),
-                new PreviewScreen("Onboarding - Experience", () -> onboardingStep(
-                        layout -> layout.showExperienceStep(FXCollections.observableArrayList(new Experience())))),
-                new PreviewScreen("Onboarding - Projects", () -> onboardingStep(
-                        layout -> layout.showProjectsStep(FXCollections.observableArrayList(new Projects())))),
-                new PreviewScreen("Onboarding - Skills", () -> onboardingStep(
-                        layout -> layout.showSkillsStep(FXCollections.observableArrayList(new Skill())))),
-                new PreviewScreen("Onboarding - Awards/Certs", () -> onboardingStep(
-                        layout -> layout.showAwardsStep(FXCollections.observableArrayList(new AwardsCerts())))),
-                new PreviewScreen("Onboarding - Websites", () -> onboardingStep(
-                        layout -> layout.showWebsitesStep(FXCollections.observableArrayList(new Websites())))),
+                new PreviewScreen("Onboarding - Education", () -> onboardingStep(OnboardingStepLayout::showEducationStep)),
+                new PreviewScreen("Onboarding - Experience", () -> onboardingStep(OnboardingStepLayout::showExperienceStep)),
+                new PreviewScreen("Onboarding - Projects", () -> onboardingStep(OnboardingStepLayout::showProjectsStep)),
+                new PreviewScreen("Onboarding - Skills", () -> onboardingStep(OnboardingStepLayout::showSkillsStep)),
+                new PreviewScreen("Onboarding - Awards/Certs", () -> onboardingStep(OnboardingStepLayout::showAwardsStep)),
+                new PreviewScreen("Onboarding - Websites", () -> onboardingStep(OnboardingStepLayout::showWebsitesStep)),
                 new PreviewScreen("Onboarding - Final Overview", OnboardingOverviewStep::new),
-                new PreviewScreen("Main", MainLayout::new),
-                new PreviewScreen("Main - Home", () -> mainAreaScreen("Home")),
-                new PreviewScreen("Main - Templates", () -> mainAreaScreen("Templates")),
-                new PreviewScreen("Templates Home", () -> new TemplatesHome(previewTemplates())),
+                new PreviewScreen("Templates Home", () -> mainShell(() -> new TemplatesHome(previewTemplates()))),
                 new PreviewScreen("Main - Templates - Upload or New",
                         () -> mainShell(TemplatesUploadOrNew::new)),
                 new PreviewScreen("Main - Templates - Template Creator",
                         () -> mainShell(() -> new TemplatesEditor(new TemplateEditorController()))),
-                new PreviewScreen("Main - Applications", () -> mainAreaScreen("Applications")),
-                new PreviewScreen("Main - Applications - Home", () -> mainShell(ApplicationHome::new)),
+                new PreviewScreen("Main - Applications - Home", () -> mainShell(this::previewApplicationHome)),
                 new PreviewScreen("Main - Applications - Upload", () -> mainShell(ApplicationUploadJob::new)),
                 new PreviewScreen("Main - Applications - Confirm Fields",
                         () -> mainShell(ApplicationConfirmFields::new)),
                 new PreviewScreen("Main - Applications - Final Overview / Application Page",
                         () -> mainShell(ApplicationGenerateMaterials::new)),
-                new PreviewScreen("Main - My Info", () -> mainAreaScreen("My Info")),
                 new PreviewScreen("Main - My Info - Home", () -> mainShell(() -> {
                     new MyInfoHomeStep();
                     return placeholderScreen("My Info Home");
@@ -171,31 +155,22 @@ public class Matt extends Application {
     }
 
     private TemplatesHome.TemplateCardData previewTemplate(String name) {
-        return new TemplatesHome.TemplateCardData(name, "Updated 3w ago", "This is text This\nis text This is");
+        return new TemplatesHome.TemplateCardData(name, "Updated 3w ago");
     }
 
-    private List<JobPosting> previewApplications() {
-        return List.of(
-                previewApplication("Software Engineer", "Acrisure"),
-                previewApplication("Product Analyst", "Google"),
-                previewApplication("Entry Level Developer", "Oracle"));
-    }
-
-    private JobPosting previewApplication(String title, String company) {
-        JobPosting application = new JobPosting();
-        application.setJobTitle(title);
-        application.setCompanyName(company);
-        return application;
+    private ApplicationHome previewApplicationHome() {
+        return new ApplicationHome(
+                List.of(
+                        new ApplicationHome.ApplicationSummary("Software Engineer", "Acrisure", 4, "h", 2),
+                        new ApplicationHome.ApplicationSummary("Product Analyst", "Google", 1, "d", 1)),
+                List.of(new ApplicationHome.ApplicationSummary("Entry Level Developer", "Oracle", 1, "w", 1)),
+                List.of(), null, null);
     }
 
     private Node onboardingStep(Consumer<OnboardingStepLayout> setup) {
         OnboardingStepLayout layout = new OnboardingStepLayout(new OnboardingStepController());
         setup.accept(layout);
         return layout;
-    }
-
-    private Node mainAreaScreen(String section) {
-        return mainShell(() -> placeholderScreen("Main - " + section));
     }
 
     private Node mainShell(Supplier<Node> contentFactory) {

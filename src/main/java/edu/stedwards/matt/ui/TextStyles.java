@@ -57,6 +57,14 @@ public class TextStyles {
     */
    public static TextFlow buildTitle(Text... titleParts) {
       TextFlow title = new TextFlow(titleParts);
+      for (Text part : titleParts) {
+         if (part.getStyleClass().contains("screen-title")) {
+            title.getStyleClass().add("screen-title-container");
+         }
+         if (part.getStyleClass().contains("onboarding-wizard-title")) {
+            title.getStyleClass().add("onboarding-wizard-title-container");
+         }
+      }
       // title.getStyleClass().add("welcome-title");
       // title.setTextAlignment(alignment);
       return title;

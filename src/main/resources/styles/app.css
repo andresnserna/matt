@@ -59,12 +59,22 @@
     -fx-font-weight: bold;
 }
 
-.screen-title {
+.screen-title,
+.template-editor-title .label,
+.template-name-input {
     -fx-font-size: 48px;
     -fx-font-style: italic;
+    -fx-font-weight: bold;
+}
+
+.screen-title {
     -fx-fill: #006D77;
     -fx-text-alignment: center;
-    -fx-font-weight: bold;
+}
+
+.screen-title-container,
+.onboarding-wizard-title-container {
+    -fx-padding: 0 0 4px 0;
 }
 
 .screen-title-split {
@@ -91,11 +101,18 @@
     -fx-text-alignment: center;
 }
 
+.text-input {
+    -fx-highlight-fill: #E29578;
+    -fx-highlight-text-fill: white;
+}
+
 /*  */
 
 .screen-padding {
-    -fx-padding: 36px 50px 36px;
-    padding: 36px 50px 36px;
+    /* -fx-padding: 36px 36px 36px;
+    padding: 36px 36px 36px; */
+    -fx-padding: 30px 30px 30px 30px;
+    padding: 30px 30px 30px 30px;
 }
 
 .login-background {

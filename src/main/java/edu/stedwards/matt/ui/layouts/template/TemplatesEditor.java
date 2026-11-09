@@ -2,6 +2,7 @@ package edu.stedwards.matt.ui.layouts.template;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -14,7 +15,13 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.HTMLEditor;
+import javafx.scene.web.WebView;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import edu.stedwards.matt.controllers.TemplateEditorController;
+import edu.stedwards.matt.models.entity.Template; // Added Import
+import edu.stedwards.matt.ui.layouts.other.MainLayout; // Added Import
 
 /** Template authoring screen. Bracketed text in the editor is surfaced as selectable fields. */
 public class TemplatesEditor extends BorderPane {
@@ -26,8 +33,8 @@ public class TemplatesEditor extends BorderPane {
 
    public TemplatesEditor(TemplateEditorController controller) {
       this.controller = controller;
-      getStyleClass().add("template-editor-screen");
-      setPadding(new Insets(34, 42, 30, 42));
+      getStyleClass().addAll("screen-padding");
+      // setPadding(new Insets(34, 42, 30, 42));
 
       VBox content = new VBox(20);
       content.getStyleClass().add("template-editor-content");
@@ -35,9 +42,9 @@ public class TemplatesEditor extends BorderPane {
 
       HBox title = new HBox(12, new Label("Edit"), nameField);
       title.setAlignment(Pos.CENTER_LEFT);
-      title.getStyleClass().add("template-editor-title");
+      title.getStyleClass().addAll("template-editor-title");
       nameField.setPromptText("Template name");
-      nameField.getStyleClass().add("template-name-input");
+      nameField.getStyleClass().addAll("template-name-input", "screen-title");
       HBox.setHgrow(nameField, Priority.ALWAYS);
       content.getChildren().add(title);
 
@@ -46,6 +53,11 @@ public class TemplatesEditor extends BorderPane {
       editor.setPrefHeight(470);
       editor.setMaxHeight(Double.MAX_VALUE);
       editor.getStyleClass().add("template-html-editor");
+      editor.skinProperty().addListener((observable, oldSkin, newSkin) -> {
+         if (newSkin != null) {
+            Platform.runLater(this::installEditorSelectionStyle);
+         }
+      });
       VBox.setVgrow(editor, Priority.ALWAYS);
       content.getChildren().add(editor);
 
@@ -66,6 +78,11 @@ public class TemplatesEditor extends BorderPane {
       save.getStyleClass().add("template-save-button");
       Button finish = new Button("Finish  ›");
       finish.getStyleClass().add("template-finish-button");
+      
+      // FIX: Added event handlers so the buttons actually call the methods below
+      save.setOnAction(event -> handleSave());
+      finish.setOnAction(event -> handleFinish());
+
       footer.getChildren().addAll(save, finish);
 
       VBox fieldSection = new VBox(12, heading, fieldScroll, footer);
@@ -78,6 +95,53 @@ public class TemplatesEditor extends BorderPane {
          if (!focused) refreshFields();
       });
       refreshFields();
+   }
+
+   /** Save the current template content and dynamic fields to the database without leaving the editor. */
+   public void handleSave() {
+      // Create and populate the Template model with the inputted name
+      Template template = new Template(); 
+      // Note: adjust 'setName' if your Template entity uses a different method name
+      template.setTemplateName(nameField.getText());
+      
+      // Pass the HTMLEditor instance and the Template object to the controller
+      controller.saveTemplate(editor, template); 
+   }
+
+   /** Save the current template content and dynamic fields, then navigate to Main - Templates - Home. */
+   public void handleFinish() {
+      // 1. Save the template first
+      handleSave();
+      
+      // 2. Navigate back to the Templates Home screen
+      if (getScene() != null && getScene().getRoot() instanceof MainLayout) {
+          MainLayout mainLayout = (MainLayout) getScene().getRoot();
+          mainLayout.showStep(new TemplatesHome()); 
+      }
+   }
+
+   private void installEditorSelectionStyle() {
+      editor.lookupAll(".web-view").stream()
+            .filter(WebView.class::isInstance)
+            .map(WebView.class::cast)
+            .findFirst()
+            .ifPresent(webView -> {
+               webView.getEngine().documentProperty().addListener(
+                     (observable, oldDocument, newDocument) -> applyEditorSelectionStyle(newDocument));
+               applyEditorSelectionStyle(webView.getEngine().getDocument());
+            });
+   }
+
+   private void applyEditorSelectionStyle(Document document) {
+      if (document == null || document.getElementById("template-editor-selection-style") != null) {
+         return;
+      }
+
+      Element style = document.createElement("style");
+      style.setAttribute("id", "template-editor-selection-style");
+      style.setTextContent("::selection { background-color: #E29578 !important; color: #FFFFFF !important; }");
+      Element head = (Element) document.getElementsByTagName("head").item(0);
+      (head != null ? head : document.getDocumentElement()).appendChild(style);
    }
 
    private void refreshFields() {
