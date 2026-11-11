@@ -49,6 +49,7 @@ target/
 # Logs
 *.log
 matt.db-journal
+user_data/
 
 # Temporary files
 *.tmp
