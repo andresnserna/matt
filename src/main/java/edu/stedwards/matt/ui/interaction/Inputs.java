@@ -122,6 +122,7 @@ public final class Inputs {
 		myTextArea.setMaxHeight(maxHeight);
 		myTextArea.getStyleClass().add("input-field-text");
 		myTextArea.getStyleClass().addAll(styleClasses);
+		myTextArea.setWrapText(true);
 
 		return myTextArea;
 	}

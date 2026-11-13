@@ -115,6 +115,10 @@
    -fx-background-color: #006D77;
 }
 
+.new-template-button .ikonli-font-icon {
+   -fx-icon-color: white;
+}
+
 .template-editor-content { 
    -fx-spacing: 18px; 
 }
