@@ -130,7 +130,8 @@ public class ApplicationHome extends BorderPane {
    public void handleNewApplication() {
       // Traverse up to the MainLayout shell and swap the center view to Upload Job
       edu.stedwards.matt.ui.layouts.other.MainLayout shell = (edu.stedwards.matt.ui.layouts.other.MainLayout) this.getScene().getRoot();
-      shell.showStep(new ApplicationUploadJob());
+      shell.showStep(new ApplicationUploadJob(job ->
+            shell.showStep(new ApplicationConfirmFields(job))));
    }
 
    private VBox buildSection(String title, List<ApplicationSummary> applications, boolean initiallyExpanded) {

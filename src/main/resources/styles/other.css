@@ -26,6 +26,33 @@
     -fx-background-color: #E29578;
 }
 
+.settings-title {
+    -fx-font-size: 48px;
+    -fx-font-style: italic;
+    -fx-font-weight: bold;
+    -fx-fill: #006D77;
+}
+
+.settings-logout-button {
+    -fx-background-color: #E29578;
+    -fx-background-radius: 16px;
+    -fx-text-fill: white;
+    -fx-font-size: 20px;
+    -fx-font-style: italic;
+    -fx-padding: 12px 20px;
+    -fx-graphic-text-gap: 8px;
+    -fx-cursor: hand;
+}
+
+.settings-logout-button .ikonli-font-icon {
+    -fx-icon-color: white;
+    -fx-icon-size: 20px;
+}
+
+.settings-logout-button:hover {
+    -fx-background-color: #D98264;
+}
+
 /* Login and reusable application component previews. */
 .login-box {
     -fx-background-color: white;

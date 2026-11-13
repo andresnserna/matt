@@ -6,54 +6,72 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import edu.stedwards.matt.models.entity.JobPosting;
 
 public class ParserService {
 
     private static final String OLLAMA_URL = "http://localhost:11434/api/generate";
-    // private static final String MODEL_NAME = "llama3.2:3b"; 
-    private static final String MODEL_NAME = "gemma4:31b-cloud";
+    private static final String MODEL_NAME = "llama3.2:3b"; 
+    // private static final String MODEL_NAME = "gemma4:31b-cloud";
 
     private String extractResponseText(String json) {
-        String targetKey = "\"response\":\"";
-        int startIndex = json.indexOf(targetKey) + targetKey.length();
-        int endIndex = json.indexOf("\"", startIndex);
-        if (startIndex > targetKey.length() - 1 && endIndex > startIndex) {
-            return json.substring(startIndex, endIndex).replace("\\n", " ");
+        Matcher responseMatcher = Pattern.compile("\"response\"\\s*:\\s*\"((?:\\\\.|[^\"\\\\])*)\"")
+                .matcher(json);
+        if (!responseMatcher.find()) return "";
+
+        String encoded = responseMatcher.group(1);
+        StringBuilder response = new StringBuilder();
+        boolean escaped = false;
+        for (int i = 0; i < encoded.length(); i++) {
+            char ch = encoded.charAt(i);
+            if (escaped) {
+                switch (ch) {
+                    case 'n' -> response.append('\n');
+                    case 'r' -> response.append('\r');
+                    case 't' -> response.append('\t');
+                    case '"', '\\', '/' -> response.append(ch);
+                    case 'b' -> response.append('\b');
+                    case 'f' -> response.append('\f');
+                    default -> response.append('\\').append(ch);
+                }
+                escaped = false;
+            } else if (ch == '\\') {
+                escaped = true;
+            } else {
+                response.append(ch);
+            }
         }
-        return "";
+        if (escaped) response.append('\\');
+        return response.toString();
+    }
+
+    private boolean hasResponseField(String json) {
+        return Pattern.compile("\"response\"\\s*:").matcher(json).find();
     }
 
     // --- JOB POSTING PARSING ---
 
     private void mapAiResponseToEntity(String aiText, JobPosting job) {
         try {
-            String normalizedText = aiText.replace("|", "\n");
-            String[] lines = normalizedText.split("\n");
-            
-            for (String line : lines) {
-                String lowerLine = line.toLowerCase();
-                if (lowerLine.contains("title:")) {
-                    job.setJobTitle(line.substring(lowerLine.indexOf("title:") + 6).trim());
-                } else if (lowerLine.contains("company:")) {
-                    job.setCompanyName(line.substring(lowerLine.indexOf("company:") + 8).trim());
-                } else if (lowerLine.contains("location:")) {
-                    job.setLocation(line.substring(lowerLine.indexOf("location:") + 9).trim());
-                } else if (lowerLine.contains("paymin:")) {
-                    try { job.setPayMin(Double.parseDouble(line.substring(lowerLine.indexOf("paymin:") + 7).replaceAll("[^\\d.]", ""))); } catch(Exception ignored){}
-                } else if (lowerLine.contains("paymax:")) {
-                    try { job.setPayMax(Double.parseDouble(line.substring(lowerLine.indexOf("paymax:") + 7).replaceAll("[^\\d.]", ""))); } catch(Exception ignored){}
-                } else if (lowerLine.contains("payperiod:")) {
-                    job.setPayPeriod(line.substring(lowerLine.indexOf("payperiod:") + 10).trim());
-                } else if (lowerLine.contains("responsibilities:")) {
-                    job.setResponsibilities(line.substring(lowerLine.indexOf("responsibilities:") + 17).trim());
-                } else if (lowerLine.contains("requirements:")) {
-                    job.setRequirements(line.substring(lowerLine.indexOf("requirements:") + 13).trim());
-                } else if (lowerLine.contains("nicetohave:")) {
-                    job.setNiceToHave(line.substring(lowerLine.indexOf("nicetohave:") + 11).trim());
-                } else if (lowerLine.contains("benefits:")) {
-                    job.setBenefits(line.substring(lowerLine.indexOf("benefits:") + 9).trim());
+            String fieldLabels = "Title|Company|Location|PayMin|PayMax|PayPeriod|Responsibilities|Requirements|NiceToHave|Benefits";
+            Pattern fields = Pattern.compile("(?i)(?:^|[|\\n])\\s*(" + fieldLabels + ")\\s*:\\s*(.*?)(?=\\s*(?:[|\\n])\\s*(?:" + fieldLabels + ")\\s*:|$)");
+            Matcher matcher = fields.matcher(aiText);
+            while (matcher.find()) {
+                String value = matcher.group(2).trim();
+                switch (matcher.group(1).toLowerCase()) {
+                    case "title" -> job.setJobTitle(value);
+                    case "company" -> job.setCompanyName(value);
+                    case "location" -> job.setLocation(value);
+                    case "paymin" -> { try { job.setPayMin(Double.parseDouble(value.replaceAll("[^\\d.]", ""))); } catch (Exception ignored) { } }
+                    case "paymax" -> { try { job.setPayMax(Double.parseDouble(value.replaceAll("[^\\d.]", ""))); } catch (Exception ignored) { } }
+                    case "payperiod" -> job.setPayPeriod(value);
+                    case "responsibilities" -> job.setResponsibilities(value);
+                    case "requirements" -> job.setRequirements(value);
+                    case "nicetohave" -> job.setNiceToHave(value);
+                    case "benefits" -> job.setBenefits(value);
                 }
             }
         } catch (Exception e) {
@@ -101,10 +119,29 @@ public class ParserService {
                         .build();
 
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                    System.err.println("Ollama job parse returned HTTP " + response.statusCode());
+                    job.setStatus("Needs Review");
+                    return job;
+                }
                 String aiResponse = extractResponseText(response.body());
+                if (aiResponse.isBlank()) {
+                    System.err.println("Ollama response was empty or had no response field (HTTP "
+                            + response.statusCode() + ", body length " + response.body().length()
+                            + ", response field present: " + hasResponseField(response.body()) + ").");
+                    job.setStatus("Needs Review");
+                    return job;
+                }
                 job.setNormalizedText(aiResponse);
                 
                 mapAiResponseToEntity(aiResponse, job);
+
+                if (job.getJobTitle() == null && job.getCompanyName() == null && job.getLocation() == null
+                        && job.getResponsibilities() == null && job.getRequirements() == null) {
+                    System.err.println("Ollama returned text, but no job fields could be mapped. Check job.normalizedText.");
+                    job.setStatus("Needs Review");
+                    return job;
+                }
 
                 if (verifyNoHallucinations(job)) {
                     job.setStatus("Parsed");

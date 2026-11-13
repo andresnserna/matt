@@ -1,6 +1,7 @@
 package edu.stedwards.matt.ui.layouts.application;
 
 import java.io.File;
+import java.util.function.Consumer;
 
 import edu.stedwards.matt.models.OnboardingSession;
 import edu.stedwards.matt.models.entity.JobPosting;
@@ -37,11 +38,12 @@ public class ApplicationUploadJob extends BorderPane {
    private Label statusLabel;
 
    // The clean architectural callback for navigation
-   private final Runnable onNext;
+   private final Consumer<JobPosting> onNext;
 
    // Default constructor for Matt.java preview compatibility
    public ApplicationUploadJob() {
-      this(() -> {
+
+      this(job -> {
           // Fallback navigation if no callback is provided
           edu.stedwards.matt.ui.layouts.other.MainLayout shell = 
               (edu.stedwards.matt.ui.layouts.other.MainLayout) javafx.stage.Window.getWindows().get(0).getScene().getRoot();
@@ -50,7 +52,8 @@ public class ApplicationUploadJob extends BorderPane {
    }
 
    // The MVC constructor that takes the navigation logic from the outside
-   public ApplicationUploadJob(Runnable onNext) {
+   public ApplicationUploadJob(Consumer<JobPosting> onNext) {
+      
       this.onNext = onNext;
       getStyleClass().addAll("screen-padding");
       
@@ -167,7 +170,7 @@ public class ApplicationUploadJob extends BorderPane {
          statusLabel.setText("");
          if (job != null) {
             System.out.println("Parsed job (unsaved). Navigating to Confirm Fields for review.");
-            navigateToConfirmFields(job);
+            onNext.accept(job);
          } else {
             statusLabel.setText("Failed to parse and save the job posting.");
             statusLabel.getStyleClass().add("error-text");
@@ -183,12 +186,6 @@ public class ApplicationUploadJob extends BorderPane {
       });
 
       new Thread(task).start();
-   }
-
-   private void navigateToConfirmFields(JobPosting job) {
-      edu.stedwards.matt.ui.layouts.other.MainLayout shell =
-          (edu.stedwards.matt.ui.layouts.other.MainLayout) this.getScene().getRoot();
-      shell.showStep(new ApplicationConfirmFields(job));
    }
 
    private int currentUserId() {

@@ -47,11 +47,13 @@ public class ApplicationConfirmFields extends BorderPane {
    private Label statusLabel;
 
    public ApplicationConfirmFields() {
+      
       this(new JobPosting());
    }
 
    /** Build the confirm-fields screen from a saved JobPosting record (parsed + persisted by the upload flow). */
    public ApplicationConfirmFields(JobPosting job) {
+
       this.job = job;
       getStyleClass().addAll("screen-padding");
       

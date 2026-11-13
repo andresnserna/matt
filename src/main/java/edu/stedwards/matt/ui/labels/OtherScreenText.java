@@ -12,4 +12,7 @@ public class OtherScreenText {
    public static final String PLACEHOLDER_TITLE = "PLACEHOLDER";
    public static final String PLACEHOLDER_MESSAGE = "This is placeholder text for the screen this text is in. the actual content will differ.";
    public static final String APP_VERSION = "Version: " + edu.stedwards.matt.SystemInfo.projectVersion();
+
+   public static final String SETTINGS_TITLE = "Settings";
+   public static final String SETTINGS_LOGOUT_BUTTON = "Log Out...";
 }
