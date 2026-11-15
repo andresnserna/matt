@@ -326,3 +326,6 @@ public class TemplateService {
     }
 
 }
+
+// TODO check on why it doesnt try to fill all the [fields] and look for the ones that are missing. It should be able to fill all the fields and then return a list of the ones that are missing.
+// 
