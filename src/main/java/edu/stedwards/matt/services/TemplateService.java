@@ -5,9 +5,14 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -33,6 +38,7 @@ import org.jsoup.Jsoup;
 public class TemplateService {
     private static final String OLLAMA_URL = "http://localhost:11434/api/generate";
     private static final String MODEL_NAME = "llama3.2:3b";
+    private static final Pattern BRACKET_FIELD_PATTERN = Pattern.compile("\\[([^\\[\\]]+)\\]");
 
     private final TemplateStorageService storageService = new TemplateStorageService();
     private final TemplateFieldParserService fieldParser = new TemplateFieldParserService();
@@ -59,121 +65,296 @@ public class TemplateService {
 
         User user = new UserDAO().getUserById(signedInUser.getUserID());
         if (user == null) throw new IllegalStateException("The user's profile could not be loaded.");
-        String fields = extractTemplateFields(htmlTemplate);
+
         String userContext = buildUserContext(user);
         String jobContext = buildJobContext(job);
-        List<String> openingWords = templateOpeningWords(htmlTemplate, 6);
+        
         System.out.println("===== Applicant context sent to Ollama =====\n" + userContext);
         System.out.println("===== Job context sent to Ollama =====\n" + jobContext);
-        System.out.println("===== Opening Words of Template =====\n" + openingWords);
 
-        String prompt = "You are filling the user's supplied application template. Return ONLY that template, filled in. "
-                + "Do not write a resume, a second document, a heading, an introduction, a summary, or commentary.\n"
-                + "The first words of your response must be the template's opening words: \""
-                + String.join(" ", openingWords) + "\". Do not put anything before them.\n"
-                + "Only replace text inside bracketed placeholders [like this]. Preserve every other character and all HTML tags. "
-                + "Do not add or remove sections, tags, formatting, or commentary. Do not return markdown fences.\n"
-                + "Use relevant job-posting keywords naturally and emphasize the applicant's strongest matching skills and experience. "
-                + "The APPLICANT PROFILE is the only source for the applicant's employers, schools, dates, credentials, skills, projects, and achievements. "
-                + "Never use employer, school, project, or achievement examples from the job posting or your general knowledge. "
-                + "Never invent facts. If a requested detail is unavailable, use a truthful transferable skill or leave that placeholder concise and neutral.\n"
-                + "Known placeholders: " + fields + "\n\n"
-                + "APPLICANT PROFILE (trusted facts; do not infer facts not present):\n" + userContext + "\n\n"
-                + "JOB POSTING (describes the employer and role, not the applicant's history):\n" + jobContext + "\n\n"
-                + "HTML TEMPLATE (preserve its structure):\n" + htmlTemplate;
-        return trimBeforeTemplateStart(sendToOllama(prompt), htmlTemplate);
+        // Use structured key-value AI generation + programmatic mapping first
+        Map<String, String> generatedValues = requestStructuredFieldValues(htmlTemplate, jobContext, userContext);
+        String filledHtml = applyFieldsProgrammatically(htmlTemplate, generatedValues, null);
+
+        // If any [brackets] remain, check if there are none or fall back cleanly
+        List<String> missing = findUnfilledFields(filledHtml);
+        if (!missing.isEmpty()) {
+            System.out.println("Warning: Unfilled fields after first pass: " + missing);
+        }
+        return filledHtml;
     }
 
-    /** Format stored profile fields and related records as labeled, readable facts for the model. */
+    /**
+     * Days 3-4 Task: Heavily tweaked buildUserContext() with clear, structured sections
+     * so the LLM can immediately map personal, education, experience, project, and skill data.
+     */
     public String buildUserContext(User user) {
         int userId = user.getUserID();
         StringBuilder context = new StringBuilder();
-        append(context, "Name", join(user.getFirstName(), user.getLastName()));
+        context.append("=== CANDIDATE PERSONAL INFO ===\n");
+        append(context, "Full Name", join(user.getFirstName(), user.getLastName()));
+        append(context, "First Name", user.getFirstName());
+        append(context, "Last Name", user.getLastName());
         append(context, "Email", user.getEmail());
         append(context, "Phone", user.getPhoneNumber());
-        append(context, "Address", join(user.getAddressLine1(), user.getAddressLine2(), user.getCity(), user.getState(), user.getZip()));
-        append(context, "Location", join(user.getCity(), user.getState(), user.getZip()));
-        append(context, "Summary", user.getSummary());
+        append(context, "Street Address", join(user.getAddressLine1(), user.getAddressLine2()));
+        append(context, "City/State/Zip", join(user.getCity(), user.getState(), user.getZip()));
+        append(context, "Professional Summary", user.getSummary());
 
         List<Education> education = new EducationDAO().getForUser(userId);
-        context.append("Education records:\n");
-        if (education.isEmpty()) context.append("Education: None provided\n");
+        context.append("\n=== CANDIDATE EDUCATION ===\n");
+        if (education.isEmpty()) context.append("None provided\n");
         for (int i = 0; i < education.size(); i++) {
             Education item = education.get(i);
-            context.append("Education ").append(i + 1).append(":\n");
-            append(context, "Institution", item.getInstitution());
-            append(context, "Degree", item.getDegree());
-            append(context, "GPA", item.getGpa());
-            append(context, "Start date", item.getStartDate());
-            append(context, "End date", item.getEndDate());
+            context.append("[Education #").append(i + 1).append("] ");
+            context.append("Degree: ").append(nullSafe(item.getDegree()))
+                   .append(" | Institution: ").append(nullSafe(item.getInstitution()))
+                   .append(" | GPA: ").append(nullSafe(item.getGpa()))
+                   .append(" | Dates: ").append(nullSafe(item.getStartDate())).append(" - ").append(nullSafe(item.getEndDate()))
+                   .append("\n");
         }
 
         List<Experience> experience = new ExperienceDAO().getForUser(userId);
-        context.append("Experience records:\n");
-        if (experience.isEmpty()) context.append("Experience: None provided\n");
+        context.append("\n=== CANDIDATE WORK EXPERIENCE ===\n");
+        if (experience.isEmpty()) context.append("None provided\n");
         for (int i = 0; i < experience.size(); i++) {
             Experience item = experience.get(i);
-            context.append("Experience ").append(i + 1).append(":\n");
-            append(context, "Job title", item.getJobTitle());
-            append(context, "Company", item.getCompanyName());
-            append(context, "Start date", item.getStartDate());
-            append(context, "End date", item.getEndDate());
-            append(context, "Description", item.getDescription());
+            context.append("[Experience #").append(i + 1).append("] ");
+            context.append("Title: ").append(nullSafe(item.getJobTitle()))
+                   .append(" | Company: ").append(nullSafe(item.getCompanyName()))
+                   .append(" | Dates: ").append(nullSafe(item.getStartDate())).append(" - ").append(nullSafe(item.getEndDate()))
+                   .append("\n   Highlights: ").append(nullSafe(item.getDescription())).append("\n");
         }
 
         List<Skill> skills = new SkillDAO().getForUser(userId);
-        context.append("Skill records:\n");
-        if (skills.isEmpty()) context.append("Skills: None provided\n");
-        for (int i = 0; i < skills.size(); i++) {
-            Skill skill = skills.get(i);
-            context.append("Skill ").append(i + 1).append(":\n");
-            append(context, "Skill name", skill.getSkillName());
-            append(context, "Proficiency", skill.getProficiencyLevel());
-        }
-
-        List<AwardsCerts> awards = new AwardsCertsDAO().getForUser(userId);
-        context.append("Award and certification records:\n");
-        if (awards.isEmpty()) context.append("Awards and certifications: None provided\n");
-        for (int i = 0; i < awards.size(); i++) {
-            AwardsCerts award = awards.get(i);
-            context.append("Award/certification ").append(i + 1).append(":\n");
-            append(context, "Title", award.getTitle());
-            append(context, "Issuer", award.getIssuer());
-            append(context, "Date issued", award.getDateIssued());
-            append(context, "Description", award.getDescription());
+        context.append("\n=== CANDIDATE SKILLS ===\n");
+        if (skills.isEmpty()) {
+            context.append("None provided\n");
+        } else {
+            String skillList = skills.stream()
+                    .map(s -> s.getSkillName() + (s.getProficiencyLevel() != null && !s.getProficiencyLevel().isBlank() ? " (" + s.getProficiencyLevel() + ")" : ""))
+                    .collect(Collectors.joining(", "));
+            context.append("Skills List: ").append(skillList).append("\n");
         }
 
         List<Projects> projects = new ProjectsDAO().getForUser(userId);
-        context.append("Project records:\n");
-        if (projects.isEmpty()) context.append("Projects: None provided\n");
+        context.append("\n=== CANDIDATE PROJECTS ===\n");
+        if (projects.isEmpty()) context.append("None provided\n");
         for (int i = 0; i < projects.size(); i++) {
             Projects project = projects.get(i);
-            context.append("Project ").append(i + 1).append(":\n");
-            append(context, "Title", project.getTitle());
-            append(context, "Description", project.getDescription());
-            append(context, "URL", project.getUrl());
+            context.append("[Project #").append(i + 1).append("] ")
+                   .append("Title: ").append(nullSafe(project.getTitle()))
+                   .append(" | URL: ").append(nullSafe(project.getUrl()))
+                   .append(" | Details: ").append(nullSafe(project.getDescription())).append("\n");
         }
+
+        List<AwardsCerts> awards = new AwardsCertsDAO().getForUser(userId);
+        context.append("\n=== CANDIDATE AWARDS & CERTIFICATIONS ===\n");
+        if (awards.isEmpty()) context.append("None provided\n");
+        for (int i = 0; i < awards.size(); i++) {
+            AwardsCerts award = awards.get(i);
+            context.append("[Award #").append(i + 1).append("] ")
+                   .append("Title: ").append(nullSafe(award.getTitle()))
+                   .append(" | Issuer: ").append(nullSafe(award.getIssuer()))
+                   .append(" | Date: ").append(nullSafe(award.getDateIssued())).append("\n");
+        }
+
         return context.toString();
     }
 
-    /** Format job fields by label so job requirements are distinct from applicant facts. */
+    /**
+     * Days 3-4 Task: Heavily tweaked buildJobContext() to clearly isolate target job facts
+     * and keywords for structured prompt mapping.
+     */
     public String buildJobContext(JobPosting job) {
         StringBuilder context = new StringBuilder();
-        append(context, "Job title", job.getJobTitle());
-        append(context, "Company", job.getCompanyName());
-        append(context, "Location", job.getLocation());
+        context.append("=== TARGET JOB POSTING ===\n");
+        append(context, "Target Job Title", job.getJobTitle());
+        append(context, "Target Company Name", job.getCompanyName());
+        append(context, "Job Location", job.getLocation());
         if (job.getPayMin() > 0 || job.getPayMax() > 0) {
             String minimum = job.getPayMin() > 0 ? String.valueOf(job.getPayMin()) : "not specified";
             String maximum = job.getPayMax() > 0 ? String.valueOf(job.getPayMax()) : "not specified";
             String period = job.getPayPeriod() == null || job.getPayPeriod().isBlank() ? "" : " / " + job.getPayPeriod();
-            append(context, "Pay range", minimum + " to " + maximum + period);
+            append(context, "Compensation Range", minimum + " to " + maximum + period);
         }
-        append(context, "Responsibilities", job.getResponsibilities());
-        append(context, "Requirements", job.getRequirements());
-        append(context, "Preferred qualifications", job.getNiceToHave());
+        append(context, "Key Responsibilities", job.getResponsibilities());
+        append(context, "Required Qualifications", job.getRequirements());
+        append(context, "Nice-to-Have Qualifications", job.getNiceToHave());
         append(context, "Benefits", job.getBenefits());
-        append(context, "Full posting text", job.getRawText());
+        append(context, "Original Job Description", job.getRawText());
         return context.toString();
+    }
+
+    /**
+     * Days 3-4 Task: Sends a structured prompt to Ollama instructing it to output strict
+     * KEY :: VALUE pairs for every placeholder in the template, then parses the response.
+     */
+    public Map<String, String> requestStructuredFieldValues(String htmlTemplate, String jobContext, String userContext) {
+        Set<String> fields = new LinkedHashSet<>(fieldParser.extractFields(htmlTemplate));
+        // Also ensure any [bracketed] token in the raw HTML is captured
+        Matcher matcher = BRACKET_FIELD_PATTERN.matcher(htmlTemplate == null ? "" : htmlTemplate);
+        while (matcher.find()) {
+            fields.add(matcher.group(1).trim());
+        }
+
+        if (fields.isEmpty()) {
+            return new LinkedHashMap<>();
+        }
+
+        String numberedFields = fields.stream()
+                .map(f -> "- " + f)
+                .collect(Collectors.joining("\n"));
+
+        String templatePlainText = Jsoup.parse(htmlTemplate).text();
+
+        String prompt = "You are an expert career assistant filling out placeholders for a job application document.\n"
+                + "Below is a list of required template placeholders, the candidate's verified profile, the target job posting, and the template text for context.\n\n"
+                + "STRICT OUTPUT FORMAT RULES:\n"
+                + "1. Return ONLY one line per placeholder in the exact format: FIELD_NAME :: VALUE\n"
+                + "2. Do NOT include brackets [ ] around FIELD_NAME.\n"
+                + "3. Every single field listed under REQUIRED FIELDS MUST appear in your output.\n"
+                + "4. Keep each VALUE on a single line (use spaces instead of line breaks).\n"
+                + "5. Use ONLY truthful facts from CANDIDATE PROFILE for the candidate's background, and TARGET JOB POSTING for the company/role name.\n"
+                + "6. Do NOT write introductions, markdown blocks, explanations, or HTML.\n\n"
+                + "REQUIRED FIELDS:\n" + numberedFields + "\n\n"
+                + userContext + "\n"
+                + jobContext + "\n"
+                + "TEMPLATE CONTEXT:\n" + templatePlainText + "\n\n"
+                + "BEGIN OUTPUT (Format: FIELD_NAME :: VALUE):\n";
+
+        String rawAiOutput = sendToOllama(prompt);
+        return parseStructuredKeyValueOutput(rawAiOutput, fields, jobContext, userContext);
+    }
+
+    /**
+     * Parses Ollama's structured "KEY :: VALUE" (or "KEY: VALUE") output into a Map,
+     * matching case-insensitively against the template's actual field names.
+     */
+    public Map<String, String> parseStructuredKeyValueOutput(String aiResponse, Set<String> expectedFields, String jobContext, String userContext) {
+        Map<String, String> result = new LinkedHashMap<>();
+        if (aiResponse != null && !aiResponse.isBlank()) {
+            String[] lines = aiResponse.split("\\r?\\n");
+            for (String rawLine : lines) {
+                String line = rawLine.trim().replaceAll("^[-*•\\d.)\\s]+", "");
+                if (line.isBlank()) continue;
+
+                int delimiterIdx = line.indexOf("::");
+                int delimiterLen = 2;
+                if (delimiterIdx < 0) {
+                    delimiterIdx = line.indexOf(':');
+                    delimiterLen = 1;
+                }
+                if (delimiterIdx <= 0) continue;
+
+                String rawKey = line.substring(0, delimiterIdx).trim()
+                        .replaceAll("^\\[|\\]$", "")
+                        .replaceAll("^\"|\"$", "");
+                String rawVal = line.substring(delimiterIdx + delimiterLen).trim()
+                        .replaceAll("^\"|\"$", "");
+
+                if (rawKey.isEmpty() || rawVal.isEmpty()) continue;
+
+                // Match against expected fields (case-insensitive)
+                for (String expected : expectedFields) {
+                    String cleanExpected = expected.replaceAll("^\\[|\\]$", "").trim();
+                    if (cleanExpected.equalsIgnoreCase(rawKey)) {
+                        result.put(cleanExpected, rawVal);
+                        break;
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Programmatically maps parsed key-value pairs into the HTML template and invokes an optional
+     * progress callback (completedFields, totalFields) for the UI.
+     */
+    public String applyFieldsProgrammatically(String htmlTemplate, Map<String, String> fieldValues, BiConsumer<Integer, Integer> progressCallback) {
+        if (htmlTemplate == null || htmlTemplate.isBlank()) return "";
+
+        Set<String> allFields = new LinkedHashSet<>();
+        Matcher matcher = BRACKET_FIELD_PATTERN.matcher(htmlTemplate);
+        while (matcher.find()) {
+            allFields.add(matcher.group(1).trim());
+        }
+
+        int total = allFields.size();
+        int current = 0;
+        String updatedHtml = htmlTemplate;
+
+        for (String field : allFields) {
+            current++;
+            String replacement = findMatchingValue(field, fieldValues);
+            if (replacement != null && !replacement.isBlank()) {
+                updatedHtml = updatedHtml.replace("[" + field + "]", replacement);
+            }
+            if (progressCallback != null) {
+                progressCallback.accept(current, total);
+            }
+        }
+        return updatedHtml;
+    }
+
+    private String findMatchingValue(String fieldName, Map<String, String> fieldValues) {
+        if (fieldValues == null) return null;
+        String cleanField = fieldName.replaceAll("^\\[|\\]$", "").trim();
+        if (fieldValues.containsKey(cleanField)) {
+            return fieldValues.get(cleanField);
+        }
+        for (Map.Entry<String, String> entry : fieldValues.entrySet()) {
+            String cleanKey = entry.getKey().replaceAll("^\\[|\\]$", "").trim();
+            if (cleanKey.equalsIgnoreCase(cleanField)) {
+                return entry.getValue();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Inspects an HTML string and returns a list of any [Placeholder] fields that are still unfilled.
+     */
+    public List<String> findUnfilledFields(String htmlContent) {
+        List<String> unfilled = new ArrayList<>();
+        if (htmlContent == null) return unfilled;
+        Matcher matcher = BRACKET_FIELD_PATTERN.matcher(htmlContent);
+        while (matcher.find()) {
+            String fieldName = matcher.group(1).trim();
+            if (!unfilled.contains(fieldName)) {
+                unfilled.add(fieldName);
+            }
+        }
+        return unfilled;
+    }
+
+    /**
+     * Days 3-4 Task: Tweaked fillTemplateWithAI() to generate structured key-value pairs
+     * and programmatically fill all [brackets] without breaking HTML formatting.
+     */
+    public String fillTemplateWithAI(String htmlTemplate, Map<String, String> jobFields, String userContext) {
+        return fillTemplateWithAI(htmlTemplate, jobFields, userContext, null);
+    }
+
+    /**
+     * Overload that accepts a field-by-field progress listener (completedCount, totalCount).
+     */
+    public String fillTemplateWithAI(String htmlTemplate, Map<String, String> jobFields, String userContext, BiConsumer<Integer, Integer> progressCallback) {
+        String jobContextStr = jobFields == null ? "" : jobFields.entrySet().stream()
+                .map(e -> e.getKey() + ": " + e.getValue())
+                .collect(Collectors.joining("\n"));
+
+        Map<String, String> aiFieldMap = requestStructuredFieldValues(htmlTemplate, jobContextStr, userContext);
+
+        // Also merge direct jobFields (like Company Name, Job Title) as automatic fallbacks
+        if (jobFields != null) {
+            for (Map.Entry<String, String> entry : jobFields.entrySet()) {
+                aiFieldMap.putIfAbsent(entry.getKey(), entry.getValue());
+            }
+        }
+
+        return applyFieldsProgrammatically(htmlTemplate, aiFieldMap, progressCallback);
     }
 
     public String extractTemplateFields(String templateHtml) {
@@ -198,7 +379,6 @@ public class TemplateService {
             throw new IllegalStateException("The model output did not contain the template's opening text; no PDF was saved." + generatedOutput);
         }
         int start = match.start();
-        // Preserve opening tags directly around the matched text (for example, <p><strong>Dear...).
         int boundary = start;
         while (true) {
             int tagEnd = generatedOutput.lastIndexOf('>', boundary - 1);
@@ -227,16 +407,6 @@ public class TemplateService {
     public String generateDocument(String templateName, Map<String, String> jobFields, String userProfileContext) {
         return sendToOllama("Create application material for template " + templateName + ". Job information:\n"
                 + jobFields + "\nApplicant information:\n" + userProfileContext);
-    }
-
-    public String fillTemplateWithAI(String htmlTemplate, Map<String, String> jobFields, String userContext) {
-        String fields = extractTemplateFields(htmlTemplate);
-        String prompt = "Return the complete HTML template, replacing only text inside bracketed placeholders. "
-                + "Preserve all other text and HTML tags exactly. Do not invent applicant facts. Use relevant job keywords "
-                + "naturally, emphasize truthful matching skills, and return no markdown fences or commentary.\n"
-                + "Placeholders: " + fields + "\nApplicant facts:\n" + userContext
-                + "\nJob facts:\n" + jobFields + "\nHTML template:\n" + htmlTemplate;
-        return trimBeforeTemplateStart(sendToOllama(prompt), htmlTemplate);
     }
 
     private String sendToOllama(String prompt) {
@@ -320,12 +490,13 @@ public class TemplateService {
         if (value != null && !value.isBlank()) output.append(label).append(": ").append(value.trim()).append('\n');
     }
 
+    private static String nullSafe(String value) {
+        return value == null || value.isBlank() ? "N/A" : value.trim();
+    }
+
     private static String join(String... values) {
         return java.util.Arrays.stream(values).filter(value -> value != null && !value.isBlank())
                 .map(String::trim).collect(Collectors.joining(" | "));
     }
 
 }
-
-// TODO check on why it doesnt try to fill all the [fields] and look for the ones that are missing. It should be able to fill all the fields and then return a list of the ones that are missing.
-// 
