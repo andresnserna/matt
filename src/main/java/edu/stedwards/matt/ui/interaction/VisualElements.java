@@ -162,21 +162,21 @@ public class VisualElements {
       VBox menuButtons = new VBox();
       menuButtons.setSpacing(8);
 
-      Button homeButton = Buttons.button(MainScreenText.BUTTON_HOME_ICON, MainScreenText.BUTTON_HOME, null, buttonWidth, "sidebar-button");
+      // Button homeButton = Buttons.button(MainScreenText.BUTTON_HOME_ICON, MainScreenText.BUTTON_HOME, null, buttonWidth, "sidebar-button");
       Button templatesButton = Buttons.button(MainScreenText.BUTTON_TEMPLATES_ICON, MainScreenText.BUTTON_TEMPLATES, null, buttonWidth, "sidebar-button");
       Button applicationsButton = Buttons.button(MainScreenText.BUTTON_APPLICATIONS_ICON, MainScreenText.BUTTON_APPLICATIONS, null, buttonWidth, "sidebar-button");
       Button myInfoButton = Buttons.button(MainScreenText.BUTTON_MY_INFO_ICON, MainScreenText.BUTTON_MY_INFO, null, buttonWidth, "sidebar-button");
       Button settingsButton = Buttons.button(MainScreenText.BUTTON_SETTINGS_ICON, MainScreenText.BUTTON_SETTINGS, null, buttonWidth, "sidebar-button");
 
       if (mainLayout != null) {
-         homeButton.setOnAction(event -> mainLayout.handleHomeNavigation());
+         // homeButton.setOnAction(event -> mainLayout.handleHomeNavigation());
          templatesButton.setOnAction(event -> mainLayout.handleTemplatesNavigation());
          applicationsButton.setOnAction(event -> mainLayout.handleApplicationsNavigation());
          myInfoButton.setOnAction(event -> mainLayout.handleMyInfoNavigation());
          settingsButton.setOnAction(event -> mainLayout.handleSettingsNavigation());
       }
-
-      menuButtons.getChildren().addAll(homeButton, templatesButton, applicationsButton, myInfoButton, settingsButton);
+      // menuButtons.getChildren().addAll(homeButton, templatesButton, applicationsButton, myInfoButton, settingsButton);
+      menuButtons.getChildren().addAll(templatesButton, applicationsButton, myInfoButton, settingsButton);
 
       VBox recentApplicationsContent = new VBox();
       VBox recentApplicationsDrawer = collapsableDrawer(

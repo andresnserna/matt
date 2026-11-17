@@ -76,7 +76,8 @@ public class OverviewController {
         edu.stedwards.matt.ui.layouts.other.MainLayout mainLayout = new edu.stedwards.matt.ui.layouts.other.MainLayout();
         
         // 2. Set the default starting screen inside the shell
-        mainLayout.showStep(new edu.stedwards.matt.ui.layouts.application.ApplicationUploadJob());
+        mainLayout.showStep(new edu.stedwards.matt.ui.layouts.application.ApplicationUploadJob(job ->
+                mainLayout.showStep(new edu.stedwards.matt.ui.layouts.application.ApplicationConfirmFields(job))));
         
         // 3. Grab the active window and swap the root layout
         ((Node) event.getSource()).getScene().setRoot(mainLayout);

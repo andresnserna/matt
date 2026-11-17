@@ -4,14 +4,12 @@
  */
 package edu.stedwards.matt.ui.layouts.other;
 
-// import javafx.scene.layout.VBox;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
 import edu.stedwards.matt.ui.interaction.VisualElements;
 import edu.stedwards.matt.ui.layouts.application.ApplicationHome;
 import edu.stedwards.matt.ui.layouts.template.TemplatesHome;
+import edu.stedwards.matt.ui.layouts.myinfo.MyInfoLayout;
 
 
 /**
@@ -63,23 +61,13 @@ public class MainLayout extends BorderPane {
         showStep(new ApplicationHome());
     }
 
-    /** Navigate to the My Info screen (its full editing flow is not implemented yet). */
+    /** Navigate to the read-only My Info screen. */
     public void handleMyInfoNavigation() {
-        BorderPane myInfoPlaceholder = new BorderPane();
-        Label message = new Label("My Info\nThis section is coming soon.");
-        message.setWrapText(true);
-        myInfoPlaceholder.setCenter(message);
-        myInfoPlaceholder.getStyleClass().add("screen-padding");
-        showStep(myInfoPlaceholder);
+        showStep(new MyInfoLayout());
     }
 
-    /** Navigate to the Settings screen (its layout is not implemented yet). */
+    /** Navigate to the Settings screen. */
     public void handleSettingsNavigation() {
-        BorderPane settingsPlaceholder = new BorderPane();
-        Label message = new Label("Settings\nThis section is coming soon.");
-        message.setWrapText(true);
-        settingsPlaceholder.setCenter(message);
-        settingsPlaceholder.getStyleClass().add("screen-padding");
-        showStep(settingsPlaceholder);
+        showStep(new SettingsLayout());
     }
 }

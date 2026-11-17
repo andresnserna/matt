@@ -12,11 +12,13 @@ import edu.stedwards.matt.dao.TemplateDAO;
 import edu.stedwards.matt.models.OnboardingSession;
 import edu.stedwards.matt.models.entity.Template;
 import edu.stedwards.matt.ui.TextStyles;
+import edu.stedwards.matt.ui.interaction.Buttons;
 import edu.stedwards.matt.ui.interaction.VisualElements;
 import edu.stedwards.matt.ui.layouts.other.MainLayout;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
@@ -26,6 +28,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextFlow;
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 
 public class TemplatesHome extends BorderPane {
    public record TemplateCardData(String name, String editedLabel, String fileLoc, int templateId) {
@@ -96,12 +99,11 @@ public class TemplatesHome extends BorderPane {
       }
       setCenter(VisualElements.scrollable(cards));
 
-      Button newTemplate = new Button("New Template  ⊕");
-      newTemplate.getStyleClass().add("new-template-button");
+      Button newTemplate = Buttons.button(FontAwesomeSolid.PLUS_CIRCLE,
+            "New Template", event -> handleNewTemplate(),
+            Region.USE_COMPUTED_SIZE, "new-template-button");
+      newTemplate.setContentDisplay(ContentDisplay.RIGHT);
       
-      // Connect new template button listener
-      newTemplate.setOnAction(event -> handleNewTemplate());
-
       HBox footer = new HBox(newTemplate);
       footer.setAlignment(Pos.BOTTOM_RIGHT);
       footer.setPadding(new Insets(21, 0, 0, 0));
