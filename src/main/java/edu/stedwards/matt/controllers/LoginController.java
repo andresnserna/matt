@@ -2,6 +2,7 @@ package edu.stedwards.matt.controllers;
 
 import edu.stedwards.matt.models.OnboardingSession;
 import edu.stedwards.matt.models.entity.User;
+import edu.stedwards.matt.services.OllamaService;
 import edu.stedwards.matt.services.UserService;
 import edu.stedwards.matt.ui.layouts.onboarding.OnboardingWelcome;
 import java.util.prefs.Preferences;
@@ -22,6 +23,8 @@ public class LoginController {
     private final Preferences prefs = Preferences.userNodeForPackage(LoginController.class);
     private static final String PREF_USERNAME = "rememberedUsername";
 
+    private final OllamaService ollamaService = new OllamaService();
+
     @FXML
     public void initialize() {
         // Auto-fill from remembered OS settings
@@ -30,6 +33,21 @@ public class LoginController {
             usernameField.setText(lastUser);
             rememberMeCheckBox.setSelected(true);
         }
+
+        // Days 1-2 Task: Initialize Ollama service in background on startup
+        initOllamaAsync(null);
+    }
+
+    /**
+     * Starts and validates Ollama on a background daemon thread so the JavaFX UI never freezes.
+     */
+    public void initOllamaAsync(String apiKey) {
+        Thread ollamaInitThread = new Thread(() -> {
+            boolean ready = ollamaService.validateApiKey(apiKey);
+            System.out.println("Ollama background check complete. Running: " + ready);
+        }, "ollama-init-thread");
+        ollamaInitThread.setDaemon(true);
+        ollamaInitThread.start();
     }
 
     @FXML
@@ -48,6 +66,9 @@ public class LoginController {
                 prefs.remove(PREF_USERNAME);
             }
             
+            // Ensure Ollama is running and validate user's API key on login
+            initOllamaAsync(user.getOllamaApiKey());
+
             OnboardingSession.getInstance().setUserProfile(user);
             if (userService.isOnboarded(user.getUserID())) {
                 navigateToMainApp(event);

@@ -3,21 +3,20 @@ package edu.stedwards.matt.controllers;
 import java.io.IOException;
 import java.util.Map;
 
-import edu.stedwards.matt.dao.SkillDAO;
-import edu.stedwards.matt.dao.UserDAO;
-import edu.stedwards.matt.models.entity.Skill; // Added import for the Skill model
+import edu.stedwards.matt.models.OnboardingSession;
 import edu.stedwards.matt.models.entity.User;
 import edu.stedwards.matt.services.DocumentExtractionService;
 import edu.stedwards.matt.services.ParserService;
+import edu.stedwards.matt.services.ProfileService;
 
 public class ProfileController {
-    
+
     private final ParserService parserService;
-    private final UserDAO userDAO;
+    private final ProfileService profileService;
 
     public ProfileController() {
         this.parserService = new ParserService();
-        this.userDAO = new UserDAO();
+        this.profileService = new ProfileService();
     }
 
     public Map<String, String> uploadResumeFile(String filePath) {
@@ -31,49 +30,58 @@ public class ProfileController {
         }
     }
 
-    // 1. Send raw text to the AI parser
+    // 1. Send raw text to the AI parser and populate OnboardingSession's User profile
     public Map<String, String> parseResumeText(String rawText) {
         if (rawText == null || rawText.isBlank()) {
             System.out.println("Controller Error: No text provided.");
             return null;
         }
-        return parserService.parseResume(rawText);
+        Map<String, String> parsedData = parserService.parseResume(rawText);
+        if (parsedData != null && !parsedData.isEmpty()) {
+            syncParsedDataToOnboardingSession(parsedData);
+        }
+        return parsedData;
     }
 
-    // 2. Save verified fields to the SQLite database
-    public boolean saveUserProfile(Map<String, String> profileData) {
-        User user = new User();
-        
-        String fullName = profileData.getOrDefault("Full Name", "");
-        String[] nameParts = fullName.split(" ", 2);
-        
-        user.setFirstName(nameParts[0]);
-        user.setLastName(nameParts.length > 1 ? nameParts[1] : "");
-        user.setEmail(profileData.getOrDefault("Email", ""));
-        user.setPhoneNumber(""); 
-        user.setSummary("");
-        
-        // 1. Save user and get their new ID
-        int newUserId = userDAO.saveAndGetId(user);
-        
-        if (newUserId != -1) {
-            // 2. Parse the comma-separated skills and save them individually
-            SkillDAO skillDAO = new SkillDAO();
-            String rawSkills = profileData.getOrDefault("Skills", "");
-            
-            if (!rawSkills.isBlank()) {
-                String[] skillArray = rawSkills.split(",");
-                for (String skillName : skillArray) {
-                    // Instantiate the Skill object to match the updated SkillDAO
-                    Skill skill = new Skill();
-                    skill.setUserID(newUserId);
-                    skill.setSkillName(skillName);
-                    skillDAO.save(skill);
-                }
-            }
-            return true;
+    /**
+     * Day 5 Task: Syncs AI-parsed resume fields directly into OnboardingSession's User entity
+     * so personal info is immediately available during onboarding and on MyInfoLayout.
+     */
+    private void syncParsedDataToOnboardingSession(Map<String, String> parsedData) {
+        User sessionUser = OnboardingSession.getInstance().getUserProfile();
+        if (sessionUser == null) {
+            sessionUser = new User();
+            OnboardingSession.getInstance().setUserProfile(sessionUser);
         }
-        
-        return false; 
+
+        String fullName = parsedData.getOrDefault("Full Name", "").trim();
+        if (!fullName.isEmpty()) {
+            String[] parts = fullName.split("\\s+", 2);
+            sessionUser.setFirstName(parts[0]);
+            if (parts.length > 1) {
+                sessionUser.setLastName(parts[1]);
+            }
+        }
+        if (!parsedData.getOrDefault("Email", "").isBlank()) {
+            sessionUser.setEmail(parsedData.get("Email").trim());
+        }
+        if (!parsedData.getOrDefault("Phone", "").isBlank()) {
+            sessionUser.setPhoneNumber(parsedData.get("Phone").trim());
+        }
+    }
+
+    // 2. Day 5 Task: Connect saveUserProfile(Map) to OnboardingSession and ProfileService
+    public boolean saveUserProfile(Map<String, String> profileData) {
+        return profileService.saveUserProfileFromMap(profileData);
+    }
+
+    // 3. Day 5 Task: Save or update a User entity directly (used by MyInfoLayout and Onboarding)
+    public boolean saveUserProfile(User user) {
+        return profileService.saveUserProfile(user);
+    }
+
+    // 4. Load the currently active User profile (from OnboardingSession / SQLite)
+    public User getCurrentUserProfile() {
+        return profileService.getCurrentUserProfile();
     }
 }
