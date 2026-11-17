@@ -37,8 +37,6 @@ import edu.stedwards.matt.ui.layouts.onboarding.OnboardingWelcome;
 import edu.stedwards.matt.ui.layouts.other.LoginLayout;
 import edu.stedwards.matt.ui.layouts.other.MainLayout;
 // import edu.stedwards.matt.ui.layouts.other.StartLayout;
-import edu.stedwards.matt.ui.layouts.myinfo.MyInfoEditingStep;
-import edu.stedwards.matt.ui.layouts.myinfo.MyInfoHomeStep;
 import edu.stedwards.matt.ui.layouts.other.SettingsLayout;
 import edu.stedwards.matt.ui.layouts.template.TemplatesHome;
 import edu.stedwards.matt.ui.layouts.template.TemplatesEditor;
@@ -104,18 +102,7 @@ public class Matt extends Application {
                         () -> mainShell(ApplicationConfirmFields::new)),
                 new PreviewScreen("Main - Applications - Final Overview / Application Page",
                         () -> mainShell(() -> new ApplicationGenerateMaterials(0))),
-                new PreviewScreen("Main - My Info - Home", () -> mainShell(() -> {
-                    new MyInfoHomeStep();
-                    return placeholderScreen("My Info Home");
-                })),
-                new PreviewScreen("Main - My Info - Edit Fields", () -> mainShell(() -> {
-                    new MyInfoEditingStep();
-                    return placeholderScreen("Edit My Info");
-                })),
-                new PreviewScreen("Main - Settings", () -> mainShell(() -> {
-                    new SettingsLayout();
-                    return placeholderScreen("Settings");
-                })));
+                new PreviewScreen("Main - Settings", () -> mainShell(SettingsLayout::new)));
 
         int[] currentIndex = { 0 };
         BorderPane preview = new BorderPane();

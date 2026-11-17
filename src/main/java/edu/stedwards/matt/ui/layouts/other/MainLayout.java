@@ -5,6 +5,8 @@
 package edu.stedwards.matt.ui.layouts.other;
 
 import edu.stedwards.matt.services.OllamaService;
+import javafx.scene.Node;
+import javafx.scene.layout.BorderPane;
 import edu.stedwards.matt.ui.interaction.VisualElements;
 import edu.stedwards.matt.ui.layouts.application.ApplicationHome;
 import edu.stedwards.matt.ui.layouts.myinfo.MyInfoLayout;
@@ -21,6 +23,8 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import edu.stedwards.matt.ui.layouts.myinfo.MyInfoLayout;
+
 
 /**
  * Builds the main home layout after a user has entered the app.
@@ -137,18 +141,13 @@ public class MainLayout extends BorderPane {
         showStep(new ApplicationHome());
     }
 
-    /** Day 5 View Task: Navigate to the My Info screen to display and edit personal info from onboarding. */
+    /** Navigate to the read-only My Info screen. */
     public void handleMyInfoNavigation() {
         showStep(new MyInfoLayout());
     }
 
-    /** Navigate to the Settings screen (its layout is not implemented yet). */
+    /** Navigate to the Settings screen. */
     public void handleSettingsNavigation() {
-        BorderPane settingsPlaceholder = new BorderPane();
-        Label message = new Label("Settings\nThis section is coming soon.");
-        message.setWrapText(true);
-        settingsPlaceholder.setCenter(message);
-        settingsPlaceholder.getStyleClass().add("screen-padding");
-        showStep(settingsPlaceholder);
+        showStep(new SettingsLayout());
     }
 }
