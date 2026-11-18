@@ -35,18 +35,18 @@ import edu.stedwards.matt.ui.layouts.myinfo.MyInfoLayout;
 
 public class MainLayout extends BorderPane {
     private final VisualElements visualElements = new VisualElements();
-    private final OllamaService ollamaService = new OllamaService();
+    // private final OllamaService ollamaService = new OllamaService();
     private final BorderPane contentWrapper = new BorderPane();
 
     private Node currentStep;
-    private Circle ollamaStatusDot;
-    private Label ollamaStatusLabel;
-    private Button retryOllamaButton;
+    // private Circle ollamaStatusDot;
+    // private Label ollamaStatusLabel;
+    // private Button retryOllamaButton;
 
     public void showStep(Node step) {
         currentStep = step;
         contentWrapper.setCenter(currentStep);
-        refreshOllamaStatusAsync(false);
+        // refreshOllamaStatusAsync(false);
     }
 
     /**
@@ -61,70 +61,70 @@ public class MainLayout extends BorderPane {
     public MainLayout() {
         setLeft(visualElements.mainSideBar(this));
 
-        contentWrapper.setTop(buildOllamaStatusBar());
+        // contentWrapper.setTop(buildOllamaStatusBar());
         contentWrapper.setCenter(buildMainHomeLayout());
         setCenter(contentWrapper);
 
         // Check Ollama status on a background thread when the dashboard loads
-        refreshOllamaStatusAsync(false);
+        // refreshOllamaStatusAsync(false);
     }
 
-    /**
-     * Days 1-2 View Task: Builds the live Ollama status indicator bar.
-     */
-    private HBox buildOllamaStatusBar() {
-        ollamaStatusDot = new Circle(5, Color.GRAY);
-        ollamaStatusLabel = new Label("Ollama: Checking...");
-        ollamaStatusLabel.getStyleClass().add("input-label");
+    // /**
+    //  * Days 1-2 View Task: Builds the live Ollama status indicator bar.
+    //  */
+    // private HBox buildOllamaStatusBar() {
+    //     ollamaStatusDot = new Circle(5, Color.GRAY);
+    //     ollamaStatusLabel = new Label("Ollama: Checking...");
+    //     ollamaStatusLabel.getStyleClass().add("input-label");
 
-        retryOllamaButton = new Button("Start / Retry");
-        retryOllamaButton.setVisible(false);
-        retryOllamaButton.setManaged(false);
-        retryOllamaButton.setOnAction(event -> refreshOllamaStatusAsync(true));
+    //     retryOllamaButton = new Button("Start / Retry");
+    //     retryOllamaButton.setVisible(false);
+    //     retryOllamaButton.setManaged(false);
+    //     retryOllamaButton.setOnAction(event -> refreshOllamaStatusAsync(true));
 
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
+    //     Region spacer = new Region();
+    //     HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        HBox statusBar = new HBox(8, spacer, ollamaStatusDot, ollamaStatusLabel, retryOllamaButton);
-        statusBar.setAlignment(Pos.CENTER_RIGHT);
-        statusBar.setPadding(new Insets(10, 20, 4, 20));
-        return statusBar;
-    }
+    //     HBox statusBar = new HBox(8, spacer, ollamaStatusDot, ollamaStatusLabel, retryOllamaButton);
+    //     statusBar.setAlignment(Pos.CENTER_RIGHT);
+    //     statusBar.setPadding(new Insets(10, 20, 4, 20));
+    //     return statusBar;
+    // }
 
-    /**
-     * Checks or starts Ollama on a background daemon thread and updates the status indicator on the JavaFX thread.
-     */
-    public void refreshOllamaStatusAsync(boolean attemptStart) {
-        if (ollamaStatusLabel != null) {
-            Platform.runLater(() -> {
-                ollamaStatusDot.setFill(Color.ORANGE);
-                ollamaStatusLabel.setText(attemptStart ? "Ollama: Starting..." : "Ollama: Checking...");
-                retryOllamaButton.setDisable(true);
-            });
-        }
+    // /**
+    //  * Checks or starts Ollama on a background daemon thread and updates the status indicator on the JavaFX thread.
+    //  */
+    // public void refreshOllamaStatusAsync(boolean attemptStart) {
+    //     if (ollamaStatusLabel != null) {
+    //         Platform.runLater(() -> {
+    //             ollamaStatusDot.setFill(Color.ORANGE);
+    //             ollamaStatusLabel.setText(attemptStart ? "Ollama: Starting..." : "Ollama: Checking...");
+    //             retryOllamaButton.setDisable(true);
+    //         });
+    //     }
 
-        Thread checkThread = new Thread(() -> {
-            boolean running = attemptStart ? ollamaService.ensureRunning() : ollamaService.isRunning();
-            Platform.runLater(() -> updateOllamaIndicator(running));
-        }, "ollama-status-check-thread");
-        checkThread.setDaemon(true);
-        checkThread.start();
-    }
+    //     Thread checkThread = new Thread(() -> {
+    //         boolean running = attemptStart ? ollamaService.ensureRunning() : ollamaService.isRunning();
+    //         Platform.runLater(() -> updateOllamaIndicator(running));
+    //     }, "ollama-status-check-thread");
+    //     checkThread.setDaemon(true);
+    //     checkThread.start();
+    // }
 
-    private void updateOllamaIndicator(boolean running) {
-        if (running) {
-            ollamaStatusDot.setFill(Color.web("#2ecc71")); // Green
-            ollamaStatusLabel.setText("Ollama: Connected");
-            retryOllamaButton.setVisible(false);
-            retryOllamaButton.setManaged(false);
-        } else {
-            ollamaStatusDot.setFill(Color.web("#e74c3c")); // Red
-            ollamaStatusLabel.setText("Ollama: Offline");
-            retryOllamaButton.setDisable(false);
-            retryOllamaButton.setVisible(true);
-            retryOllamaButton.setManaged(true);
-        }
-    }
+    // private void updateOllamaIndicator(boolean running) {
+    //     if (running) {
+    //         ollamaStatusDot.setFill(Color.web("#2ecc71")); // Green
+    //         ollamaStatusLabel.setText("Ollama: Connected");
+    //         retryOllamaButton.setVisible(false);
+    //         retryOllamaButton.setManaged(false);
+    //     } else {
+    //         ollamaStatusDot.setFill(Color.web("#e74c3c")); // Red
+    //         ollamaStatusLabel.setText("Ollama: Offline");
+    //         retryOllamaButton.setDisable(false);
+    //         retryOllamaButton.setVisible(true);
+    //         retryOllamaButton.setManaged(true);
+    //     }
+    // }
 
     /** Navigate to the application home screen. */
     public void handleHomeNavigation() {
