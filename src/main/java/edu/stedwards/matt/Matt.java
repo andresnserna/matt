@@ -18,6 +18,11 @@ import javafx.stage.Stage;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+
+import javax.swing.ImageIcon;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+
 import javafx.collections.FXCollections;
 import edu.stedwards.matt.models.entity.AwardsCerts;
 import edu.stedwards.matt.models.entity.Education;
@@ -59,7 +64,24 @@ public class Matt extends Application {
             startNormalApplication(stage);
         }
     }
+    /**
+     * set the custom popup icons for the app
+     */
+    // private void configureOptionPaneIcons() {
+    //     SwingUtilities.invokeLater(() -> {
+    //         Icon appIcon = new ImageIcon(Matt.class.getResource("/images/matt-icon.png"));
 
+    //         UIManager.put("OptionPane.informationIcon", appIcon);
+    //         UIManager.put("OptionPane.questionIcon", appIcon);
+    //         UIManager.put("OptionPane.warningIcon", appIcon);
+    //         UIManager.put("OptionPane.errorIcon", appIcon);
+    //     });
+    // }
+
+    /**
+     * 
+     * ?
+     */
     private void startNormalApplication(Stage stage) {
         stage.setTitle("Matt");
         stage.setScene(new Scene(
