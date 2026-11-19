@@ -6,11 +6,14 @@ import edu.stedwards.matt.ui.labels.OtherScreenText;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -35,7 +38,7 @@ public class SettingsLayout extends BorderPane {
       setTop(title);
       // BorderPane.setMargin(title, new Insets(22, 0, 22, 0));
 
-      VBox content = new VBox(18, buildOllamaSettingsCard(), buildOtherSettingsCard());
+      VBox content = new VBox(18, buildOllamaSettingsCard(), buildOtherSettingsCard(), buildPopupTestingCard());
       content.getStyleClass().add("settings-content");
       setCenter(content);
 
@@ -106,6 +109,44 @@ public class SettingsLayout extends BorderPane {
       card.setAlignment(Pos.CENTER_LEFT);
       card.getStyleClass().add("settings-card");
       return card;
+   }
+
+   /** Displays buttons for trying common JavaFX alert button combinations. */
+   private VBox buildPopupTestingCard() {
+      Label heading = new Label("Popup tests");
+      heading.getStyleClass().add("settings-status-heading");
+
+      FlowPane buttons = new FlowPane(10, 10);
+      buttons.getChildren().addAll(
+            popupTestButton("Alert: OK", Alert.AlertType.INFORMATION, ButtonType.OK),
+            popupTestButton("Alert: OK / Cancel", Alert.AlertType.CONFIRMATION,
+                  ButtonType.OK, ButtonType.CANCEL),
+            popupTestButton("Alert: Yes / No", Alert.AlertType.CONFIRMATION,
+                  ButtonType.YES, ButtonType.NO),
+            popupTestButton("Alert: Yes / No / Cancel", Alert.AlertType.CONFIRMATION,
+                  ButtonType.YES, ButtonType.NO, ButtonType.CANCEL));
+
+      VBox card = new VBox(12, heading, buttons);
+      card.getStyleClass().add("settings-card");
+      return card;
+   }
+
+   private Button popupTestButton(String label, Alert.AlertType alertType, ButtonType... buttonTypes) {
+      Button button = Buttons.button(label,
+            event -> showPopupTest(alertType, buttonTypes), Region.USE_COMPUTED_SIZE, "settings-action-button");
+      return button;
+   }
+
+   private void showPopupTest(Alert.AlertType alertType, ButtonType... buttonTypes) {
+      Alert alert = new Alert(alertType);
+      alert.setTitle("Popup Test");
+      alert.setHeaderText("Placeholder alert");
+      alert.setContentText(OtherScreenText.PLACEHOLDER_MESSAGE);
+      alert.getButtonTypes().setAll(buttonTypes);
+      if (getScene() != null && getScene().getWindow() != null) {
+         alert.initOwner(getScene().getWindow());
+      }
+      alert.showAndWait();
    }
 
    private Label buildDetailLabel(String labelText) {
