@@ -3,15 +3,17 @@ package edu.stedwards.matt.ui.layouts.other;
 import edu.stedwards.matt.ui.TextStyles;
 import edu.stedwards.matt.ui.interaction.Buttons;
 import edu.stedwards.matt.ui.labels.OtherScreenText;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.Node;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
@@ -111,42 +113,55 @@ public class SettingsLayout extends BorderPane {
       return card;
    }
 
-   /** Displays buttons for trying common JavaFX alert button combinations. */
+   /** Displays buttons for trying common JOptionPane button combinations. */
    private VBox buildPopupTestingCard() {
       Label heading = new Label("Popup tests");
       heading.getStyleClass().add("settings-status-heading");
 
       FlowPane buttons = new FlowPane(10, 10);
       buttons.getChildren().addAll(
-            popupTestButton("Alert: OK", Alert.AlertType.INFORMATION, ButtonType.OK),
-            popupTestButton("Alert: OK / Cancel", Alert.AlertType.CONFIRMATION,
-                  ButtonType.OK, ButtonType.CANCEL),
-            popupTestButton("Alert: Yes / No", Alert.AlertType.CONFIRMATION,
-                  ButtonType.YES, ButtonType.NO),
-            popupTestButton("Alert: Yes / No / Cancel", Alert.AlertType.CONFIRMATION,
-                  ButtonType.YES, ButtonType.NO, ButtonType.CANCEL));
+            popupTestButton("JOptionPane: OK", this::showMessageDialog),
+            popupTestButton("JOptionPane: OK / Cancel", () -> showConfirmDialog(JOptionPane.OK_CANCEL_OPTION)),
+            popupTestButton("JOptionPane: Yes / No", () -> showConfirmDialog(JOptionPane.YES_NO_OPTION)),
+            popupTestButton("JOptionPane: Yes / No / Cancel", () -> showConfirmDialog(JOptionPane.YES_NO_CANCEL_OPTION)));
 
       VBox card = new VBox(12, heading, buttons);
       card.getStyleClass().add("settings-card");
       return card;
    }
 
-   private Button popupTestButton(String label, Alert.AlertType alertType, ButtonType... buttonTypes) {
-      Button button = Buttons.button(label,
-            event -> showPopupTest(alertType, buttonTypes), Region.USE_COMPUTED_SIZE, "settings-action-button");
-      return button;
+   private Button popupTestButton(String label, Runnable showPopup) {
+      return Buttons.button(label, event -> showPopup.run(), Region.USE_COMPUTED_SIZE, "settings-action-button");
    }
 
-   private void showPopupTest(Alert.AlertType alertType, ButtonType... buttonTypes) {
-      Alert alert = new Alert(alertType);
-      alert.setTitle("Popup Test");
-      alert.setHeaderText("Placeholder alert");
-      alert.setContentText(OtherScreenText.PLACEHOLDER_MESSAGE);
-      alert.getButtonTypes().setAll(buttonTypes);
-      if (getScene() != null && getScene().getWindow() != null) {
-         alert.initOwner(getScene().getWindow());
+   private void showMessageDialog() {
+      showSwingPopup(() -> JOptionPane.showMessageDialog(null, OtherScreenText.PLACEHOLDER_MESSAGE,
+            "Popup Test", JOptionPane.INFORMATION_MESSAGE));
+   }
+
+   private void showConfirmDialog(int optionType) {
+      showSwingPopup(() -> JOptionPane.showConfirmDialog(null, OtherScreenText.PLACEHOLDER_MESSAGE,
+            "Popup Test", optionType, JOptionPane.QUESTION_MESSAGE));
+   }
+
+   /** Runs a modal Swing popup on the Swing thread and restores the JavaFX scene afterward. */
+   private void showSwingPopup(Runnable showPopup) {
+      Node sceneRoot = getScene() == null ? null : getScene().getRoot();
+      if (sceneRoot != null) {
+         sceneRoot.setDisable(true);
       }
-      alert.showAndWait();
+
+      SwingUtilities.invokeLater(() -> {
+         try {
+            showPopup.run();
+         } catch (RuntimeException exception) {
+            exception.printStackTrace();
+         } finally {
+            if (sceneRoot != null) {
+               Platform.runLater(() -> sceneRoot.setDisable(false));
+            }
+         }
+      });
    }
 
    private Label buildDetailLabel(String labelText) {
