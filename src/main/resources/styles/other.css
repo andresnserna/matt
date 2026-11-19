@@ -112,6 +112,77 @@
     -fx-padding: 14px;
     -fx-cursor: hand;
 }
+
+/* Local account signup window. */
+.signup-dialog {
+    -fx-pref-width: 760px;
+    -fx-pref-height: 320px;
+    -fx-padding: 12px 28px 14px 28px;
+    -fx-spacing: 8px;
+    -fx-alignment: center;
+    -fx-background-color: #ECF6F8;
+}
+.signup-logo {
+    -fx-min-width: 80px;
+    -fx-pref-width: 88px;
+    -fx-max-width: 88px;
+    -fx-min-height: 57px;
+    -fx-pref-height: 63px;
+    -fx-max-height: 63px;
+}
+.signup-message {
+    -fx-font-size: 20px;
+    -fx-text-fill: #688689;
+    /* -fx-text-fill: #ed0d0d; */
+    -fx-text-alignment: left;
+    -fx-alignment: center-left;
+}
+.signup-fields {
+    -fx-hgap: 12px;
+    -fx-vgap: 10px;
+}
+.signup-field-label {
+    -fx-font-size: 16px;
+    -fx-text-fill: #00757D;
+    -fx-alignment: center-right;
+}
+.signup-field {
+    -fx-pref-width: 500px;
+    -fx-pref-height: 34px;
+    -fx-font-size: 15px;
+    -fx-background-color: white;
+    -fx-border-color: #BDBDBD;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+}
+.signup-error {
+    -fx-min-height: 20px;
+    -fx-pref-height: 20px;
+    -fx-font-size: 14px;
+    -fx-text-fill: #C40000;
+}
+.signup-actions {
+    -fx-spacing: 12px;
+    -fx-alignment: center-right;
+}
+.signup-cancel-button,
+.signup-submit-button {
+    -fx-min-width: 120px;
+    -fx-pref-height: 40px;
+    -fx-background-radius: 14px;
+    -fx-font-size: 16px;
+    -fx-cursor: hand;
+}
+.signup-cancel-button {
+    -fx-background-color: white;
+    -fx-text-fill: black;
+}
+.signup-submit-button {
+    -fx-background-color: #E29578;
+    -fx-text-fill: white;
+}
+.signup-submit-button:hover { -fx-background-color: #D98264; }
+
 .application-card {
     -fx-padding: 16px 20px;
     -fx-border-color: #83C5BE;
