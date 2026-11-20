@@ -85,7 +85,7 @@ public class ParserService {
         
         if (job.getCompanyName() != null && !originalText.contains(job.getCompanyName().toLowerCase())) {
             job.setCompanyName("Validation Failed");
-            job.setSpamScore(job.getSpamScore() + 25.0);
+            // Legacy heuristic is not the normalized 0.0–1.0 classifier score.
             valid = false;
         }
         

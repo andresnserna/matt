@@ -43,6 +43,23 @@ public class ApplicationScreenText {
    public static final String STARTED_TIME_YEARS = "y";
    public static final String STARTED_AGO = "ago";
 
+   //score classifier messages
+   public static final String SCAM_SCORE_UNAVAILABLE = "Scam score unavailable.";
+   public static final String SCAM_SCORE_1_OF_5 = "This job might be a scam.";
+   public static final String SCAM_SCORE_2_OF_5 = "Be cautious of this job.";
+   public static final String SCAM_SCORE_3_OF_5 = "We're unsure about this job.";
+   public static final String SCAM_SCORE_4_OF_5 = "This job might be legitimate.";
+   public static final String SCAM_SCORE_5_OF_5 = "This job looks legitimate.";
+   public static final FontAwesomeSolid SCAM_SCORE_ICON = FontAwesomeSolid.EXCLAMATION_TRIANGLE;
+
+   public static final String JOB_MATCH_SCORE_UNAVAILABLE = "Job match score unavailable.";
+   public static final String JOB_MATCH_SCORE_1_OF_5 = "You're missing several requirements.";
+   public static final String JOB_MATCH_SCORE_2_OF_5 = "You're missing some requirements.";
+   public static final String JOB_MATCH_SCORE_3_OF_5 = "You're an ok fit for this job.";
+   public static final String JOB_MATCH_SCORE_4_OF_5 = "You're a good fit for this job.";
+   public static final String JOB_MATCH_SCORE_5_OF_5 = "You're a great fit for this job";
+   public static final FontAwesomeSolid JOB_MATCH_SCORE_ICON = FontAwesomeSolid.CHECK;
+
    public static final FontAwesomeSolid BUTTON_NEXT_ICON = FontAwesomeSolid.CHEVRON_RIGHT;
    public static final FontAwesomeSolid BUTTON_FINISH_ICON = FontAwesomeSolid.CHEVRON_RIGHT;
    public static final FontAwesomeSolid NEW_APPLICATION_UPLOAD_ICON = FontAwesomeSolid.UPLOAD;

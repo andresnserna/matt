@@ -7,6 +7,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 
 import com.github.weisj.jsvg.SVGDocument;
 import com.github.weisj.jsvg.parser.SVGLoader;
@@ -31,6 +32,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -41,6 +43,8 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -711,5 +715,52 @@ public class VisualElements {
       body.setWrapText(true);
       body.getStyleClass().add("job-detail-section-body");
       return new VBox(4, heading, body);
+   }
+
+   /** Builds a score ring and message. A null or out-of-range score displays the unavailable state. */
+   public static HBox buildScoreWheel(Double score, FontAwesomeSolid icon, String unavailableMessage,
+         String oneOfFive, String twoOfFive, String threeOfFive, String fourOfFive, String fiveOfFive) {
+      boolean available = score != null && Double.isFinite(score) && score >= 0.0 && score <= 1.0;
+      String message = unavailableMessage;
+      if (available) {
+         int band = Math.min(5, (int) Math.floor(score * 5.0) + 1);
+         message = switch (band) {
+            case 1 -> oneOfFive;
+            case 2 -> twoOfFive;
+            case 3 -> threeOfFive;
+            case 4 -> fourOfFive;
+            default -> fiveOfFive;
+         };
+      }
+
+      ProgressIndicator ring = new ProgressIndicator(available ? score : 0.0);
+      ring.setMinSize(58, 58);
+      ring.setPrefSize(58, 58);
+      ring.setMaxSize(58, 58);
+      ring.getStyleClass().add("application-score-ring");
+      if (!available) ring.getStyleClass().add("application-score-unavailable");
+      FontIcon centerIcon = new FontIcon(icon);
+      centerIcon.getStyleClass().add("application-score-icon");
+      if (!available) centerIcon.getStyleClass().add("application-score-icon-unavailable");
+      centerIcon.setTranslateY(-9);
+      Circle centerMask = new Circle(15, Color.WHITE);
+      centerMask.setStroke(null);
+      centerMask.setMouseTransparent(true);
+      centerMask.setTranslateY(-9);
+      StackPane indicator = new StackPane(ring, centerMask, centerIcon);
+      indicator.getStyleClass().add("application-score-indicator");
+
+      Label scoreMessage = new Label(message);
+      scoreMessage.setWrapText(true);
+      scoreMessage.setMinWidth(0);
+      scoreMessage.setMaxWidth(Double.MAX_VALUE);
+      scoreMessage.getStyleClass().add("application-score-message");
+      HBox.setHgrow(scoreMessage, Priority.ALWAYS);
+      HBox result = new HBox(14, indicator, scoreMessage);
+      result.setAlignment(Pos.CENTER_LEFT);
+      result.setMinWidth(0);
+      result.setMaxWidth(Double.MAX_VALUE);
+      result.getStyleClass().add("application-score");
+      return result;
    }
 }

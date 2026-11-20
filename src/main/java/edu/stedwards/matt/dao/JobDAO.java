@@ -36,8 +36,8 @@ public class JobDAO {
             pstmt.setString(14, job.getBenefits());
             pstmt.setString(15, job.getRawText());
             pstmt.setString(16, job.getNormalizedText());
-            pstmt.setDouble(17, job.getMatchScore());
-            pstmt.setDouble(18, job.getSpamScore());
+            if (job.getMatchScore() == null) pstmt.setNull(17, java.sql.Types.REAL); else pstmt.setDouble(17, job.getMatchScore());
+            if (job.getSpamScore() == null) pstmt.setNull(18, java.sql.Types.REAL); else pstmt.setDouble(18, job.getSpamScore());
             pstmt.setString(19, job.getStatus());
             // Note: date_added is omitted from the INSERT because SQLite handles DEFAULT CURRENT_TIMESTAMP automatically
             
@@ -133,8 +133,8 @@ public class JobDAO {
             pstmt.setString(11, job.getBenefits());
             pstmt.setString(12, job.getRawText());
             pstmt.setString(13, job.getNormalizedText());
-            pstmt.setDouble(14, job.getMatchScore());
-            pstmt.setDouble(15, job.getSpamScore());
+            if (job.getMatchScore() == null) pstmt.setNull(14, java.sql.Types.REAL); else pstmt.setDouble(14, job.getMatchScore());
+            if (job.getSpamScore() == null) pstmt.setNull(15, java.sql.Types.REAL); else pstmt.setDouble(15, job.getSpamScore());
             pstmt.setString(16, job.getStatus());
             pstmt.setInt(17, job.getJobpostId());
 
@@ -172,8 +172,10 @@ public class JobDAO {
         
         job.setRawText(rs.getString("raw_text"));
         job.setNormalizedText(rs.getString("normalized_text"));
-        job.setMatchScore(rs.getDouble("match_score"));
-        job.setSpamScore(rs.getDouble("spam_score"));
+        double matchScore = rs.getDouble("match_score");
+        job.setMatchScore(rs.wasNull() ? null : matchScore);
+        double spamScore = rs.getDouble("spam_score");
+        job.setSpamScore(rs.wasNull() ? null : spamScore);
         job.setStatus(rs.getString("status"));
         job.setDateAdded(rs.getString("date_added"));
         
