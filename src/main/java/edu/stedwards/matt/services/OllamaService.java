@@ -6,12 +6,28 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.List;
 
 public class OllamaService {
     private static final String OLLAMA_TAGS_URL = "http://localhost:11434/api/tags";
     private final HttpClient client = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(2))
             .build();
+
+    /** TODO: Run the Ollama model-list operation and return installed model names. */
+    public List<String> listInstalledModels() { return List.of(); }
+
+    /** TODO: Run the Ollama model-inspection operation and return its raw detail output. */
+    public String getModelDetails(String modelName) { return null; }
+
+    /** TODO: Inspect the local Ollama process state and report Running, Idle, or Disconnected. */
+    public String getOllamaStatus() { return null; }
+
+    /** TODO: Start or select the requested model as the active local runner. */
+    public void refreshModelSelection(String modelName) { }
+
+    /** TODO: Parse the current Ollama process output and return the active runner name. */
+    public String getCurrentRunner() { return null; }
 
     /**
      * Checks if the local Ollama server is currently running and reachable.

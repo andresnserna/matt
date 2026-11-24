@@ -13,6 +13,7 @@ import edu.stedwards.matt.models.OnboardingSession;
 import edu.stedwards.matt.models.entity.JobPosting;
 import edu.stedwards.matt.models.entity.Template;
 import edu.stedwards.matt.services.DocumentExportService;
+import edu.stedwards.matt.services.ApplicationScoreService;
 import edu.stedwards.matt.services.TemplateService;
 import edu.stedwards.matt.ui.TextStyles;
 import edu.stedwards.matt.ui.interaction.Buttons;
@@ -67,10 +68,10 @@ public class ApplicationGenerateMaterials extends BorderPane {
       setTop(header);
 
       HBox columns = buildColumns();
-      VBox content = new VBox(columns);
+      VBox content = new VBox(38, buildScoreRow(), columns);
       content.setFillWidth(true);
       content.setMaxWidth(Double.MAX_VALUE);
-      content.setPadding(new Insets(76, 0, 24, 0));
+      content.setPadding(new Insets(36, 0, 24, 0));
       content.setMinHeight(0);
       VBox.setVgrow(columns, Priority.ALWAYS);
       setCenter(content);
@@ -114,10 +115,10 @@ public class ApplicationGenerateMaterials extends BorderPane {
       setTop(header);
 
       HBox columns = buildColumns();
-      VBox content = new VBox(columns);
+      VBox content = new VBox(38, buildScoreRow(), columns);
       content.setFillWidth(true);
       content.setMaxWidth(Double.MAX_VALUE);
-      content.setPadding(new Insets(76, 0, 24, 0));
+      content.setPadding(new Insets(36, 0, 24, 0));
       content.setMinHeight(0);
       VBox.setVgrow(columns, Priority.ALWAYS);
       setCenter(content);
@@ -270,6 +271,41 @@ public class ApplicationGenerateMaterials extends BorderPane {
 
    private static boolean hasText(String value) {
       return value != null && !value.isBlank();
+   }
+
+   /** Loads saved scores or delegates missing values to the score service, then builds both indicators. */
+   private HBox buildScoreRow() {
+      ApplicationScoreService scores = new ApplicationScoreService();
+      Double spamScore = scores.getSpamScore(job);
+      // Double spamScore = 0.2;
+      Double matchScore = scores.getMatchScore(job);
+
+      HBox spam = VisualElements.buildScoreWheel(spamScore, ApplicationScreenText.SCAM_SCORE_ICON,
+            ApplicationScreenText.SCAM_SCORE_UNAVAILABLE,
+            ApplicationScreenText.SCAM_SCORE_1_OF_5, ApplicationScreenText.SCAM_SCORE_2_OF_5,
+            ApplicationScreenText.SCAM_SCORE_3_OF_5, ApplicationScreenText.SCAM_SCORE_4_OF_5,
+            ApplicationScreenText.SCAM_SCORE_5_OF_5);
+      HBox match = VisualElements.buildScoreWheel(matchScore, ApplicationScreenText.JOB_MATCH_SCORE_ICON,
+            ApplicationScreenText.JOB_MATCH_SCORE_UNAVAILABLE,
+            ApplicationScreenText.JOB_MATCH_SCORE_1_OF_5, ApplicationScreenText.JOB_MATCH_SCORE_2_OF_5,
+            ApplicationScreenText.JOB_MATCH_SCORE_3_OF_5, ApplicationScreenText.JOB_MATCH_SCORE_4_OF_5,
+            ApplicationScreenText.JOB_MATCH_SCORE_5_OF_5);
+      spam.getStyleClass().add("application-spam-score");
+      match.getStyleClass().add("application-match-score");
+      spam.setMinWidth(0);
+      match.setMinWidth(0);
+      spam.setPrefWidth(0);
+      match.setPrefWidth(0);
+      spam.setMaxWidth(Double.MAX_VALUE);
+      match.setMaxWidth(Double.MAX_VALUE);
+      HBox.setHgrow(spam, Priority.ALWAYS);
+      HBox.setHgrow(match, Priority.ALWAYS);
+
+      HBox row = new HBox(28, spam, match);
+      row.setAlignment(Pos.CENTER_LEFT);
+      row.setMaxWidth(Double.MAX_VALUE);
+      row.getStyleClass().add("application-score-row");
+      return row;
    }
 
    private String payRange() {

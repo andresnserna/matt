@@ -14,6 +14,24 @@ import edu.stedwards.matt.models.entity.User;
 
 public class UserDAO {
 
+    /** Creates a local account before profile details are collected during onboarding. */
+    public int createLocalAccount(String username, String password) {
+        String sql = "INSERT INTO user_profile (username, password_hash) VALUES (?, ?)";
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            pstmt.setString(1, username);
+            pstmt.setString(2, hashPassword(password));
+            if (pstmt.executeUpdate() > 0) {
+                try (ResultSet rs = pstmt.getGeneratedKeys()) {
+                    if (rs.next()) return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error creating local account: " + e.getMessage());
+        }
+        return -1;
+    }
+
     public int saveAndGetId(User user) {
         String sql = "INSERT INTO user_profile (username, password_hash, first_name, last_name, email, is_onboarded, phone, address_line_1, address_line_2, city, state, zip, summary, ollama_api_key) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         int generatedId = -1;

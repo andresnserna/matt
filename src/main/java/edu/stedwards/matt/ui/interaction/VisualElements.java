@@ -1,71 +1,53 @@
 package edu.stedwards.matt.ui.interaction;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.border.EmptyBorder;
-import javax.swing.plaf.basic.BasicButtonUI;
-
 import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 
 import com.github.weisj.jsvg.SVGDocument;
 import com.github.weisj.jsvg.parser.SVGLoader;
 import com.github.weisj.jsvg.ui.jfx.FXSVGCanvas;
-import com.github.weisj.jsvg.view.ViewBox;
-
 import edu.stedwards.matt.dao.UserDAO;
-import edu.stedwards.matt.models.entity.User;
 import edu.stedwards.matt.ui.TextStyles;
 import edu.stedwards.matt.ui.layouts.other.MainLayout;
+import fr.brouillard.oss.cssfx.CSSFX;
 import edu.stedwards.matt.ui.labels.ApplicationScreenText;
 import edu.stedwards.matt.ui.labels.LoginScreenText;
 import edu.stedwards.matt.ui.labels.MainScreenText;
 import edu.stedwards.matt.ui.labels.OnboardingScreenText;
 import edu.stedwards.matt.ui.labels.OtherScreenText;
-import javafx.application.Platform;
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 public class VisualElements {
    private static final PseudoClass SCROLLABLE_PSEUDO_CLASS = PseudoClass.getPseudoClass("scrollable");
@@ -518,156 +500,83 @@ public class VisualElements {
          throw new IllegalArgumentException("The signup dialog requires a login screen source node");
       }
 
-      Node sceneRoot = source.getScene().getRoot();
-      sceneRoot.setDisable(true);
-      SwingUtilities.invokeLater(() -> {
-         try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+      TextField usernameField = new TextField();
+      usernameField.setPromptText(LoginScreenText.USERNAME_PLACEHOLDER);
+      usernameField.getStyleClass().add("signup-field");
+      PasswordField passwordField = new PasswordField();
+      passwordField.setPromptText(LoginScreenText.PASSWORD_PLACEHOLDER);
+      passwordField.getStyleClass().add("signup-field");
 
-            Color white = Color.WHITE;
-            Color orange = new Color(0xE2, 0x95, 0x78);
-            JTextField usernameField = new JTextField(20);
-            JLabel usernameLabel = new JLabel(LoginScreenText.USERNAME_PLACEHOLDER);
-            usernameLabel.setLabelFor(usernameField);
-            JTextField firstNameField = new JTextField(20);
-            JLabel firstNameLabel = new JLabel("First name");
-            firstNameLabel.setLabelFor(firstNameField);
-            JTextField lastNameField = new JTextField(20);
-            JLabel lastNameLabel = new JLabel("Last name");
-            lastNameLabel.setLabelFor(lastNameField);
-            JTextField emailField = new JTextField(20);
-            JLabel emailLabel = new JLabel("Email");
-            emailLabel.setLabelFor(emailField);
-            JPasswordField passwordField = new JPasswordField(20);
-            JLabel passwordLabel = new JLabel(LoginScreenText.PASSWORD_PLACEHOLDER);
-            passwordLabel.setLabelFor(passwordField);
+      Label usernameLabel = new Label(LoginScreenText.USERNAME_PLACEHOLDER);
+      usernameLabel.getStyleClass().add("signup-field-label");
+      usernameLabel.setLabelFor(usernameField);
+      Label passwordLabel = new Label(LoginScreenText.PASSWORD_PLACEHOLDER);
+      passwordLabel.getStyleClass().add("signup-field-label");
+      passwordLabel.setLabelFor(passwordField);
 
-            for (JTextField field : new JTextField[] { usernameField, passwordField }) {
-               field.setBackground(white);
-               field.setSelectionColor(orange);
-               field.setSelectedTextColor(white);
-               field.setPreferredSize(new Dimension(320, 34));
-               field.setMaximumSize(new Dimension(320, 34));
-            }
+      GridPane fields = new GridPane();
+      fields.getStyleClass().add("signup-fields");
+      fields.add(usernameLabel, 0, 0);
+      fields.add(usernameField, 1, 0);
+      fields.add(passwordLabel, 0, 1);
+      fields.add(passwordField, 1, 1);
 
-            JPanel form = new JPanel();
-            form.setLayout(new BoxLayout(form, BoxLayout.Y_AXIS));
-            form.setBackground(white);
-            form.setBorder(new EmptyBorder(12, 20, 12, 20));
+      Label message = new Label(LoginScreenText.SIGNUP_MESSAGE);
+      message.getStyleClass().add("signup-message");
+      message.setWrapText(true);
+      message.setMaxWidth(Double.MAX_VALUE);
 
-            JLabel logo = new JLabel(loadSignupLogo());
-            logo.setAlignmentX(Component.CENTER_ALIGNMENT);
-            form.add(logo);
-            form.add(Box.createVerticalStrut(12));
-            addSignupField(form, usernameLabel, usernameField, white);
-            form.add(Box.createVerticalStrut(12));
-            addSignupField(form, firstNameLabel, firstNameField, white);
-            form.add(Box.createVerticalStrut(12));
-            addSignupField(form, lastNameLabel, lastNameField, white);
-            form.add(Box.createVerticalStrut(12));
-            addSignupField(form, emailLabel, emailField, white);
-            form.add(Box.createVerticalStrut(12));
-            addSignupField(form, passwordLabel, passwordField, white);
-            form.setPreferredSize(new Dimension(360, 470));
+      Label errorLabel = new Label(LoginScreenText.SIGNUP_ERROR_PLACEHOLDER);
+      errorLabel.getStyleClass().add("signup-error");
+      errorLabel.setMaxWidth(Double.MAX_VALUE);
 
-            JButton signupButton = new JButton(LoginScreenText.SIGNUP_BUTTON);
-            signupButton.setUI(new BasicButtonUI());
-            signupButton.setBackground(orange);
-            signupButton.setForeground(white);
-            signupButton.setOpaque(true);
-            signupButton.setContentAreaFilled(true);
-            signupButton.setFocusPainted(false);
+      FXSVGCanvas logo = loadSignupLogo();
+      HBox actions = new HBox();
+      actions.getStyleClass().add("signup-actions");
+      Region spacer = new Region();
+      HBox.setHgrow(spacer, Priority.ALWAYS);
+      Button cancelButton = new Button(LoginScreenText.CANCEL_BUTTON);
+      cancelButton.getStyleClass().add("signup-cancel-button");
+      Button signupButton = new Button(LoginScreenText.SIGNUP_BUTTON);
+      signupButton.getStyleClass().add("signup-submit-button");
+      actions.getChildren().addAll(spacer, cancelButton, signupButton);
 
-            JButton cancelButton = new JButton("Cancel");
+      VBox content = new VBox(logo, message, fields, errorLabel, actions);
+      content.getStyleClass().add("signup-dialog");
+      Scene scene = new Scene(content);
+      scene.getStylesheets().addAll(source.getScene().getStylesheets());
 
-            JOptionPane optionPane = new JOptionPane(
-                  form,
-                  JOptionPane.PLAIN_MESSAGE,
-                  JOptionPane.DEFAULT_OPTION,
-                  null,
-                  new Object[] { signupButton, cancelButton },
-                  signupButton);
-
-            JDialog dialog = optionPane.createDialog(LoginScreenText.SIGNUP_BUTTON);
-
-            // Connect button actions to the handler methods
-            signupButton.addActionListener(e -> handleSignupSubmit(
-               usernameField.getText(),
-               new String(passwordField.getPassword()),
-               firstNameField.getText(),
-               lastNameField.getText(),
-               emailField.getText(),
-               dialog
-            ));
-            cancelButton.addActionListener(e -> handleSignupCancel(dialog));
-
-            dialog.setBackground(white);
-            setDialogBackground(dialog.getContentPane(), white);
-            dialog.setModal(true);
-            dialog.setVisible(true);
-            dialog.dispose();
-         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-               | UnsupportedLookAndFeelException exception) {
-            throw new IllegalStateException("Could not initialize the system look-and-feel signup dialog",
-                  exception);
-         } finally {
-            Platform.runLater(() -> sceneRoot.setDisable(false));
-         }
-      });
+      Stage dialog = new Stage();
+      dialog.setTitle(LoginScreenText.SIGNUP_BUTTON);
+      dialog.initOwner(source.getScene().getWindow());
+      dialog.initModality(Modality.WINDOW_MODAL);
+      dialog.setScene(scene);
+      dialog.setResizable(false);
+      cancelButton.setOnAction(e -> handleSignupCancel(dialog));
+      signupButton.setOnAction(e -> handleSignupSubmit(usernameField.getText(), passwordField.getText(), dialog));
+      passwordField.setOnAction(e -> handleSignupSubmit(usernameField.getText(), passwordField.getText(), dialog));
+      try {
+         CSSFX.start();
+      } catch (Exception e) {
+         System.err.println("CSSFX could not start: " + e);
+      }
+      dialog.showAndWait();
    }
 
    /** Close the sign-up window when Cancel is pressed. */
-   public static void handleSignupCancel(JDialog dialog) {
+   public static void handleSignupCancel(Stage dialog) {
       if (dialog != null) {
-         dialog.dispose();
+         dialog.close();
       }
    }
 
-   /** Save the sign-up dialog's username and password as a new user account in the database. */
-   public static void handleSignupSubmit(String username, String password, String firstName,
-         String lastName, String email, JDialog dialog) {
-      if (username == null || username.isBlank() || password == null || password.isBlank()
-            || firstName == null || firstName.isBlank() || lastName == null || lastName.isBlank()
-            || email == null || email.isBlank()) {
-         JOptionPane.showMessageDialog(dialog,
-               "Username, password, first name, last name, and email are required.",
-               "Sign-Up Error", JOptionPane.ERROR_MESSAGE);
-         return;
-      }
-
-      User user = new User();
-      user.setUsername(username.trim());
-      user.setPasswordHash(password);
-      user.setFirstName(firstName.trim());
-      user.setLastName(lastName.trim());
-      user.setEmail(email.trim());
-
-      int generatedUserId = new UserDAO().saveAndGetId(user);
-      boolean created = generatedUserId > 0;
-      if (created) {
-         JOptionPane.showMessageDialog(dialog, "Account created successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-         dialog.dispose();
-      } else {
-         JOptionPane.showMessageDialog(dialog,
-               "Failed to create account. Username or email may already exist.",
-               "Sign-Up Error", JOptionPane.ERROR_MESSAGE);
-      }
+   /** Creates a local account; profile information is collected during onboarding. */
+   public static void handleSignupSubmit(String username, String password, Stage dialog) {
+      if (username == null || username.isBlank() || password == null || password.isBlank()) return;
+      if (new UserDAO().createLocalAccount(username.trim(), password) > 0) dialog.close();
    }
 
-   private static void addSignupField(JPanel form, JLabel label, JTextField field, Color background) {
-      JPanel group = new JPanel();
-      group.setLayout(new BoxLayout(group, BoxLayout.Y_AXIS));
-      group.setBackground(background);
-      group.setAlignmentX(Component.CENTER_ALIGNMENT);
-      label.setAlignmentX(Component.LEFT_ALIGNMENT);
-      field.setAlignmentX(Component.LEFT_ALIGNMENT);
-      group.add(label);
-      group.add(Box.createVerticalStrut(5));
-      group.add(field);
-      form.add(group);
-   }
-
-   private static ImageIcon loadSignupLogo() {
+   private static FXSVGCanvas loadSignupLogo() {
       URL logoResource = VisualElements.class.getResource("/images/matt-logo-1.svg");
       if (logoResource == null) {
          throw new IllegalStateException("Matt logo resource not found");
@@ -677,27 +586,12 @@ public class VisualElements {
       if (document == null) {
          throw new IllegalStateException("JSVG returned no document for the Matt logo");
       }
-
-      BufferedImage image = new BufferedImage(160, 114, BufferedImage.TYPE_INT_ARGB);
-      Graphics2D graphics = image.createGraphics();
-      try {
-         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-         document.render(null, graphics, new ViewBox(0, 0, image.getWidth(), image.getHeight()));
-      } finally {
-         graphics.dispose();
-      }
-      return new ImageIcon(image);
-   }
-
-   private static void setDialogBackground(Component component, Color background) {
-      if (!(component instanceof JButton)) {
-         component.setBackground(background);
-      }
-      if (component instanceof Container container) {
-         for (Component child : container.getComponents()) {
-            setDialogBackground(child, background);
-         }
-      }
+      FXSVGCanvas logo = new FXSVGCanvas();
+      logo.setRenderBackend(FXSVGCanvas.RenderBackend.AWT);
+      logo.setDocument(document);
+      logo.setShowTransparentPattern(false);
+      logo.getStyleClass().add("signup-logo");
+      return logo;
    }
 
    /** Builds a clickable application card with job and company details. */
@@ -821,5 +715,52 @@ public class VisualElements {
       body.setWrapText(true);
       body.getStyleClass().add("job-detail-section-body");
       return new VBox(4, heading, body);
+   }
+
+   /** Builds a score ring and message. A null or out-of-range score displays the unavailable state. */
+   public static HBox buildScoreWheel(Double score, FontAwesomeSolid icon, String unavailableMessage,
+         String oneOfFive, String twoOfFive, String threeOfFive, String fourOfFive, String fiveOfFive) {
+      boolean available = score != null && Double.isFinite(score) && score >= 0.0 && score <= 1.0;
+      String message = unavailableMessage;
+      if (available) {
+         int band = Math.min(5, (int) Math.floor(score * 5.0) + 1);
+         message = switch (band) {
+            case 1 -> oneOfFive;
+            case 2 -> twoOfFive;
+            case 3 -> threeOfFive;
+            case 4 -> fourOfFive;
+            default -> fiveOfFive;
+         };
+      }
+
+      ProgressIndicator ring = new ProgressIndicator(available ? score : 0.0);
+      ring.setMinSize(58, 58);
+      ring.setPrefSize(58, 58);
+      ring.setMaxSize(58, 58);
+      ring.getStyleClass().add("application-score-ring");
+      if (!available) ring.getStyleClass().add("application-score-unavailable");
+      FontIcon centerIcon = new FontIcon(icon);
+      centerIcon.getStyleClass().add("application-score-icon");
+      if (!available) centerIcon.getStyleClass().add("application-score-icon-unavailable");
+      centerIcon.setTranslateY(-9);
+      Circle centerMask = new Circle(15, Color.WHITE);
+      centerMask.setStroke(null);
+      centerMask.setMouseTransparent(true);
+      centerMask.setTranslateY(-9);
+      StackPane indicator = new StackPane(ring, centerMask, centerIcon);
+      indicator.getStyleClass().add("application-score-indicator");
+
+      Label scoreMessage = new Label(message);
+      scoreMessage.setWrapText(true);
+      scoreMessage.setMinWidth(0);
+      scoreMessage.setMaxWidth(Double.MAX_VALUE);
+      scoreMessage.getStyleClass().add("application-score-message");
+      HBox.setHgrow(scoreMessage, Priority.ALWAYS);
+      HBox result = new HBox(14, indicator, scoreMessage);
+      result.setAlignment(Pos.CENTER_LEFT);
+      result.setMinWidth(0);
+      result.setMaxWidth(Double.MAX_VALUE);
+      result.getStyleClass().add("application-score");
+      return result;
    }
 }

@@ -116,6 +116,17 @@ public class MyInfoLayout extends BorderPane {
     * the database for
     * their name, address, phone, and email. Return null when no profile is
     * available.
+    * 
+    * Javi: should also instantiate the runnables for each of the viewOnly cards, so
+    * that when the user clicks edit on one of them, it properly navigates them to
+    * that onboarding step. might also need to change the onboarding steps to be
+    * able to accept a runnable for their "next" button because that next button
+    * will take them back to the my info screen, righ tnow it takes them to the
+    * next step. (will prob need to change the constructor to conditioanlly ste the
+    * next button to either what it was constructed with, or if left null (make it
+    * set to null in the normal onboarding flow) that it's the same handleNext()
+    * method it was before )
+    * 
     */
    protected User loadProfile() {
       return null;
@@ -135,53 +146,6 @@ public class MyInfoLayout extends BorderPane {
       return List.of();
       
    }
-
-   // /** Loads the user's personal info from OnboardingSession / SQLite into the form fields. */
-   //  public void loadUserDataIntoFields() {
-   //    currentUser = profileController.getCurrentUserProfile();
-   //    if (currentUser == null) {
-   //       currentUser = new User();
-   //    }
-   //    firstNameField.setText(Inputs.nullToEmpty(currentUser.getFirstName()));
-   //    lastNameField.setText(Inputs.nullToEmpty(currentUser.getLastName()));
-   //    emailField.setText(Inputs.nullToEmpty(currentUser.getEmail()));
-   //    phoneField.setText(Inputs.nullToEmpty(currentUser.getPhoneNumber()));
-   //    address1Field.setText(Inputs.nullToEmpty(currentUser.getAddressLine1()));
-   //    address2Field.setText(Inputs.nullToEmpty(currentUser.getAddressLine2()));
-   //    cityField.setText(Inputs.nullToEmpty(currentUser.getCity()));
-   //    stateField.setText(Inputs.nullToEmpty(currentUser.getState()));
-   //    zipField.setText(Inputs.nullToEmpty(currentUser.getZip()));
-   //    apiKeyField.setText(Inputs.nullToEmpty(currentUser.getOllamaApiKey()));
-   //    summaryArea.setText(Inputs.nullToEmpty(currentUser.getSummary()));
-   //  }
-
-   // /** Saves all edited fields back to SQLite and updates OnboardingSession. */
-   // public void handleSaveProfile() {
-   //    if (currentUser == null) {
-   //       currentUser = new User();
-   //    }
-   //    currentUser.setFirstName(firstNameField.getText().trim());
-   //    currentUser.setLastName(lastNameField.getText().trim());
-   //    currentUser.setEmail(emailField.getText().trim());
-   //    currentUser.setPhoneNumber(phoneField.getText().trim());
-   //    currentUser.setAddressLine1(address1Field.getText().trim());
-   //    currentUser.setAddressLine2(address2Field.getText().trim());
-   //    currentUser.setCity(cityField.getText().trim());
-   //    currentUser.setState(stateField.getText().trim());
-   //    currentUser.setZip(zipField.getText().trim());
-   //    currentUser.setOllamaApiKey(apiKeyField.getText().trim());
-   //    currentUser.setSummary(summaryArea.getText().trim());
-   //    currentUser.setOnboarded(true);
-
-   //    boolean saved = profileController.saveUserProfile(currentUser);
-   //    if (saved) {
-   //       statusFeedbackLabel.setTextFill(Color.web("#2ecc71"));
-   //       statusFeedbackLabel.setText("Profile saved successfully!");
-   //    } else {
-   //       statusFeedbackLabel.setTextFill(Color.web("#e74c3c"));
-   //       statusFeedbackLabel.setText("Failed to save profile.");
-   //    }
-   // }
 
    /**
     * Shared card-construction helper for the backend implementation of

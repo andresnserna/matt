@@ -33,6 +33,49 @@
     -fx-fill: #006D77;
 }
 
+.settings-screen { -fx-background-color: white; }
+.settings-content { -fx-fill-width: true; }
+.settings-card {
+    -fx-padding: 18px 20px;
+    -fx-border-color: #c9c9c9;
+    -fx-border-width: 1.2px;
+    -fx-border-radius: 16px;
+    -fx-background-radius: 16px;
+    -fx-background-color: white;
+}
+.settings-status-heading { -fx-font-size: 22px; -fx-text-fill: #668A8C; }
+.settings-status-text { -fx-font-size: 21px; -fx-text-fill: #668A8C; }
+.settings-status-dot {
+    -fx-min-width: 12px; -fx-pref-width: 12px; -fx-max-width: 12px;
+    -fx-min-height: 12px; -fx-pref-height: 12px; -fx-max-height: 12px;
+    -fx-background-radius: 50%; -fx-background-color: #e05252;
+}
+.settings-status-dot.status-connected { -fx-background-color: #54d934; }
+.settings-status-dot.status-idle { -fx-background-color: #f0a43a; }
+.settings-status-text.status-disconnected { -fx-text-fill: #b64a4a; }
+.settings-status-text.status-connected { -fx-text-fill: #668A8C; }
+.settings-instruction { -fx-font-size: 16px; -fx-text-fill: #668A8C; }
+.settings-model-picker { -fx-pref-height: 36px; -fx-font-size: 15px; }
+.settings-details-row { -fx-spacing: 24px; -fx-padding: 2px 0 0 0; }
+.settings-detail { -fx-min-width: 0; }
+.settings-detail-label { -fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #668A8C; }
+.settings-detail-flow { -fx-min-height: 48px; -fx-pref-height: 58px; }
+.settings-detail-value { -fx-font-size: 14px; -fx-fill: #668A8C; }
+.settings-downloads-label { -fx-font-size: 20px; -fx-text-fill: #668A8C; }
+.settings-downloads-field { -fx-font-size: 15px; -fx-pref-height: 38px; }
+.settings-action-button {
+    -fx-background-color: #006D77; -fx-background-radius: 12px;
+    -fx-text-fill: white; -fx-font-size: 15px; -fx-padding: 9px 17px; -fx-cursor: hand;
+}
+.settings-action-button:hover { -fx-background-color: #005c65; }
+.settings-save-button {
+    -fx-background-color: white; -fx-border-color: #E29578; -fx-border-radius: 14px;
+    -fx-background-radius: 14px; -fx-text-fill: #E29578; -fx-font-size: 20px;
+    -fx-font-style: italic; -fx-padding: 12px 36px; -fx-cursor: hand;
+}
+.settings-save-button:hover { -fx-background-color: #fff4ef; }
+.settings-footer { -fx-padding: 0 0 4px 0; }
+
 .settings-logout-button {
     -fx-background-color: #E29578;
     -fx-background-radius: 16px;
@@ -69,6 +112,77 @@
     -fx-padding: 14px;
     -fx-cursor: hand;
 }
+
+/* Local account signup window. */
+.signup-dialog {
+    -fx-pref-width: 760px;
+    -fx-pref-height: 320px;
+    -fx-padding: 12px 28px 14px 28px;
+    -fx-spacing: 8px;
+    -fx-alignment: center;
+    -fx-background-color: #ECF6F8;
+}
+.signup-logo {
+    -fx-min-width: 80px;
+    -fx-pref-width: 88px;
+    -fx-max-width: 88px;
+    -fx-min-height: 57px;
+    -fx-pref-height: 63px;
+    -fx-max-height: 63px;
+}
+.signup-message {
+    -fx-font-size: 20px;
+    -fx-text-fill: #688689;
+    /* -fx-text-fill: #ed0d0d; */
+    -fx-text-alignment: left;
+    -fx-alignment: center-left;
+}
+.signup-fields {
+    -fx-hgap: 12px;
+    -fx-vgap: 10px;
+}
+.signup-field-label {
+    -fx-font-size: 16px;
+    -fx-text-fill: #00757D;
+    -fx-alignment: center-right;
+}
+.signup-field {
+    -fx-pref-width: 500px;
+    -fx-pref-height: 34px;
+    -fx-font-size: 15px;
+    -fx-background-color: white;
+    -fx-border-color: #BDBDBD;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+}
+.signup-error {
+    -fx-min-height: 20px;
+    -fx-pref-height: 20px;
+    -fx-font-size: 14px;
+    -fx-text-fill: #C40000;
+}
+.signup-actions {
+    -fx-spacing: 12px;
+    -fx-alignment: center-right;
+}
+.signup-cancel-button,
+.signup-submit-button {
+    -fx-min-width: 120px;
+    -fx-pref-height: 40px;
+    -fx-background-radius: 14px;
+    -fx-font-size: 16px;
+    -fx-cursor: hand;
+}
+.signup-cancel-button {
+    -fx-background-color: white;
+    -fx-text-fill: black;
+}
+.signup-submit-button {
+    -fx-background-color: #E29578;
+    -fx-text-fill: white;
+}
+.signup-submit-button:hover { -fx-background-color: #D98264; }
+
 .application-card {
     -fx-padding: 16px 20px;
     -fx-border-color: #83C5BE;

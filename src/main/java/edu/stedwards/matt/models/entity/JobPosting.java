@@ -24,14 +24,14 @@ public class JobPosting {
     
     private String rawText;
     private String normalizedText;
-    private double matchScore;
-    private double spamScore;
+    // Nullable so SQL NULL can represent a score that has not been calculated yet.
+    private Double matchScore;
+    private Double spamScore;
     private String status;
     private String dateAdded;
 
     public JobPosting() {
         this.status = "Saved"; // Default status based on your DB schema
-        this.spamScore = 0.0;
     }
 
     // Getters and Setters
@@ -86,11 +86,11 @@ public class JobPosting {
     public String getNormalizedText() { return normalizedText; }
     public void setNormalizedText(String normalizedText) { this.normalizedText = normalizedText; }
 
-    public double getMatchScore() { return matchScore; }
-    public void setMatchScore(double matchScore) { this.matchScore = matchScore; }
+    public Double getMatchScore() { return matchScore; }
+    public void setMatchScore(Double matchScore) { this.matchScore = matchScore; }
 
-    public double getSpamScore() { return spamScore; }
-    public void setSpamScore(double spamScore) { this.spamScore = spamScore; }
+    public Double getSpamScore() { return spamScore; }
+    public void setSpamScore(Double spamScore) { this.spamScore = spamScore; }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }

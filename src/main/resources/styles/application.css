@@ -145,6 +145,54 @@
     -fx-icon-size: 22px;
 }
 
+/* Borderless spam and job match indicators on the application detail screen. */
+.application-score-row {
+    -fx-padding: 0 0 8px 0;
+}
+
+.application-score {
+    -fx-alignment: center-left;
+    -fx-min-width: 0;
+}
+
+.application-spam-score,
+.application-match-score {
+    -fx-min-width: 0;
+}
+
+.application-score-indicator {
+    -fx-min-width: 58px;
+    -fx-min-height: 58px;
+}
+
+.application-score-ring {
+    -fx-progress-color: #83C5BE;
+    -fx-background-color: transparent;
+}
+
+.application-score-ring .percentage {
+    -fx-fill: transparent;
+}
+
+.application-score-unavailable {
+    -fx-progress-color: #E5E5E5;
+}
+
+.application-score-icon {
+    -fx-icon-color: #83C5BE;
+    -fx-icon-size: 17px;
+}
+
+.application-score-icon-unavailable {
+    -fx-icon-color: #E5E5E5;
+}
+
+.application-score-message {
+    -fx-text-fill: #668A8C;
+    -fx-font-size: 19px;
+    -fx-translate-y: -10px;
+}
+
 .application-card-button:hover .application-card-arrow-icon {
     -fx-icon-color: white;
 }
