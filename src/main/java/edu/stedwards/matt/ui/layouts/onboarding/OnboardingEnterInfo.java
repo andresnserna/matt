@@ -2,13 +2,14 @@ package edu.stedwards.matt.ui.layouts.onboarding;
 
 import edu.stedwards.matt.models.OnboardingSession;
 import edu.stedwards.matt.models.entity.User;
+import edu.stedwards.matt.services.ValidationService;
 import edu.stedwards.matt.ui.TextStyles;
 import edu.stedwards.matt.ui.interaction.Buttons;
 import edu.stedwards.matt.ui.interaction.Inputs;
 import edu.stedwards.matt.ui.interaction.VisualElements;
 import edu.stedwards.matt.ui.labels.OnboardingScreenText;
-import javafx.geometry.Pos;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -33,8 +34,8 @@ public class OnboardingEnterInfo extends BorderPane {
    private TextField cityField;
    private TextField phoneField;
    private TextField emailField;
-   
-   // 2. The clean architectural callback for navigation
+
+   private final Label errorLabel = new Label();
    private final Runnable onNext;
 
    // Default constructor for Matt.java preview compatibility
@@ -46,18 +47,18 @@ public class OnboardingEnterInfo extends BorderPane {
    public OnboardingEnterInfo(Runnable onNext) {
       this.onNext = onNext;
       getStyleClass().addAll("wizard-background", "screen-padding");
-      
+
       TextFlow title = TextStyles.buildTitle(OnboardingScreenText.PI_TITLE, "onboarding-wizard-title");
       setTop(title);
-      
+
       var scrollContent = VisualElements.wizardScrollable(buildPersonalInfoContent());
       setCenter(scrollContent);
       BorderPane.setMargin(scrollContent, new Insets(0, 0, 24, 0));
-      
-      // Wire up the Next button to our handleNext method
+
       HBox bottomRow = new Buttons().buildNextButton();
-      Button nextBtn = (Button) bottomRow.getChildren().get(0);
-      nextBtn.setOnAction(e -> handleNext());
+      if (!bottomRow.getChildren().isEmpty() && bottomRow.getChildren().get(0) instanceof Button nextBtn) {
+         nextBtn.setOnAction(e -> handleNext());
+      }
       setBottom(bottomRow);
    }
 
@@ -87,7 +88,10 @@ public class OnboardingEnterInfo extends BorderPane {
       instruction.setWrapText(true);
       instruction.setMaxWidth(Double.MAX_VALUE);
 
-      // Initialize all our text fields
+      errorLabel.setStyle("-fx-text-fill: #c0392b; -fx-font-weight: bold;");
+      errorLabel.setWrapText(true);
+      errorLabel.setMaxWidth(Double.MAX_VALUE);
+
       firstNameField = buildPersonalField(OnboardingScreenText.PI_EXAMPLE_FIRST);
       lastNameField = buildPersonalField(OnboardingScreenText.PI_EXAMPLE_LAST);
       stateField = buildPersonalField(OnboardingScreenText.PI_EXAMPLE_STATE);
@@ -129,47 +133,63 @@ public class OnboardingEnterInfo extends BorderPane {
          HBox.setHgrow(column, Priority.ALWAYS);
       }
 
-      VBox content = new VBox(36, instruction, columns);
+      VBox content = new VBox(24, instruction, columns, errorLabel);
       content.setFillWidth(true);
       content.setMaxWidth(Double.MAX_VALUE);
       content.setPadding(new Insets(24, 0, 24, 0));
       return content;
    }
 
-   /** Append personal-info input to accumulated onboarding data and navigate to the education screen. */
+   /** Validate email, append all personal-info fields to OnboardingSession, and navigate to Education. */
    public void handleNext() {
-      // 1. Grab the active session and user entity
+      String email = emailField.getText() == null ? "" : emailField.getText().trim();
+      if (!ValidationService.isValidEmail(email)) {
+         errorLabel.setText("Please enter a valid email address (e.g., name@domain.com).");
+         return;
+      }
+      errorLabel.setText("");
+
       User user = OnboardingSession.getInstance().getUserProfile();
-      
-      // 2. Save the UI fields directly into the User model
-      user.setFirstName(firstNameField.getText());
-      user.setLastName(lastNameField.getText());
-      user.setPhoneNumber(phoneField.getText());
-      user.setEmail(emailField.getText());
-      
-      // Note: If you want to save Address, City, State, and Zip to the SQLite database, 
-      // you will need to add those setter methods to your User.java entity and UserDAO.java!
-      
-      System.out.println("Personal info saved to session for: " + user.getFirstName());
-      
-      // 3. Fire the clean navigation callback to go to the Education screen
+      if (user == null) {
+         user = new User();
+         OnboardingSession.getInstance().setUserProfile(user);
+      }
+
+      user.setFirstName(trimToEmpty(firstNameField.getText()));
+      user.setLastName(trimToEmpty(lastNameField.getText()));
+      user.setPhoneNumber(trimToEmpty(phoneField.getText()));
+      user.setEmail(email);
+      user.setAddressLine1(trimToEmpty(addy1Field.getText()));
+      user.setAddressLine2(trimToEmpty(addy2Field.getText()));
+      user.setCity(trimToEmpty(cityField.getText()));
+      user.setState(trimToEmpty(stateField.getText()));
+      user.setZip(trimToEmpty(zipField.getText()));
+
       if (onNext != null) {
-          onNext.run();
+         onNext.run();
       }
    }
 
-   /** Populate personal-info fields with values parsed from the résumé. */
-   /** Populate personal-info fields with values parsed from the résumé. */
+   /** Populate personal-info fields with values from the active session / résumé parser. */
    public void populateFromParsedData() {
       // Grab the user profile from the session (which the parser should have filled)
       User user = OnboardingSession.getInstance().getUserProfile();
-      
-      // Update the UI fields, checking for nulls just in case the parser missed something
+      if (user == null) {
+         return;
+      }
+
       if (user.getFirstName() != null) firstNameField.setText(user.getFirstName());
       if (user.getLastName() != null) lastNameField.setText(user.getLastName());
       if (user.getPhoneNumber() != null) phoneField.setText(user.getPhoneNumber());
       if (user.getEmail() != null) emailField.setText(user.getEmail());
-      
-      System.out.println("Populated fields with parsed data from session.");
+      if (user.getAddressLine1() != null) addy1Field.setText(user.getAddressLine1());
+      if (user.getAddressLine2() != null) addy2Field.setText(user.getAddressLine2());
+      if (user.getCity() != null) cityField.setText(user.getCity());
+      if (user.getState() != null) stateField.setText(user.getState());
+      if (user.getZip() != null) zipField.setText(user.getZip());
+   }
+
+   private static String trimToEmpty(String value) {
+      return value == null ? "" : value.trim();
    }
 }

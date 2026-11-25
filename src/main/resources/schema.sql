@@ -30,7 +30,10 @@ CREATE TABLE user_profile (
     state TEXT,
     zip TEXT,
     summary TEXT,
-    ollama_api_key TEXT
+    ollama_api_key TEXT,
+    ollama_model TEXT DEFAULT 'llama3.2:3b',
+    download_path TEXT,
+    ollama_status TEXT DEFAULT 'Unknown'
 );
 
 CREATE TABLE experience (
@@ -105,6 +108,7 @@ CREATE TABLE template (
     folder_id INTEGER,
     user_id INTEGER NOT NULL,
     template_name TEXT NOT NULL,
+    filename_suffix TEXT,
     file_loc TEXT NOT NULL,
     FOREIGN KEY (folder_id) REFERENCES template_folder(folder_id) ON DELETE SET NULL,
     FOREIGN KEY (user_id) REFERENCES user_profile(user_id) ON DELETE CASCADE

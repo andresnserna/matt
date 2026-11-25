@@ -44,6 +44,7 @@ import edu.stedwards.matt.controllers.OnboardingStepController;
  */
 public class OnboardingStepLayout extends BorderPane {
     private final OnboardingStepController controller;
+    private final Runnable onNextOverride;
     private Node currentStep;
     private ObservableList<?> shownItems;
     private ListChangeListener<?> shownItemsListener;
@@ -64,23 +65,42 @@ public class OnboardingStepLayout extends BorderPane {
         setCenter(currentStep);
         BorderPane.setAlignment(currentStep, Pos.CENTER_LEFT);
         BorderPane.setMargin(currentStep, new Insets(0, 0, 24, 0));
-    } 
+    }
 
-    public OnboardingStepLayout(OnboardingStepController controller){
+    public OnboardingStepLayout(OnboardingStepController controller) {
+        this(controller, null);
+    }
+
+    public OnboardingStepLayout(OnboardingStepController controller, Runnable onNextOverride) {
         this.controller = controller;
+        this.onNextOverride = onNextOverride;
         getStyleClass().addAll("wizard-background", "screen-padding");
-        
+
         TextFlow title = TextStyles.buildTitle(OnboardingScreenText.PLACEHOLDER_TITLE, "onboarding-wizard-title");
         setTop(title);
-        
+
         HBox bottomBar = new Buttons().buildNextButton();
         if (!bottomBar.getChildren().isEmpty() && bottomBar.getChildren().get(0) instanceof Button) {
             nextButton = (Button) bottomBar.getChildren().get(0);
         }
         setBottom(bottomBar);
 
-        // Start wizard
-        showEducationStep(education);
+        // Normal onboarding starts at Education; My Info edit mode selects a specific step right after construction
+        if (onNextOverride == null) {
+            showEducationStep(education);
+        }
+    }
+
+    private void bindNextAction(Runnable defaultAction) {
+        if (nextButton != null) {
+            nextButton.setOnAction(e -> {
+                if (onNextOverride != null) {
+                    onNextOverride.run();
+                } else {
+                    defaultAction.run();
+                }
+            });
+        }
     }
 
     private static VBox buildEditableSectionCard(String heading, Node fields, Runnable onDuplicate, Runnable onDelete) {
@@ -180,10 +200,10 @@ public class OnboardingStepLayout extends BorderPane {
 
     public VBox buildEducationSectionEditable(Education education, int sectionNumber, Runnable onDuplicate, Runnable onDelete) {
         final Education sectionData = education == null ? new Education() : education;
-        TextField institution = Inputs.inputField(OnboardingScreenText.LABEL_INSTITUTION_PLACEHOLDER,260, Double.MAX_VALUE);
-        TextField degree = Inputs.inputField(OnboardingScreenText.LABEL_DEGREE_PLACEHOLDER,220, Double.MAX_VALUE);
+        TextField institution = Inputs.inputField(OnboardingScreenText.LABEL_INSTITUTION_PLACEHOLDER, 260, Double.MAX_VALUE);
+        TextField degree = Inputs.inputField(OnboardingScreenText.LABEL_DEGREE_PLACEHOLDER, 220, Double.MAX_VALUE);
         TextField gpa = Inputs.inputField(OnboardingScreenText.LABEL_GPA_PLACEHOLDER, 90, 120);
-       
+
         institution.setText(Inputs.nullToEmpty(sectionData.getInstitution()));
         degree.setText(Inputs.nullToEmpty(sectionData.getDegree()));
         gpa.setText(Inputs.nullToEmpty(sectionData.getGpa()));
@@ -212,7 +232,7 @@ public class OnboardingStepLayout extends BorderPane {
                 (items, index) -> controller.duplicateEducation(items, index),
                 (items, item) -> controller.removeEducation(items, item),
                 this::buildEducationSectionEditable);
-        if (nextButton != null) nextButton.setOnAction(e -> handleEducationNext(experiences));
+        bindNextAction(() -> handleEducationNext(experiences));
     }
 
     // --- EXP ---
@@ -270,7 +290,7 @@ public class OnboardingStepLayout extends BorderPane {
                 (items, index) -> controller.duplicateExperience(items, index),
                 (items, item) -> controller.removeExperience(items, item),
                 this::buildExperienceSectionEditable);
-        if (nextButton != null) nextButton.setOnAction(e -> handleExperienceNext(projects));
+        bindNextAction(() -> handleExperienceNext(projects));
     }
 
     // --- PROJ ---
@@ -280,14 +300,13 @@ public class OnboardingStepLayout extends BorderPane {
 
         // Uses your new simplified model schema: Title, URL, and Description
         TextField name = Inputs.inputField(OnboardingScreenText.LABEL_PROJECT_TITLE_PLACEHOLDER, 240, Double.MAX_VALUE);
-        TextField url = Inputs.inputField(OnboardingScreenText.PROJ_LABEL_URL, 220, Double.MAX_VALUE); 
+        TextField url = Inputs.inputField(OnboardingScreenText.PROJ_LABEL_URL, 220, Double.MAX_VALUE);
         TextArea description = Inputs.textArea(OnboardingScreenText.LABEL_PROJECT_DESCRIPTION_PLACEHOLDER, 400, Double.MAX_VALUE, 100, 180);
         
         name.setText(Inputs.nullToEmpty(sectionData.getTitle()));
         url.setText(Inputs.nullToEmpty(sectionData.getUrl()));
         description.setText(Inputs.nullToEmpty(sectionData.getDescription()));
-        
-        // Match the controller's exact method names
+
         name.textProperty().addListener((o, oldValue, newValue) -> controller.updateProjectTitle(sectionData, newValue));
         url.textProperty().addListener((o, oldValue, newValue) -> controller.updateProjectUrl(sectionData, newValue));
         description.textProperty().addListener((o, oldValue, newValue) -> controller.updateProjectDescription(sectionData, newValue));
@@ -295,7 +314,7 @@ public class OnboardingStepLayout extends BorderPane {
         VBox nameGroup = Inputs.buildInputGroup(TextStyles.buildLabel(OnboardingScreenText.PROJ_LABEL_TITLE, "input-label"), name);
         VBox urlGroup = Inputs.buildInputGroup(TextStyles.buildLabel(OnboardingScreenText.PROJ_LABEL_URL, "input-label"), url);
         VBox descriptionGroup = Inputs.buildInputGroup(TextStyles.buildLabel(OnboardingScreenText.PROJ_LABEL_DESCRIPTION, "input-label"), description);
-        
+
         description.setMaxWidth(Double.MAX_VALUE);
         descriptionGroup.setMaxWidth(Double.MAX_VALUE);
 
@@ -309,13 +328,13 @@ public class OnboardingStepLayout extends BorderPane {
                 fields, onDuplicate, onDelete);
     }
 
-    public void showProjectsStep(ObservableList<Projects> dataItems){
+    public void showProjectsStep(ObservableList<Projects> dataItems) {
         projects = Objects.requireNonNull(dataItems, "project items");
         showEditableSections(projects, OnboardingScreenText.PROJ_TITLE, Projects::new,
                 (items, index) -> controller.duplicateProject(items, index),
                 (items, item) -> controller.removeProject(items, item),
                 this::buildProjectsSectionEditable);
-        if (nextButton != null) nextButton.setOnAction(e -> handleProjectsNext(skills));
+        bindNextAction(() -> handleProjectsNext(skills));
     }
 
     // --- SKILLS ---
@@ -345,12 +364,12 @@ public class OnboardingStepLayout extends BorderPane {
         return inputRow;
     }
 
-    public void showSkillsStep(ObservableList<Skill> dataItems){
+    public void showSkillsStep(ObservableList<Skill> dataItems) {
         skills = Objects.requireNonNull(dataItems, "skill items");
         showEditableChipletSection(skills, OnboardingScreenText.SKL_TITLE, OnboardingScreenText.SKL_CONFIRM_MESSAGE,
                 buildSkillsSectionEditable(skills), (items, item) -> controller.removeSkill(items, item),
                 OnboardingStepLayout::buildSkillsSectionEditable);
-        if (nextButton != null) nextButton.setOnAction(e -> handleSkillsNext(awards));
+        bindNextAction(() -> handleSkillsNext(awards));
     }
 
     /**
@@ -396,9 +415,9 @@ public class OnboardingStepLayout extends BorderPane {
 
     public VBox buildAwardsCertsSectionEditable(AwardsCerts award, int sectionNumber, Runnable onDuplicate, Runnable onDelete) {
         final AwardsCerts sectionData = award == null ? new AwardsCerts() : award;
-        TextField awardName = Inputs.inputField(OnboardingScreenText.LABEL_AWARD_TITLE_PLACEHOLDER,240, Double.MAX_VALUE);
+        TextField awardName = Inputs.inputField(OnboardingScreenText.LABEL_AWARD_TITLE_PLACEHOLDER, 240, Double.MAX_VALUE);
         TextField issuer = Inputs.inputField(OnboardingScreenText.LABEL_ISSUER_PLACEHOLDER, 240, Double.MAX_VALUE);
-        
+
         awardName.setText(Inputs.nullToEmpty(sectionData.getTitle()));
         issuer.setText(Inputs.nullToEmpty(sectionData.getIssuer()));
         awardName.textProperty().addListener((o, oldValue, newValue) -> controller.updateAwardTitle(sectionData, newValue));
@@ -422,7 +441,7 @@ public class OnboardingStepLayout extends BorderPane {
                 (items, index) -> controller.duplicateAward(items, index),
                 (items, item) -> controller.removeAward(items, item),
                 this::buildAwardsCertsSectionEditable);
-        if (nextButton != null) nextButton.setOnAction(e -> handleAwardsNext(websites));
+        bindNextAction(() -> handleAwardsNext(websites));
     }
 
     // --- WEBSITES ---
@@ -448,8 +467,7 @@ public class OnboardingStepLayout extends BorderPane {
         showEditableChipletSection(websites, OnboardingScreenText.WEB_TITLE, OnboardingScreenText.WEB_CONFIRM_MESSAGE,
                 buildWebsitesSectionEditable(websites), (items, item) -> controller.removeWebsite(items, item),
                 OnboardingStepLayout::buildWebsiteChipEditable);
-        if (nextButton != null) nextButton.setOnAction(e ->
-                handleWebsitesNext(education, experiences, projects, skills, awards, websites));
+        bindNextAction(() -> handleWebsitesNext(education, experiences, projects, skills, awards, websites));
     }
 
     private static Button buildWebsiteChipEditable(Websites website, Runnable onDelete) {
@@ -464,7 +482,7 @@ public class OnboardingStepLayout extends BorderPane {
     // ==========================================
     // --- STATE ROUTING (NAVIGATION METHODS) ---
     // ==========================================
-    
+
     public void handleEducationNext(ObservableList<Experience> dataItems) {
         showExperienceStep(dataItems);
     }
@@ -502,7 +520,7 @@ public class OnboardingStepLayout extends BorderPane {
             () -> showAwardsStep(awardItems),
             () -> showWebsitesStep(websiteItems)
         );
-        getScene().setRoot(overview); // Move to final review screen
+        getScene().setRoot(overview);
     }
 
     // ==========================================
@@ -512,7 +530,7 @@ public class OnboardingStepLayout extends BorderPane {
     /** Call this method from your main upload screen and pass in the Map from ProfileController.parseResumeText() */
     public void populateAllFromParsedData(Map<String, String> parsedData) {
         if (parsedData == null || parsedData.isEmpty()) return;
-        
+
         populateEducationFromParsedData(parsedData);
         populateExperienceFromParsedData(parsedData);
         populateProjectsFromParsedData(parsedData);

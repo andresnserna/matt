@@ -13,7 +13,11 @@ import com.github.weisj.jsvg.SVGDocument;
 import com.github.weisj.jsvg.parser.SVGLoader;
 import com.github.weisj.jsvg.ui.jfx.FXSVGCanvas;
 import edu.stedwards.matt.dao.UserDAO;
+import edu.stedwards.matt.models.OnboardingSession;
+import edu.stedwards.matt.services.UserService;
+import edu.stedwards.matt.models.entity.User;
 import edu.stedwards.matt.ui.TextStyles;
+import edu.stedwards.matt.ui.layouts.onboarding.OnboardingWelcome;
 import edu.stedwards.matt.ui.layouts.other.MainLayout;
 import fr.brouillard.oss.cssfx.CSSFX;
 import edu.stedwards.matt.ui.labels.ApplicationScreenText;
@@ -503,6 +507,11 @@ public class VisualElements {
       TextField usernameField = new TextField();
       usernameField.setPromptText(LoginScreenText.USERNAME_PLACEHOLDER);
       usernameField.getStyleClass().add("signup-field");
+
+      TextField emailField = new TextField();
+      emailField.setPromptText("Email (e.g., name@domain.com)");
+      emailField.getStyleClass().add("signup-field");
+
       PasswordField passwordField = new PasswordField();
       passwordField.setPromptText(LoginScreenText.PASSWORD_PLACEHOLDER);
       passwordField.getStyleClass().add("signup-field");
@@ -510,6 +519,11 @@ public class VisualElements {
       Label usernameLabel = new Label(LoginScreenText.USERNAME_PLACEHOLDER);
       usernameLabel.getStyleClass().add("signup-field-label");
       usernameLabel.setLabelFor(usernameField);
+
+      Label emailLabel = new Label("Email");
+      emailLabel.getStyleClass().add("signup-field-label");
+      emailLabel.setLabelFor(emailField);
+
       Label passwordLabel = new Label(LoginScreenText.PASSWORD_PLACEHOLDER);
       passwordLabel.getStyleClass().add("signup-field-label");
       passwordLabel.setLabelFor(passwordField);
@@ -518,16 +532,19 @@ public class VisualElements {
       fields.getStyleClass().add("signup-fields");
       fields.add(usernameLabel, 0, 0);
       fields.add(usernameField, 1, 0);
-      fields.add(passwordLabel, 0, 1);
-      fields.add(passwordField, 1, 1);
+      fields.add(emailLabel, 0, 1);
+      fields.add(emailField, 1, 1);
+      fields.add(passwordLabel, 0, 2);
+      fields.add(passwordField, 1, 2);
 
       Label message = new Label(LoginScreenText.SIGNUP_MESSAGE);
       message.getStyleClass().add("signup-message");
       message.setWrapText(true);
       message.setMaxWidth(Double.MAX_VALUE);
 
-      Label errorLabel = new Label(LoginScreenText.SIGNUP_ERROR_PLACEHOLDER);
+      Label errorLabel = new Label("");
       errorLabel.getStyleClass().add("signup-error");
+      errorLabel.setWrapText(true);
       errorLabel.setMaxWidth(Double.MAX_VALUE);
 
       FXSVGCanvas logo = loadSignupLogo();
@@ -552,15 +569,59 @@ public class VisualElements {
       dialog.initModality(Modality.WINDOW_MODAL);
       dialog.setScene(scene);
       dialog.setResizable(false);
+
+      Runnable submitAction = () -> handleSignupSubmit(
+            usernameField.getText(),
+            emailField.getText(),
+            passwordField.getText(),
+            errorLabel,
+            dialog,
+            source);
+
       cancelButton.setOnAction(e -> handleSignupCancel(dialog));
-      signupButton.setOnAction(e -> handleSignupSubmit(usernameField.getText(), passwordField.getText(), dialog));
-      passwordField.setOnAction(e -> handleSignupSubmit(usernameField.getText(), passwordField.getText(), dialog));
+      signupButton.setOnAction(e -> submitAction.run());
+      passwordField.setOnAction(e -> submitAction.run());
       try {
          CSSFX.start();
       } catch (Exception e) {
          System.err.println("CSSFX could not start: " + e);
       }
       dialog.showAndWait();
+   }
+
+   private static void handleSignupSubmit(
+         String username,
+         String email,
+         String password,
+         Label errorLabel,
+         Stage dialog,
+         Node source) {
+      UserService userService = new UserService();
+      List<String> validationErrors = userService.validateRegistration(username, email, password);
+
+      if (!validationErrors.isEmpty()) {
+         errorLabel.setText(String.join("\n", validationErrors));
+         dialog.sizeToScene();
+         return;
+      }
+
+      try {
+         User createdUser = userService.registerUser(username, email, password, "", "");
+         if (createdUser == null) {
+            errorLabel.setText("That username or email is already in use.");
+            dialog.sizeToScene();
+            return;
+         }
+
+         OnboardingSession.getInstance().setUserProfile(createdUser);
+         dialog.close();
+         if (source != null && source.getScene() != null) {
+            source.getScene().setRoot(new OnboardingWelcome());
+         }
+      } catch (IllegalArgumentException e) {
+         errorLabel.setText(e.getMessage());
+         dialog.sizeToScene();
+      }
    }
 
    /** Close the sign-up window when Cancel is pressed. */

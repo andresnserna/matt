@@ -2,7 +2,11 @@ package edu.stedwards.matt.ui.layouts.myinfo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
+import edu.stedwards.matt.controllers.OnboardingStepController;
+import edu.stedwards.matt.controllers.ProfileController;
+import edu.stedwards.matt.dao.MyInfoDAO;
 import edu.stedwards.matt.models.entity.AwardsCerts;
 import edu.stedwards.matt.models.entity.Education;
 import edu.stedwards.matt.models.entity.Experience;
@@ -15,6 +19,10 @@ import edu.stedwards.matt.ui.TextStyles;
 import edu.stedwards.matt.ui.interaction.VisualElements;
 import edu.stedwards.matt.ui.labels.MyInfoScreenText;
 import edu.stedwards.matt.ui.layouts.onboarding.OnboardingOverviewStep;
+import edu.stedwards.matt.ui.layouts.onboarding.OnboardingStepLayout;
+import edu.stedwards.matt.ui.layouts.other.MainLayout;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -26,6 +34,9 @@ import javafx.scene.text.TextFlow;
 
 /** Read-only profile and résumé information screen. */
 public class MyInfoLayout extends BorderPane {
+
+   private final ProfileController profileController = new ProfileController();
+   private final MyInfoDAO myInfoDAO = new MyInfoDAO();
 
    public MyInfoLayout() {
       getStyleClass().addAll("screen-padding", "myinfo-screen");
@@ -109,80 +120,125 @@ public class MyInfoLayout extends BorderPane {
       return String.join(separator, present);
    }
 
-   /**
-    * TODO: javi implement. Called by the MyInfoLayout constructor when the My Info
-    * screen opens.
-    * Takes no arguments, returns the signed-in user's profile, and should query
-    * the database for
-    * their name, address, phone, and email. Return null when no profile is
-    * available.
-    * 
-    * Javi: should also instantiate the runnables for each of the viewOnly cards, so
-    * that when the user clicks edit on one of them, it properly navigates them to
-    * that onboarding step. might also need to change the onboarding steps to be
-    * able to accept a runnable for their "next" button because that next button
-    * will take them back to the my info screen, righ tnow it takes them to the
-    * next step. (will prob need to change the constructor to conditioanlly ste the
-    * next button to either what it was constructed with, or if left null (make it
-    * set to null in the normal onboarding flow) that it's the same handleNext()
-    * method it was before )
-    * 
-    */
+   /** Loads the signed-in user's profile from SQLite (or returns null if unavailable). */
    protected User loadProfile() {
-      return null;
+      User profile = profileController.getCurrentUserProfile();
+      return (profile != null && profile.getUserID() > 0) ? profile : null;
    }
 
    /**
-    * TODO: javi implement. Called by the MyInfoLayout constructor after the
-    * profile is loaded.
-    * Takes no arguments and returns the read-only résumé cards for the signed-in
-    * user, querying
-    * education, experience, projects, skills, awards, and websites from the
-    * database. Reuse the
-    * onboarding overview card builders and return an empty list when the user has
-    * no cards.
+    * Queries education, experience, projects, skills, awards, and websites for the signed-in user
+    * and returns read-only cards with Edit actions wired to the corresponding onboarding step.
     */
    protected List<Node> loadViewOnlyCards() {
-      return List.of();
-      
+      User profile = loadProfile();
+      if (profile == null || profile.getUserID() <= 0) {
+         return List.of();
+      }
+      int userId = profile.getUserID();
+
+      List<Education> education = myInfoDAO.getEducationForUser(userId);
+      List<Experience> experiences = myInfoDAO.getExperienceForUser(userId);
+      List<Projects> projects = myInfoDAO.getProjectsForUser(userId);
+      List<Skill> skills = myInfoDAO.getSkillsForUser(userId);
+      List<AwardsCerts> awards = myInfoDAO.getAwardsForUser(userId);
+      List<Websites> websites = myInfoDAO.getWebsitesForUser(userId);
+
+      return buildViewOnlyCards(userId, education, experiences, projects, skills, awards, websites);
    }
 
-   /**
-    * Shared card-construction helper for the backend implementation of
-    * loadViewOnlyCards().
-    */
+   /** Shared card-construction helper (backwards-compatible overload without edit actions). */
    protected List<Node> buildViewOnlyCards(List<Education> education, List<Experience> experiences,
          List<Projects> projects, List<Skill> skills, List<AwardsCerts> awards, List<Websites> websites) {
+      User profile = loadProfile();
+      int userId = (profile != null) ? profile.getUserID() : -1;
+      return buildViewOnlyCards(userId, education, experiences, projects, skills, awards, websites);
+   }
+
+   private List<Node> buildViewOnlyCards(int userId, List<Education> education, List<Experience> experiences,
+         List<Projects> projects, List<Skill> skills, List<AwardsCerts> awards, List<Websites> websites) {
       List<Node> cards = new ArrayList<>();
+
+      Runnable editEducation = () -> {
+         ObservableList<Education> list = FXCollections.observableArrayList(education);
+         openEditorStep(
+               step -> step.showEducationStep(list),
+               () -> myInfoDAO.replaceEducationForUser(userId, list));
+      };
+      Runnable editExperiences = () -> {
+         ObservableList<Experience> list = FXCollections.observableArrayList(experiences);
+         openEditorStep(
+               step -> step.showExperienceStep(list),
+               () -> myInfoDAO.replaceExperienceForUser(userId, list));
+      };
+      Runnable editProjects = () -> {
+         ObservableList<Projects> list = FXCollections.observableArrayList(projects);
+         openEditorStep(
+               step -> step.showProjectsStep(list),
+               () -> myInfoDAO.replaceProjectsForUser(userId, list));
+      };
+      Runnable editSkills = () -> {
+         ObservableList<Skill> list = FXCollections.observableArrayList(skills);
+         openEditorStep(
+               step -> step.showSkillsStep(list),
+               () -> myInfoDAO.replaceSkillsForUser(userId, list));
+      };
+      Runnable editAwards = () -> {
+         ObservableList<AwardsCerts> list = FXCollections.observableArrayList(awards);
+         openEditorStep(
+               step -> step.showAwardsStep(list),
+               () -> myInfoDAO.replaceAwardsForUser(userId, list));
+      };
+      Runnable editWebsites = () -> {
+         ObservableList<Websites> list = FXCollections.observableArrayList(websites);
+         openEditorStep(
+               step -> step.showWebsitesStep(list),
+               () -> myInfoDAO.replaceWebsitesForUser(userId, list));
+      };
+
       if (education != null) {
          for (int i = 0; i < education.size(); i++) {
-            cards.add(OnboardingOverviewStep.buildEducationCardViewOnly(education.get(i), i + 1, null));
+            cards.add(OnboardingOverviewStep.buildEducationCardViewOnly(education.get(i), i + 1, editEducation));
          }
       }
       if (experiences != null) {
          for (int i = 0; i < experiences.size(); i++) {
-            cards.add(OnboardingOverviewStep.buildExperienceCardViewOnly(experiences.get(i), i + 1, null));
+            cards.add(OnboardingOverviewStep.buildExperienceCardViewOnly(experiences.get(i), i + 1, editExperiences));
          }
       }
       if (projects != null) {
          for (int i = 0; i < projects.size(); i++) {
-            cards.add(OnboardingOverviewStep.buildProjectsCardViewOnly(projects.get(i), i + 1, null));
+            cards.add(OnboardingOverviewStep.buildProjectsCardViewOnly(projects.get(i), i + 1, editProjects));
          }
       }
       if (skills != null && !skills.isEmpty()) {
          cards.add(OnboardingOverviewStep.buildSkillsCardViewOnly(
-               javafx.collections.FXCollections.observableArrayList(skills), null));
+               FXCollections.observableArrayList(skills), editSkills));
       }
       if (awards != null) {
          for (int i = 0; i < awards.size(); i++) {
-            cards.add(OnboardingOverviewStep.buildAwardsCertsCardViewOnly(awards.get(i), i + 1, null));
+            cards.add(OnboardingOverviewStep.buildAwardsCertsCardViewOnly(awards.get(i), i + 1, editAwards));
          }
       }
       if (websites != null && !websites.isEmpty()) {
          cards.add(OnboardingOverviewStep.buildWebsitesCardViewOnly(
-               javafx.collections.FXCollections.observableArrayList(websites), null));
+               FXCollections.observableArrayList(websites), editWebsites));
       }
       return cards;
+   }
+
+   /** Opens a single onboarding step inside MainLayout and saves + returns to MyInfoLayout on Next. */
+   private void openEditorStep(Consumer<OnboardingStepLayout> showSection, Runnable saveAction) {
+      if (getScene() == null || !(getScene().getRoot() instanceof MainLayout mainLayout)) {
+         return;
+      }
+
+      OnboardingStepLayout editor = new OnboardingStepLayout(new OnboardingStepController(), () -> {
+         saveAction.run();
+         mainLayout.showStep(new MyInfoLayout());
+      });
+      showSection.accept(editor);
+      mainLayout.showStep(editor);
    }
 
    private static final class ColumnConstraintsHelper {

@@ -36,15 +36,26 @@ import org.jsoup.Jsoup;
 
 /** Builds application-specific prompts and sends them to the local Ollama instance. */
 public class TemplateService {
-    private static final String OLLAMA_URL = "http://localhost:11434/api/generate";
+    private static final String OLLAMA_GENERATE_URL = "http://localhost:11434/api/generate";
+    private static final String OLLAMA_CHAT_URL = "http://localhost:11434/api/chat";
     private static final String MODEL_NAME = "llama3.2:3b";
     private static final Pattern BRACKET_FIELD_PATTERN = Pattern.compile("\\[([^\\[\\]]+)\\]");
 
     private final TemplateStorageService storageService = new TemplateStorageService();
     private final TemplateFieldParserService fieldParser = new TemplateFieldParserService();
 
-    /** Loads a saved template and generates a job-specific version from the user's stored profile. */
+    /** Loads a saved template and generates a job-specific version via conversational field-by-field AI filling. */
     public String generateApplicationDocument(Template template, JobPosting job, User signedInUser) throws Exception {
+        return generateApplicationDocument(template, job, signedInUser, null);
+    }
+
+    /** Overload with optional field-by-field progress callback (completedFields, totalFields). */
+    public String generateApplicationDocument(
+            Template template,
+            JobPosting job,
+            User signedInUser,
+            BiConsumer<Integer, Integer> progressCallback) throws Exception {
+
         if (template == null || template.getTemplateId() <= 0) {
             throw new IllegalArgumentException("Select a saved template before generating a document.");
         }
@@ -57,37 +68,117 @@ public class TemplateService {
         }
 
         Template ownedTemplate = new TemplateDAO().getTemplateById(template.getTemplateId(), signedInUser.getUserID());
-        if (ownedTemplate == null) throw new IllegalArgumentException("The selected template could not be found for this user.");
+        if (ownedTemplate == null) {
+            throw new IllegalArgumentException("The selected template could not be found for this user.");
+        }
+
         String htmlTemplate = storageService.loadTemplateFile(ownedTemplate.getFileLoc());
         if (htmlTemplate == null || htmlTemplate.isBlank() || htmlTemplate.contains("File not found.")) {
             throw new IllegalStateException("The selected template file could not be loaded.");
         }
 
         User user = new UserDAO().getUserById(signedInUser.getUserID());
-        if (user == null) throw new IllegalStateException("The user's profile could not be loaded.");
+        if (user == null) {
+            throw new IllegalStateException("The user's profile could not be loaded.");
+        }
 
         String userContext = buildUserContext(user);
         String jobContext = buildJobContext(job);
-        
+
         System.out.println("===== Applicant context sent to Ollama =====\n" + userContext);
         System.out.println("===== Job context sent to Ollama =====\n" + jobContext);
 
-        // Use structured key-value AI generation + programmatic mapping first
-        Map<String, String> generatedValues = requestStructuredFieldValues(htmlTemplate, jobContext, userContext);
-        String filledHtml = applyFieldsProgrammatically(htmlTemplate, generatedValues, null);
+        String filledHtml = generateMaterialConversational(htmlTemplate, userContext, jobContext, progressCallback);
 
-        // If any [brackets] remain, check if there are none or fall back cleanly
         List<String> missing = findUnfilledFields(filledHtml);
         if (!missing.isEmpty()) {
-            System.out.println("Warning: Unfilled fields after first pass: " + missing);
+            System.out.println("Warning: Unfilled fields after conversational pass: " + missing);
         }
         return filledHtml;
     }
 
     /**
-     * Days 3-4 Task: Heavily tweaked buildUserContext() with clear, structured sections
-     * so the LLM can immediately map personal, education, experience, project, and skill data.
+     * Conversational AI Generate Material Flow:
+     * 1. Sends userContext, jobContext, templateFieldList, and the template in the initial turn.
+     * 2. Loops through each dynamic [field] one at a time in the same Ollama /api/chat conversation,
+     *    passing the preceding text so the answer flows linguistically without lying.
+     * 3. Programmatically replaces each [field] in the HTML template and removes the surrounding brackets.
      */
+    public String generateMaterialConversational(
+            String htmlTemplate,
+            String userContext,
+            String jobContext,
+            BiConsumer<Integer, Integer> progressCallback) {
+
+        if (htmlTemplate == null || htmlTemplate.isBlank()) {
+            return "";
+        }
+
+        // Preserve exact document order of all [bracketed] dynamic fields
+        List<String> templateFieldList = extractOrderedBracketFields(htmlTemplate);
+        if (templateFieldList.isEmpty()) {
+            return htmlTemplate;
+        }
+
+        String workingPlainText = Jsoup.parse(htmlTemplate).text();
+        List<String> messages = new ArrayList<>();
+
+        // System instructions for the entire conversation
+        messages.add(chatMessage("system",
+                "You are an expert career assistant filling dynamic placeholders in a job application template one field at a time.\n"
+                + "STRICT RULES:\n"
+                + "1. NEVER lie, exaggerate, or invent employers, degrees, dates, projects, or skills. Use ONLY verified facts from the APPLICANT PROFILE.\n"
+                + "2. Tailor your wording to match the JOB POSTING naturally.\n"
+                + "3. Ensure your answer flows linguistically, grammatically, and stylistically from the preceding words and sentences.\n"
+                + "4. Return ONLY the exact text that goes inside the requested field—no brackets [ ], no field label, no quotation marks, no preamble, and no explanation."));
+
+        // Turn 1: Send userContext, jobContext, templateFieldList, and template
+        String initialPrompt = "APPLICANT PROFILE (verified facts only):\n" + nullSafe(userContext) + "\n\n"
+                + "JOB POSTING:\n" + nullSafe(jobContext) + "\n\n"
+                + "TEMPLATE FIELD LIST (in order):\n"
+                + templateFieldList.stream().map(f -> "- [" + f + "]").collect(Collectors.joining("\n")) + "\n\n"
+                + "TEMPLATE:\n" + workingPlainText + "\n\n"
+                + "I will now ask you to fill in one field at a time in order. Reply with only READY.";
+
+        messages.add(chatMessage("user", initialPrompt));
+        String ack = sendChatToOllama(messages);
+        messages.add(chatMessage("assistant", ack));
+
+        // Loop through every dynamic field one at a time
+        Map<String, String> filledValues = new LinkedHashMap<>();
+        int totalFields = templateFieldList.size();
+
+        for (int i = 0; i < totalFields; i++) {
+            String rawField = templateFieldList.get(i);
+            String token = "[" + rawField + "]";
+            String precedingContext = extractPrecedingContext(workingPlainText, token, 240);
+
+            String fieldPrompt = "Fill in ONLY the field: " + token + "\n"
+                    + "Preceding text right before this field: \"" + precedingContext + "\"\n"
+                    + "Based on the job description and truthful applicant profile, return ONLY the exact text that should replace "
+                    + token + " so it flows naturally from the preceding text. Do not include brackets, labels, or commentary.";
+
+            messages.add(chatMessage("user", fieldPrompt));
+            String aiReply = cleanFieldValue(sendChatToOllama(messages));
+            messages.add(chatMessage("assistant", aiReply));
+
+            filledValues.put(rawField, aiReply);
+
+            // Update the working plain text so subsequent fields see the actual preceding filled text
+            if (!aiReply.isBlank()) {
+                workingPlainText = workingPlainText.replace(token, aiReply);
+            }
+
+            if (progressCallback != null) {
+                progressCallback.accept(i + 1, totalFields);
+            }
+        }
+
+        // Programmatically fill all fields in the HTML template and remove surrounding brackets
+        return applyFieldsProgrammatically(htmlTemplate, filledValues, null);
+    }
+
+    /** Formats stored profile fields and related records as labeled, readable facts for the model. */
     public String buildUserContext(User user) {
         int userId = user.getUserID();
         StringBuilder context = new StringBuilder();
@@ -162,10 +253,7 @@ public class TemplateService {
         return context.toString();
     }
 
-    /**
-     * Days 3-4 Task: Heavily tweaked buildJobContext() to clearly isolate target job facts
-     * and keywords for structured prompt mapping.
-     */
+    /** Formats job fields by label so job requirements are distinct from applicant facts. */
     public String buildJobContext(JobPosting job) {
         StringBuilder context = new StringBuilder();
         context.append("=== TARGET JOB POSTING ===\n");
@@ -186,110 +274,24 @@ public class TemplateService {
         return context.toString();
     }
 
-    /**
-     * Days 3-4 Task: Sends a structured prompt to Ollama instructing it to output strict
-     * KEY :: VALUE pairs for every placeholder in the template, then parses the response.
-     */
-    public Map<String, String> requestStructuredFieldValues(String htmlTemplate, String jobContext, String userContext) {
-        Set<String> fields = new LinkedHashSet<>(fieldParser.extractFields(htmlTemplate));
-        // Also ensure any [bracketed] token in the raw HTML is captured
-        Matcher matcher = BRACKET_FIELD_PATTERN.matcher(htmlTemplate == null ? "" : htmlTemplate);
-        while (matcher.find()) {
-            fields.add(matcher.group(1).trim());
-        }
+    /** Programmatically replaces every [field] in the HTML template and removes the brackets. */
+    public String applyFieldsProgrammatically(
+            String htmlTemplate,
+            Map<String, String> fieldValues,
+            BiConsumer<Integer, Integer> progressCallback) {
 
-        if (fields.isEmpty()) {
-            return new LinkedHashMap<>();
-        }
-
-        String numberedFields = fields.stream()
-                .map(f -> "- " + f)
-                .collect(Collectors.joining("\n"));
-
-        String templatePlainText = Jsoup.parse(htmlTemplate).text();
-
-        String prompt = "You are an expert career assistant filling out placeholders for a job application document.\n"
-                + "Below is a list of required template placeholders, the candidate's verified profile, the target job posting, and the template text for context.\n\n"
-                + "STRICT OUTPUT FORMAT RULES:\n"
-                + "1. Return ONLY one line per placeholder in the exact format: FIELD_NAME :: VALUE\n"
-                + "2. Do NOT include brackets [ ] around FIELD_NAME.\n"
-                + "3. Every single field listed under REQUIRED FIELDS MUST appear in your output.\n"
-                + "4. Keep each VALUE on a single line (use spaces instead of line breaks).\n"
-                + "5. Use ONLY truthful facts from CANDIDATE PROFILE for the candidate's background, and TARGET JOB POSTING for the company/role name.\n"
-                + "6. Do NOT write introductions, markdown blocks, explanations, or HTML.\n\n"
-                + "REQUIRED FIELDS:\n" + numberedFields + "\n\n"
-                + userContext + "\n"
-                + jobContext + "\n"
-                + "TEMPLATE CONTEXT:\n" + templatePlainText + "\n\n"
-                + "BEGIN OUTPUT (Format: FIELD_NAME :: VALUE):\n";
-
-        String rawAiOutput = sendToOllama(prompt);
-        return parseStructuredKeyValueOutput(rawAiOutput, fields, jobContext, userContext);
-    }
-
-    /**
-     * Parses Ollama's structured "KEY :: VALUE" (or "KEY: VALUE") output into a Map,
-     * matching case-insensitively against the template's actual field names.
-     */
-    public Map<String, String> parseStructuredKeyValueOutput(String aiResponse, Set<String> expectedFields, String jobContext, String userContext) {
-        Map<String, String> result = new LinkedHashMap<>();
-        if (aiResponse != null && !aiResponse.isBlank()) {
-            String[] lines = aiResponse.split("\\r?\\n");
-            for (String rawLine : lines) {
-                String line = rawLine.trim().replaceAll("^[-*•\\d.)\\s]+", "");
-                if (line.isBlank()) continue;
-
-                int delimiterIdx = line.indexOf("::");
-                int delimiterLen = 2;
-                if (delimiterIdx < 0) {
-                    delimiterIdx = line.indexOf(':');
-                    delimiterLen = 1;
-                }
-                if (delimiterIdx <= 0) continue;
-
-                String rawKey = line.substring(0, delimiterIdx).trim()
-                        .replaceAll("^\\[|\\]$", "")
-                        .replaceAll("^\"|\"$", "");
-                String rawVal = line.substring(delimiterIdx + delimiterLen).trim()
-                        .replaceAll("^\"|\"$", "");
-
-                if (rawKey.isEmpty() || rawVal.isEmpty()) continue;
-
-                // Match against expected fields (case-insensitive)
-                for (String expected : expectedFields) {
-                    String cleanExpected = expected.replaceAll("^\\[|\\]$", "").trim();
-                    if (cleanExpected.equalsIgnoreCase(rawKey)) {
-                        result.put(cleanExpected, rawVal);
-                        break;
-                    }
-                }
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Programmatically maps parsed key-value pairs into the HTML template and invokes an optional
-     * progress callback (completedFields, totalFields) for the UI.
-     */
-    public String applyFieldsProgrammatically(String htmlTemplate, Map<String, String> fieldValues, BiConsumer<Integer, Integer> progressCallback) {
         if (htmlTemplate == null || htmlTemplate.isBlank()) return "";
 
-        Set<String> allFields = new LinkedHashSet<>();
-        Matcher matcher = BRACKET_FIELD_PATTERN.matcher(htmlTemplate);
-        while (matcher.find()) {
-            allFields.add(matcher.group(1).trim());
-        }
-
+        List<String> allFields = extractOrderedBracketFields(htmlTemplate);
         int total = allFields.size();
         int current = 0;
         String updatedHtml = htmlTemplate;
 
-        for (String field : allFields) {
+        for (String rawField : allFields) {
             current++;
-            String replacement = findMatchingValue(field, fieldValues);
+            String replacement = findMatchingValue(rawField, fieldValues);
             if (replacement != null && !replacement.isBlank()) {
-                updatedHtml = updatedHtml.replace("[" + field + "]", replacement);
+                updatedHtml = updatedHtml.replace("[" + rawField + "]", replacement);
             }
             if (progressCallback != null) {
                 progressCallback.accept(current, total);
@@ -298,24 +300,7 @@ public class TemplateService {
         return updatedHtml;
     }
 
-    private String findMatchingValue(String fieldName, Map<String, String> fieldValues) {
-        if (fieldValues == null) return null;
-        String cleanField = fieldName.replaceAll("^\\[|\\]$", "").trim();
-        if (fieldValues.containsKey(cleanField)) {
-            return fieldValues.get(cleanField);
-        }
-        for (Map.Entry<String, String> entry : fieldValues.entrySet()) {
-            String cleanKey = entry.getKey().replaceAll("^\\[|\\]$", "").trim();
-            if (cleanKey.equalsIgnoreCase(cleanField)) {
-                return entry.getValue();
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Inspects an HTML string and returns a list of any [Placeholder] fields that are still unfilled.
-     */
+    /** Inspects an HTML string and returns a list of any [Placeholder] fields that are still unfilled. */
     public List<String> findUnfilledFields(String htmlContent) {
         List<String> unfilled = new ArrayList<>();
         if (htmlContent == null) return unfilled;
@@ -329,32 +314,29 @@ public class TemplateService {
         return unfilled;
     }
 
-    /**
-     * Days 3-4 Task: Tweaked fillTemplateWithAI() to generate structured key-value pairs
-     * and programmatically fill all [brackets] without breaking HTML formatting.
-     */
+    /** Fills all [brackets] using the conversational field-by-field AI flow. */
     public String fillTemplateWithAI(String htmlTemplate, Map<String, String> jobFields, String userContext) {
         return fillTemplateWithAI(htmlTemplate, jobFields, userContext, null);
     }
 
-    /**
-     * Overload that accepts a field-by-field progress listener (completedCount, totalCount).
-     */
-    public String fillTemplateWithAI(String htmlTemplate, Map<String, String> jobFields, String userContext, BiConsumer<Integer, Integer> progressCallback) {
+    /** Overload that accepts a field-by-field progress listener (completedCount, totalCount). */
+    public String fillTemplateWithAI(
+            String htmlTemplate,
+            Map<String, String> jobFields,
+            String userContext,
+            BiConsumer<Integer, Integer> progressCallback) {
+
         String jobContextStr = jobFields == null ? "" : jobFields.entrySet().stream()
                 .map(e -> e.getKey() + ": " + e.getValue())
                 .collect(Collectors.joining("\n"));
 
-        Map<String, String> aiFieldMap = requestStructuredFieldValues(htmlTemplate, jobContextStr, userContext);
+        String filledHtml = generateMaterialConversational(htmlTemplate, userContext, jobContextStr, progressCallback);
 
-        // Also merge direct jobFields (like Company Name, Job Title) as automatic fallbacks
-        if (jobFields != null) {
-            for (Map.Entry<String, String> entry : jobFields.entrySet()) {
-                aiFieldMap.putIfAbsent(entry.getKey(), entry.getValue());
-            }
+        // Fallback: if any direct jobFields keys still remain unfilled, apply them programmatically
+        if (jobFields != null && !jobFields.isEmpty()) {
+            filledHtml = applyFieldsProgrammatically(filledHtml, jobFields, null);
         }
-
-        return applyFieldsProgrammatically(htmlTemplate, aiFieldMap, progressCallback);
+        return filledHtml;
     }
 
     public String extractTemplateFields(String templateHtml) {
@@ -392,48 +374,114 @@ public class TemplateService {
         return generatedOutput.substring(start).strip();
     }
 
-    private static List<String> templateOpeningWords(String html, int wordLimit) {
-        String visibleText = Jsoup.parse(html == null ? "" : html).body().text()
-                .replaceAll("\\[[^\\]]*]", " ").trim();
-        if (visibleText.isEmpty()) return List.of();
-        return Arrays.stream(visibleText.split("\\s+"))
-                .limit(wordLimit)
-                .map(word -> word.replaceAll("^[^\\p{L}\\p{N}]+|[^\\p{L}\\p{N}.,!?;:'’\\u2019-]+$", ""))
-                .filter(word -> !word.isBlank())
-                .toList();
-    }
-
     /** Compatibility entry point for callers that already have flattened contexts. */
     public String generateDocument(String templateName, Map<String, String> jobFields, String userProfileContext) {
         return sendToOllama("Create application material for template " + templateName + ". Job information:\n"
                 + jobFields + "\nApplicant information:\n" + userProfileContext);
     }
 
+    // ==================== Private Helpers ====================
+
+    private static List<String> extractOrderedBracketFields(String htmlTemplate) {
+        Set<String> ordered = new LinkedHashSet<>();
+        Matcher matcher = BRACKET_FIELD_PATTERN.matcher(htmlTemplate == null ? "" : htmlTemplate);
+        while (matcher.find()) {
+            String rawInner = matcher.group(1);
+            if (rawInner != null && !rawInner.isBlank()) {
+                ordered.add(rawInner);
+            }
+        }
+        return new ArrayList<>(ordered);
+    }
+
+    private static String extractPrecedingContext(String plainText, String token, int maxChars) {
+        int idx = plainText.indexOf(token);
+        if (idx <= 0) {
+            return "(Start of document)";
+        }
+        int start = Math.max(0, idx - maxChars);
+        return plainText.substring(start, idx).trim();
+    }
+
+    private static String cleanFieldValue(String raw) {
+        if (raw == null) return "";
+        return raw.trim()
+                .replaceAll("^\\[|\\]$", "")
+                .replaceAll("^\"|\"$", "")
+                .replaceAll("\\r?\\n+", " ")
+                .trim();
+    }
+
+    private String findMatchingValue(String fieldName, Map<String, String> fieldValues) {
+        if (fieldValues == null) return null;
+        if (fieldValues.containsKey(fieldName)) {
+            return fieldValues.get(fieldName);
+        }
+        String cleanField = fieldName.replaceAll("^\\[|\\]$", "").trim();
+        for (Map.Entry<String, String> entry : fieldValues.entrySet()) {
+            String cleanKey = entry.getKey().replaceAll("^\\[|\\]$", "").trim();
+            if (cleanKey.equalsIgnoreCase(cleanField)) {
+                return entry.getValue();
+            }
+        }
+        return null;
+    }
+
+    private static String chatMessage(String role, String content) {
+        return "{\"role\":\"" + role + "\",\"content\":\"" + escapeJson(content) + "\"}";
+    }
+
+    private String sendChatToOllama(List<String> messageJsonObjects) {
+        String payload = "{\"model\":\"" + MODEL_NAME + "\",\"stream\":false,\"messages\":["
+                + String.join(",", messageJsonObjects) + "]}";
+        HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(OLLAMA_CHAT_URL))
+                .timeout(Duration.ofMinutes(3))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(payload))
+                .build();
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                throw new IllegalStateException("Ollama chat returned HTTP " + response.statusCode() + ".");
+            }
+            return extractJsonStringField(response.body(), "\"content\"");
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Document generation was interrupted.", e);
+        } catch (java.io.IOException e) {
+            throw new IllegalStateException("Could not connect to Ollama at " + OLLAMA_CHAT_URL + ".", e);
+        }
+    }
+
     private String sendToOllama(String prompt) {
         String payload = "{\"model\":\"" + MODEL_NAME + "\",\"prompt\":\"" + escapeJson(prompt)
                 + "\",\"stream\":false}";
         HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(OLLAMA_URL))
-                .timeout(Duration.ofMinutes(3)).header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(payload)).build();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(OLLAMA_GENERATE_URL))
+                .timeout(Duration.ofMinutes(3))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(payload))
+                .build();
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() < 200 || response.statusCode() >= 300) {
                 throw new IllegalStateException("Ollama returned HTTP " + response.statusCode() + ".");
             }
-            return extractResponseText(response.body());
+            return extractJsonStringField(response.body(), "\"response\"");
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new IllegalStateException("Document generation was interrupted.", e);
         } catch (java.io.IOException e) {
-            throw new IllegalStateException("Could not connect to Ollama at " + OLLAMA_URL + ".", e);
+            throw new IllegalStateException("Could not connect to Ollama at " + OLLAMA_GENERATE_URL + ".", e);
         }
     }
 
-    private static String extractResponseText(String json) {
-        String key = "\"response\"";
+    private static String extractJsonStringField(String json, String key) {
         int keyIndex = json.indexOf(key);
-        if (keyIndex < 0) throw new IllegalStateException("Ollama response did not contain generated text.");
+        if (keyIndex < 0) throw new IllegalStateException("Ollama response did not contain " + key + ".");
         int start = json.indexOf(':', keyIndex + key.length());
         if (start < 0) throw new IllegalStateException("Ollama response was malformed.");
         start++;
@@ -467,6 +515,17 @@ public class TemplateService {
         throw new IllegalStateException("Ollama response was incomplete.");
     }
 
+    private static List<String> templateOpeningWords(String html, int wordLimit) {
+        String visibleText = Jsoup.parse(html == null ? "" : html).body().text()
+                .replaceAll("\\[[^\\]]*]", " ").trim();
+        if (visibleText.isEmpty()) return List.of();
+        return Arrays.stream(visibleText.split("\\s+"))
+                .limit(wordLimit)
+                .map(word -> word.replaceAll("^[^\\p{L}\\p{N}]+|[^\\p{L}\\p{N}.,!?;:'’\\u2019-]+$", ""))
+                .filter(word -> !word.isBlank())
+                .toList();
+    }
+
     private static String escapeJson(String value) {
         StringBuilder escaped = new StringBuilder(value.length() + 32);
         for (int i = 0; i < value.length(); i++) {
@@ -498,5 +557,4 @@ public class TemplateService {
         return java.util.Arrays.stream(values).filter(value -> value != null && !value.isBlank())
                 .map(String::trim).collect(Collectors.joining(" | "));
     }
-
 }

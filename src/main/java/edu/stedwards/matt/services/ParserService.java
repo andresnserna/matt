@@ -14,8 +14,8 @@ import edu.stedwards.matt.models.entity.JobPosting;
 public class ParserService {
 
     private static final String OLLAMA_URL = "http://localhost:11434/api/generate";
-    private static final String MODEL_NAME = "llama3.2:3b"; 
-    // private static final String MODEL_NAME = "gemma4:31b-cloud";
+    // private static final String MODEL_NAME = "llama3.2:3b"; 
+    private static final String MODEL_NAME = "llama3.2:3b";
 
     private String extractResponseText(String json) {
         Matcher responseMatcher = Pattern.compile("\"response\"\\s*:\\s*\"((?:\\\\.|[^\"\\\\])*)\"")

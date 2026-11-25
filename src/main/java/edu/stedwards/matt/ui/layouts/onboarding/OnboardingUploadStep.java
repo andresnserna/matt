@@ -7,6 +7,8 @@ import java.util.Optional;
 
 import edu.stedwards.matt.controllers.OnboardingStepController;
 import edu.stedwards.matt.controllers.ProfileController;
+import edu.stedwards.matt.models.OnboardingSession;
+import edu.stedwards.matt.models.entity.User;
 import edu.stedwards.matt.ui.TextStyles;
 import edu.stedwards.matt.ui.interaction.Buttons;
 import edu.stedwards.matt.ui.interaction.Inputs;
@@ -104,7 +106,7 @@ public class OnboardingUploadStep extends BorderPane {
       // Replaced by chooseResume() functionality
    }
 
-   /** Parse the resume (if selected) and pass the data to the next wizard screen. */
+   /** Parse the resume (if selected), store API key, and route to Personal Info before the wizard steps. */
    public void handleNext() {
       Map<String, String> parsedData = null;
 
@@ -117,17 +119,38 @@ public class OnboardingUploadStep extends BorderPane {
          System.out.println("No resume selected. Proceeding to manual entry.");
       }
 
-      // Initialize the next screen and its controller
-      OnboardingStepController stepController = new OnboardingStepController();
-      OnboardingStepLayout wizardLayout = new OnboardingStepLayout(stepController);
-
-      // If we got parsed data back, hand it off to the wizard hooks
-      if (parsedData != null && !parsedData.isEmpty()) {
-         wizardLayout.populateAllFromParsedData(parsedData);
+      // Persist optional Ollama API key into the active session user
+      String apiKey = getOllamaApiKey();
+      if (apiKey != null && !apiKey.isBlank()) {
+         User sessionUser = OnboardingSession.getInstance().getUserProfile();
+         if (sessionUser != null) {
+            sessionUser.setOllamaApiKey(apiKey.trim());
+         }
       }
 
-      // Navigate to the new wizard screen
-      getScene().setRoot(wizardLayout);
+      final Map<String, String> finalParsedData = parsedData;
+
+      // Capture the Scene before detaching this screen so the callback can still swap the root
+      final javafx.scene.Scene activeScene = getScene();
+
+      // Navigate to the Personal Info step first, then hand off to OnboardingStepLayout
+      OnboardingEnterInfo personalInfoStep = new OnboardingEnterInfo(() -> {
+         OnboardingStepController stepController = new OnboardingStepController();
+         OnboardingStepLayout wizardLayout = new OnboardingStepLayout(stepController);
+
+         if (finalParsedData != null && !finalParsedData.isEmpty()) {
+            wizardLayout.populateAllFromParsedData(finalParsedData);
+         }
+
+         if (activeScene != null) {
+            activeScene.setRoot(wizardLayout);
+         }
+      });
+
+      personalInfoStep.populateFromParsedData();
+      if (activeScene != null) {
+         activeScene.setRoot(personalInfoStep);
+      }
    }
 
    public void populateFromParsedData() {
